@@ -57,15 +57,15 @@ including those conforming to the relaxed constraints of OPS 2.0 -->
       <navLabel><text>Auditable deployments</text></navLabel>
       <content src="book.html#chapter7" />
   </navPoint>
-      <navPoint class="book" id="chapter8" playOrder="8">
+      <navPoint class="book" id="chapter8" playOrder="9">
       <navLabel><text>Standardized deployments</text></navLabel>
       <content src="book.html#chapter8" />
   </navPoint>
-      <navPoint class="book" id="chapter9" playOrder="8">
+      <navPoint class="book" id="chapter9" playOrder="10">
       <navLabel><text>Maintainable deployments</text></navLabel>
       <content src="book.html#chapter9" />
   </navPoint>
-      <navPoint class="book" id="chapter10" playOrder="8">
+      <navPoint class="book" id="chapter10" playOrder="11">
       <navLabel><text>Coordinated deployments</text></navLabel>
       <content src="book.html#chapter10" />
   </navPoint>-->
