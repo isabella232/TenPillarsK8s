@@ -467,7 +467,7 @@
 <p>
 	Once complete, we'll have three new Kubernetes targets, one in each of the deployment environments:
 </p>
-<div><img alt="Execution settings" src="images/octopus/new-targets.png"/></div> TODO - Fix this up
+<div><img alt="Execution settings" src="images/octopus/new-targets.png"/></div>
 <p>
 	These new targets each use one of three new matching token accounts. The token accounts in turn hold the authentication token corresponding to a new Kubernetes service account created in the namespaces <b>backend-development</b>, <b>backend-test</b>, and <b>backend-production</b>. These service accounts have been granted access only to the resources in their namespace, and any attempt to perform a deployment with these accounts outside of their assigned namespaces will result in an error.
 </p>
