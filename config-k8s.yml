@@ -1,0 +1,4 @@
+platform: Kubernetes
+destination: _site/k8s
+exclude:
+  - "*.yml"

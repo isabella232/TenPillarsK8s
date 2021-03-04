@@ -1,0 +1,19 @@
+p {color:black;}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+}
+
+.note {
+    background-color: lightgrey;
+    border: solid 1px gray;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.inlinecode {
+    display: inline;
+}
