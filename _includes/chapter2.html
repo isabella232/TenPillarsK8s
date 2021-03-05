@@ -93,3 +93,35 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 <p>
     Combined these settings ensure that each worker is contacted by Octopus every 10 minutes to ensure they are available. Unavailable worker will not be selected from the worker pool. Every 30 minutes Octopus will delete unavailable worker, effectively cleaning up the pool and ensuring old workers don't hang around forever.
 </p>
+<h3>Creating an Octopus service account and API key</h3>
+<p>
+    All workers and tentacles must authenticate themselves with the Octopus server. For shared resources like workers it is best to create a dedicated Octopus user account to grant access into the server. Octopus supports the notion of service accounts to represent external machines connecting to the Octopus server.
+</p>
+<p class="note">
+    Because they represent external machines, service accounts can not log into the Octopus web interface.
+</p>
+<p>
+    To create a new service account, click <b>Configuration -> Users</b>, and then click the <b>CREATE SERVICE ACCOUNT</b> button. Enter <b>Test Worker</b> as the username, and <b>Account for test workers hosted in the Kubernetes cluster</b> for the description. Then click the <b>SAVE</b> button.
+</p>
+<p>
+    Once the service account is created, a new section called <b>API Keys</b> is displayed. Expand it and click the <b>NEW API KEY</b> button. Set the purpose of the new key to <b>Test Worker</b> and click the <b>GENERATE NEW</b> button. Make a note of the API key that is displayed, as this value can not be retrieved again once the dialog is closed.
+</p>
+<p>
+    The service account has been assigned to the <b>Everyone</b> team by default. This team doesn't grant the required permissions to register a new tentacle, so we'll need to create a new team.
+</p>
+<p>
+    Click the <b>Teams</b> link, and then click the <b>ADD TEAM</b> button. Give the new team the name of <b>Worker Registration</b> and click the <b>SAVE</b> button.
+</p>
+<p>
+    Under the <b>MEMBERS</b> tab click the <b>ADD MEMBER</b> button. Select the newly created service account and click the <b>ADD</b> button.
+</p>
+<p>
+    Under the <b>USER ROLES</b> tab click the <b>INCLUDE USER ROLE</b> button. Select the <b>Environment Manager</b> role, and click the <b>APPLY</b> button. Then click the <b>SAVE</b> button to save the team.
+</p>
+<p>
+    Our service account is now configured with the access it needs to register new workers. The next step is to deploy the workers into the Kubernetes cluster.
+</p>
+<h3>Deploying workers in Kubernetes</h3>
+<p>
+    Now that we have a worker pool to host our workers and a machine policy to clean up any workers that have been deleted, we can create the workers in the Kubernetes cluster.
+</p>
