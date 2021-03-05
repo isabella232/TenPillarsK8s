@@ -54,5 +54,42 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 </p>
 <h2>Verifiable {{ site.platform }} deployments</h2>
 <p>
-    
+    The first practical consideration that we need to address when testing deployments is where the tests are run.
+</p>
+<p>
+    If you recall from <a href="#chapter1">chapter one</a>, the service we created to expose the database was of type <b>ClusterIP</b>, which means that the service only exposes a private IP address that can be accessed from within the Kubernetes cluster.
+</p>
+<p>
+    We could expose the database to public traffic, but this is an unnecessary security risk given the only clients accessing the database (i.e. the frontend web application) are also deployed in the same cluster.
+</p>
+<p>
+    It then follows that any test that needs to access the database will need to be run within the cluster.
+</p>
+<p>
+    Just as workers can be placed on a cloud VM that has access to a private network, workers can be run as containers inside a Kubernetes cluster. While traditional tentacles and workers are installed directly on a host operating system, tentacles are also provided as Docker images called <b>octopusdeploy/tentacle</b> hosted on Docker Hub.
+</p>
+<p>
+    To create workers in a Kubernetes cluster, we'll need to define a new worker pool, and a new machine policy that automatically cleans up any unavailable workers.
+</p>
+<h3>Preparing the testing workers in Octopus</h3>
+<p>
+    We start by creating a new worker pool to hold the workers that will be used for testing. Click <b>Infrastructure -> Worker Pools</b> and click the <b>ADD WORKER POOL</b> button. Give the pool the name of <b>Testing</b>, leave it as the default type of <b>Static</b>, and click the <b>SAVE</b> button.
+</p>
+<p>
+    Pods in a Kubernetes cluster, and the containers they create, are typically considered ephemeral. This means we shouldn't rely on any particular container to run for any length of time. So when running workers in a Kubernetes cluster, we need some way to clean up workers that have been deleted or replaced.
+</p>
+<p>
+    This is where machine policies come in. A machine policy defines the behavior of a tentacle or worker, including how frequently the health and availability of the tentacle is checked, and what to do if a tentacle is unavailable. In our case, we want unavailable workers to be removed from Octopus automatically.
+</p>
+<p>
+    To create a new machine policy, click <b>Infrastructure -> Machine Policies</b>, and then click <b>ADD MACHINE POLICY</b>. Give the policy a new of <b>Test Workers</b>.
+</p>
+<p>
+    We want to test the workers relatively frequently, so under the <b>Health Checks</b> section set the <b>Time Between Checks</b> field to 10 minutes.
+</p>
+<p>
+    We then want any unavailable workers to be deleted from within Octopus, so under the <b>Cleaning Up Unavailable Deployment Targets</b> section set the <b>Behavior</b> option to <b>Automatically delete unavailable machines</b>, and set the time to 15 minutes.
+</p>
+<p>
+    Combined these settings ensure that each worker is contacted by Octopus every 10 minutes to ensure they are available. Unavailable worker will not be selected from the worker pool. Every 30 minutes Octopus will delete unavailable worker, effectively cleaning up the pool and ensuring old workers don't hang around forever.
 </p>
