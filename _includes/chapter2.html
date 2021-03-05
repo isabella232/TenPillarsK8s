@@ -1,0 +1,58 @@
+<h1><a id="chapter2">Verifiable deployments</a></h1>
+<p>
+    The repeatable deployments pillar describes how promoting releases through environments provides an increasing level of confidence in the solution being delivered. We talked about how frequent deployments to the development environment enabled developers to test their changes, while less frequent deployments to the test environment allowed other parties to verify a potential production release. When everyone is happy, the production environment is updated, exposing the changes to end users.
+</p>
+<p>
+    The pillar of verifiable deployments describes the various techniques that can be used to verify a deployment when it reaches a new environment.
+</p>
+<h2>General testing concepts</h2>
+<p>
+    Testing is a nebulous term with often ill-defined subcategories. We will not attempt to provide authoritative definitions of testing categories here. Our goal is to offer a very high level description of common testing practices, and highlight those that can be performed during the deployment process.
+</p>
+<h2>What don't we test during deployments?</h2>
+</p>
+    Unit tests are considered part of the build pipeline. These tests are tightly coupled to the code being compiled, and they must succeed for the resulting application package to be built.
+</p>
+<p>
+    Integration tests may also be run during the build process to verify that higher level components interact as expected. The components under test may be replaced with a test double to improve reliability, or live instances of the components may be created as part of the test.
+</p>
+<p>
+    Unit and integration tests are run by the CI server, and any package that is made available for deployment is assumed to have passed all its associated unit and integration tests.
+</p>
+<h2>What can we test during deployment?</h2>
+<p>
+    Tests that require a live application or application stack to be accessible are ideal candidates to be run as part of a deployment process.
+</p>
+<p>
+Smoke tests are quick tests designed to ensure that applications and services have deployed correctly. Smoke tests implement the minimum interaction required to ensure services respond correctly. Some examples include:
+</p>
+<ul>
+    <li>An HTTP request of a web application or service to check for a successful response.</li>
+    <li>A database login to ensure the database is available.</li>
+    <li>Checking that a directory has been populated with files.</li>
+    <li>Querying the infrastructure layer to ensure the expected resources were created.</li>
+</ul>
+<p>
+    Integration tests can be performed as part of a deployment as well as during the build. Integration tests validate that multiple components are interacting as you expect. Test doubles may be included with the deployment to stand in for components being verified, or the tests may verify two or more live component instances. Examples include:
+</p>
+<ul>
+    <li>Logging into a web application to verify that it can interact with an authentication provider.</li>
+    <li>Querying an API for results from a database to ensure that the database is accessible via a service.</li>
+</ul>
+<p>
+    End to end tests provide an automated way of interacting with a system in the same way a user would. These can be long running tests following paths through the application that require most or all components of the application stack to be working correctly. Examples include:
+</p>
+<ul>
+    <li>Automating the interaction with an online store to browse a catalog, view an item, add it to a cart, complete the checkout, and review the account order history.</li>
+    <li>Completing a series of API calls to a weather service to find a city's latitude and longitude, getting the current weather for the returned location, and returning the forecast for the rest of the week.</li>
+</ul>
+<p>
+    Chaos testing involves deliberately removing or interfering with the components that make up an application to validate that the system is resilient enough to withstand such failures. Chaos testing may be combined with other tests to verify the stability of a degraded system.
+</p>
+<p>
+    Usability and acceptance testing typically require a human to use the application to verify that it meets their requirements. The requirements can be subjective, for example, determining if the application is visually appealing. Or the testers may not be technical, and so do not have the option of automating tests. The manual and subjective nature of these tests makes them difficult, if not impossible, to automate, meaning a working copy of the application or application stack must be deployed and made accessible to testers.
+</p>
+<h2>Verifiable {{ site.platform }} deployments</h2>
+<p>
+    
+</p>
