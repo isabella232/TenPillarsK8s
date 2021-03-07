@@ -291,17 +291,24 @@ spec:
               value: 'Y'
 </pre>
 <p class="note">
-    Don't actually use the image mcasperson/k8stentacle, as it is not maintained, and has been used only for demonstration purposes. Replace this image with one pushed to your own repository.
+    Don't use the image mcasperson/k8stentacle in your own cluster, as it is not maintained, and has been used only for demonstration purposes. Replace this image with one pushed to your own repository.
 </p>
 <p>
     Baking tools directly into a tentacle image as we just did with <b>kubectl</b> is a perfectly valid solution. Indeed it is the only solution in environments that do not support privileged containers - GKE with autopilot and Azure Kubernetes Service (AKS) with virtual nodes are two examples where privileged containers are not supported.
 </p>
 <p>
-    The downside to creating your own tentacle images is that you are responsible for updating the image with new tool versions and redeploying workers. Lifting these requirements from the base operating system (or base Docker image in our case) into a specialized tools image is one of the main purposes of container images. 
+    However, the downside to creating your own tentacle images is that you are responsible for updating the image with new tool versions and redeploying workers. Lifting these requirements from the base operating system (or base Docker image in our case) into a specialized tools image is one of the main purposes of container images. 
 </p>
 <p>
     So, looping back to the reason why we set the <b>privileged</b> mode to <b>true</b>; running a container image in a worker that is itself a Docker container requires running Docker-in-Docker, and running Docker-in-Docker requires privileged containers. With privileged worker containers we can continue to use container images as we did when deploying out application in <a href="#chapter1">chapter 1</a>.
 </p>
 <p>
+    The final step is to add the API key generated against the service account earlier as a secret variable called <b>ApiKey</b>.
+</p>
+<p>
     Go ahead and run the runbook. Once complete you will see three new workers appear in your server assigned to the <b>Testing</b> worker pool. We can now run tests through these works with access to private containers, such as the backend database.
+</p>
+<h3>Smoke testing the database</h3>
+<p>
+    Our first test will be to ensure the database is up and responding to requests. To do this we'll log into the database and query the 
 </p>
