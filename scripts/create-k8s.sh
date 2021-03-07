@@ -4,7 +4,7 @@ pushd .. || exit
 jekyll build --config config-k8s.yml
 
 pushd _site/k8s || exit
-find . -name '*.png' -exec mogrify -resize 50% {} +
+# find . -name '*.png' -exec mogrify -resize 50% {} +
 if [ -f MyBook.epub ]; then
     rm MyBook.epub
 fi

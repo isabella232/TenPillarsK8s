@@ -125,3 +125,183 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 <p>
     Now that we have a worker pool to host our workers and a machine policy to clean up any workers that have been deleted, we can create the workers in the Kubernetes cluster.
 </p>
+<h3>Deploying workers in a Kubernetes cluster</h3>
+<p>
+    Because tentacles are provided as a Docker image, deploying workers into a Kubernetes cluster is the same process as deploying any other container. This means we will use the <b>Deploy Kubernetes containers</b> step just as we did to deploy the containers in <a href="#chapter1">chapter 1</a>. In the <b>Kubernetes DevOps</b> project create a new runbook called <b>Create Kubernetes Workers</b>, and add the <b>Deploy Kubernetes containers</b> step to the process.
+</p>
+<p>
+    To configure the <b>Deploy Kubernetes containers</b> step previously we entered details into the individual fields. This is a perfectly valid approach to configuring the step, but there is a faster way to populate the values.
+</p>
+<p>
+    Under the <b>Deployment</b> header you will find a section called <b>Edit YAML</b>. Clicking the <b>EDIT YAML</b> button opens a dialog where the YAML representation of the deployment resource is presented. This YAML can be edited, with the changes populated back into the main form. This means we can take a YAML document describing a Kubernetes deployment and paste it into the step, giving us a populated form with just a few clicks.
+</p>
+<p class="note">
+    The <b>Deploy Kubernetes containers</b> step exposes many fields, but will never expose every possible setting in the underlying Kubernetes resources. If the YAML includes unrecognized fields, they will be silently ignored during the import process.
+</p>
+<p class="note">
+    The YAML presented in by the step is an approximation of the YAML that is applied to the cluster. To see the YAML that is applied to the cluster, view the verbose logs generated during a deployment.
+</p>
+<p>
+    The YAML below can be pasted into the <b>Deploy Kubernetes containers</b> step to define a deployment with three workers. Be sure to change the value of the <b>ServerUrl</b> and <b>Space</b> environment variables to match your own instance:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octopus-worker
+  labels:
+    app: tentacle
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  revisionHistoryLimit: 1
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tentacle
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: worker
+          image: index.docker.io/octopusdeploy/tentacle
+          env:
+            - name: MachinePolicy
+              value: Test Worker
+            - name: Space
+              value: MySpace
+            - name: ACCEPT_EULA
+              value: 'Y'
+            - name: TargetWorkerPool
+              value: Testing
+            - name: ServerUrl
+              value: 'https://myinstance.octopus.app'
+            - name: ServerApiKey
+              value: '#{ApiKey}'
+            - name: ServerPort
+              value: '10943'
+          securityContext:
+            privileged: true
+</pre>
+<p>
+    There are two important implications in the way these workers have been configured.
+</p>
+<p>
+    Note that the <b>ServerPort</b> environment variable has been set to <b>10943</b>. This setting defines the port on the Octopus server to connect a polling tentacle to, and by including this environment variable we have also implicitly configured the worker as a polling tentacle.
+</p>
+<p>
+    Tentacles have two modes of operation, polling and listening.
+</p>
+<p>
+    In polling mode, the tentacle reaches out to the Octopus server to receive any new instructions. This means the tentacle instance does not need to expose any ports, as all network traffic is initiated from the tentacle to the server:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/polling.png"/></div>
+<p>
+    In listening mode, the tentacle receives traffic directly from tye Octopus server. This means the tentacle must have an fixed hostname or IP address and open port (10933 by default) that the Octopus server can connect to:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/listening.png"/></div>
+<p>
+    Polling tentacles introduce a short delay between when the Octopus server initiates a deployment and the tentacle polls the server for new instructions. Listening tentacles do not have this delay as the server will reach out directly when work needs to be performed.
+</p>
+<p>
+    However, polling tentacles remove the overhead of a static host name or IP address and open ports. This makes them much easier to configure, potentially more secure, and in our case removes the need to configure a service to expose the pods hosting the tentacle containers. For these reasons we have configured our workers as polling tentacles.
+</p>
+<p>
+    The second setting to pay attention to is <b>privileged</b> set to <b>true</b>. Granting the containers privileged mode allows then to run Docker-in-Docker, which is used to run container images in a worker that is itself a Docker image.
+</p>
+<p>
+    If you recall from <a href="#chapter1">chapter 1</a> our Kubernetes deployments required access to <b>kubectl</b>. The tentacle Docker image does not have <b>kubectl</b> installed, which means we need some way to expose this tool to our deployments.
+</p>
+<p>
+    We have the option of building our own Docker image based on the tentacle image and baking <b>kubectl</b> into the image. The code below shows a <b>Dockerfile</b> file to achieve this:
+</p>
+<pre>
+FROM octopusdeploy/tentacle
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+RUN sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+</pre>
+<p>
+    The easiest way to consume a custom image in a Kubernetes cluster is to have a public Docker repository. Docker Hub is one popular option, and offers a free account for hosting public images. My account on Docker Hub is <b>mcasperson</b>. This username will be used in the commands below, but you will need to replace my name with your account name when running the commands locally.
+</p>
+<p>
+    To build the image, run:
+</p>
+<pre>
+    docker build . -t mcasperson/k8stentacle
+</pre>
+<p>
+    To log into Docker Hub, run:
+</p>
+<pre>
+    docker login
+</pre>
+<p>
+    To publish the image, run:
+</p>
+<pre>
+    docker push mcasperson/k8stentacle
+</pre>
+<p>
+    You can now replace the <b>image</b> setting in the YAML file with <b>index.docker.io/mcasperson/k8stentacle</b> to deploy the custom Docker image with <b>kubectl</b> installed. In this case, we no longer need to use Docker-in-Docker, and the <b>privileged</b> flag can be set to <b>false</b> (or not defined at all, in which it will default to false). To disable Docker-in-Docker on the tentacle we also need to set the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octopus-worker
+  labels:
+    app: tentacle
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  revisionHistoryLimit: 1
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tentacle
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: worker
+          # Make sure to use your own image in production. Do not rely on external images as they are not maintained.        
+          image: index.docker.io/mcasperson/k8stentacle
+          env:
+            - name: MachinePolicy
+              value: Test Worker
+            - name: Space
+              value: MySpace
+            - name: ACCEPT_EULA
+              value: 'Y'
+            - name: TargetWorkerPool
+              value: Testing
+            - name: ServerUrl
+              value: 'https://myinstance.octopus.app'
+            - name: ServerApiKey
+              value: '#{ApiKey}'
+            - name: ServerPort
+              value: '10943'
+            - name: DISABLE_DIND
+              value: 'Y'
+</pre>
+<p class="note">
+    Don't actually use the image mcasperson/k8stentacle, as it is not maintained, and has been used only for demonstration purposes. Replace this image with one pushed to your own repository.
+</p>
+<p>
+    Baking tools directly into a tentacle image as we just did with <b>kubectl</b> is a perfectly valid solution. Indeed it is the only solution in environments that do not support privileged containers - GKE with autopilot and Azure Kubernetes Service (AKS) with virtual nodes are two examples where privileged containers are not supported.
+</p>
+<p>
+    The downside to creating your own tentacle images is that you are responsible for updating the image with new tool versions and redeploying workers. Lifting these requirements from the base operating system (or base Docker image in our case) into a specialized tools image is one of the main purposes of container images. 
+</p>
+<p>
+    So, looping back to the reason why we set the <b>privileged</b> mode to <b>true</b>; running a container image in a worker that is itself a Docker container requires running Docker-in-Docker, and running Docker-in-Docker requires privileged containers. With privileged worker containers we can continue to use container images as we did when deploying out application in <a href="#chapter1">chapter 1</a>.
+</p>
+<p>
+    Go ahead and run the runbook. Once complete you will see three new workers appear in your server assigned to the <b>Testing</b> worker pool. We can now run tests through these works with access to private containers, such as the backend database.
+</p>
