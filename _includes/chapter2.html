@@ -674,6 +674,16 @@ exit ${RESULT}
 <p>
     By including an end-to-end test in our deployment process we can gain a high degree of confidence that the deployment succeeded. Cypress is now interacting with the deployed application in the same way we expect end users to, and verifying the web application works as expected.
 </p>
+<h3>Creating Docker worker images that don't require additional privileges</h3>
+<p>
+    Making use of container images in workers hosted in a Kubernetes cluster requires them to be privileged. This is a requirement to use Docker-in-Docker. But what can you do if privileged containers are not an option for you?
+</p>
+<p>
+    One option that we have already seen is to add the required tools to the base tentacle image. This is fine for simple tools like <b>kubectl</b>. However, adding complex tools to the tentacle image can be a significant undertaking. For example, adding a tool like Cypress to the tentacle image requires reverse engineering the existing Cypress Docker build files and including those instructions on the base tentacle image. Even if it were possible to do this, it would be hard to recommend anyone devote the time required to build such an image.
+</p>
+<p>
+    An easier solution is to do the reverse by adding the tentacle on top of the existing Docker image provided by tools like Cypress. We've already seen how to build custom images based on existing images as we added dependencies like <b>libicu</b>. Fortunately it is relatively easy to take this process one step further and add the tentacle itself.
+</p>
 <h2>Conclusion</h2>
 <p>
     The idea of testing code before it is considered suitable to release has won wide adoption amongst developers, and for good reason; catching errors early makes them easy to fix and increases the likelihood that solutions provided to the end user work as expected.
