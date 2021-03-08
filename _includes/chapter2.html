@@ -494,16 +494,16 @@ RUN apt-get install libicu60 -y
     Then build the image with the command:
 </p>
 <pre>
-    docker build . -t mcasperson/newman
+docker build . -t mcasperson/newman
 </pre>
 <p>
     Finally, publish the image with the command:
 </p>
 <pre>
-    docker push mcasperson/newman
+docker push mcasperson/newman
 </pre>
 <p>
-    To run the test we need to add a new <b>Run a Script</b> step to the <b>Random Quotes - Frontend</b> deployment process. AS before this step will run on a worker from the <b>Testing</b> worker pool. This time though we use <b>mcasperson/newman</b> as the container image.
+    To run the test we need to add a new <b>Run a Script</b> step to the <b>Random Quotes - Frontend</b> deployment process. As before this step will run on a worker from the <b>Testing</b> worker pool. This time though we use <b>mcasperson/newman</b> as the container image.
 </p>
 <p class="note">
     As with all the custom Docker images shown in this book, replace the username <b>mcasperson</b> with your own Docker Hub username. Also do not use these images in production deployments as they are not maintained.
@@ -517,9 +517,16 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 <p>
     The integration test script is made available as an additional package reference. These additional packages downloaded, and optional extracted, into the calamari working directory, and are a convenient way of exposing additional tools and files to a script step.
 </p>
-<p class="note">
-    The pattern of a script step running in a container image with package references is incredibly powerful. It means a static worker can execute custom tools from a shared container image that reference step specific files downloaded and extracted at runtime. Without this combination of features you would be forced to either build Docker images that embedded files like the integration test, or somehow expose these files to the Kubernetes cluster. While it is possible to mount the contents of a configmap as a file in a container, configmaps can not represent directory structures due to the fact that a configmap key can not contain a slash, which limits their usefulness.
+<p>
+    The pattern of a script step running in a container image with package references is incredibly powerful. It means a static worker can execute custom tools from a shared container image that reference step specific files downloaded and extracted at runtime. Without this combination of features you would be forced to either build Docker images that embedded files like the integration test, or somehow expose these files to the Kubernetes cluster.
 </p>
+<p>
+    While it is possible to mount the contents of a configmap as a file in a container, configmaps can not represent directory structures due to the fact that a configmap key can not contain a slash, which limits their usefulness.
+</p>
+<p>
+    The diagram below shows how the additional packages are exposed in a worker running a container image:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/additional-packages.png"/></div>
 <p>
     Expand the <b>Referenced Packages</b> section, click the <b>ADD</b> button, and select the <b>IntegrationTest</b> package from the built-in feed. By default the package will have the name <b>IntegrationTest</b> and is set to be extracted. These defaults are fine, so click the <b>OK</b> button.
 </p>
