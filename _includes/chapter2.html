@@ -235,19 +235,19 @@ RUN sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     To build the image, run:
 </p>
 <pre>
-    docker build . -t mcasperson/k8stentacle
+docker build . -t mcasperson/k8stentacle
 </pre>
 <p>
     To log into Docker Hub, run:
 </p>
 <pre>
-    docker login
+docker login
 </pre>
 <p>
     To publish the image, run:
 </p>
 <pre>
-    docker push mcasperson/k8stentacle
+docker push mcasperson/k8stentacle
 </pre>
 <p>
     You can now replace the <b>image</b> setting in the YAML file with <b>index.docker.io/mcasperson/k8stentacle</b> to deploy the custom Docker image with <b>kubectl</b> installed. In this case, we no longer need to use Docker-in-Docker, and the <b>privileged</b> flag can be set to <b>false</b> (or not defined at all, in which it will default to false). To disable Docker-in-Docker on the tentacle we also need to set the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
@@ -304,13 +304,13 @@ spec:
     Don't use the image mcasperson/k8stentacle in your own cluster, as it is not maintained, and has been used only for demonstration purposes. Replace this image with one pushed to your own repository.
 </p>
 <p>
-    Baking tools directly into a tentacle image as we just did with <b>kubectl</b> is a perfectly valid solution. Indeed it is the only solution in environments that do not support privileged containers - GKE with autopilot and Azure Kubernetes Service (AKS) with virtual nodes are two examples where privileged containers are not supported.
+    Baking tools directly into a tentacle image as we just did with <b>kubectl</b> is a perfectly valid solution. Indeed it is the only solution in environments that do not support privileged containers; GKE with autopilot and Azure Kubernetes Service (AKS) with virtual nodes are two examples where privileged containers are not supported.
 </p>
 <p>
-    However, the downside to creating your own tentacle images is that you are responsible for updating the image with new tool versions and redeploying workers. Lifting these requirements from the base operating system (or base Docker image in our case) into a specialized tools image is one of the main purposes of container images. 
+    However, the downside to creating your own tentacle images is that you are responsible for updating the image with new tool versions and redeploying workers. Lifting these requirements from the base operating system (or base Docker image in our case) into a specialized Docker image is one of the main benefits of container images. 
 </p>
 <p>
-    So, looping back to the reason why we set the <b>privileged</b> mode to <b>true</b>; running a container image in a worker that is itself a Docker container requires running Docker-in-Docker, and running Docker-in-Docker requires privileged containers. With privileged worker containers we can continue to use container images as we did when deploying out application in <a href="#chapter1">chapter 1</a>. For this reason the rest of the chapter will assume the workers support Docker-in-Docker.
+    So, looping back to the reason why we set the <b>privileged</b> mode to <b>true</b>; running a container image in a worker that is itself a Docker container requires running Docker-in-Docker, and running Docker-in-Docker requires privileged containers. With privileged worker containers we can continue to use container images as we did when deploying out application in <a href="#chapter1">chapter 1</a>, and take advantage of all their benefits. For this reason the rest of the chapter will assume the workers support Docker-in-Docker.
 </p>
 <p>
     The final step is to add the API key generated against the service account earlier as a secret variable called <b>ApiKey</b>.
@@ -343,9 +343,9 @@ psql -U postgres -h postgres.backend-development -c "select schema_name from inf
 </p>
 <ul>
     <li>We have a tentacle running as a worker in a pod hosted on Kubernetes.</li>
-    <li>Inside the container hosting the worker, we expose Docker-in-Docker.</li>
+    <li>We enable Docker-in-Docker inside the container hosting the worker.</li>
     <li>We build a container from the container image in the Docker-in-Docker environment.</li>
-    <li>Calamari then runs inside the container in the Docker-in-Docker environment</li>
+    <li>Calamari then runs inside the nested container in the Docker-in-Docker environment</li>
 </ul>
 <p>
     The diagram below shows these nested layers:
@@ -362,14 +362,17 @@ psql -U postgres -h postgres.backend-development -c "select schema_name from inf
     Linux distributions built on <b>muscl</b>, most notably Alpine, do not support calamari, and cannot be used as a container image.
 </p>
 <p>
-    The operating system also must include a number of dependencies typically including icu, ssl, zlib and Kerberos. The documentation at <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux">https://docs.microsoft.com/en-us/dotnet/core/install/linux</a> contains the details of the dependencies required for a .NET Core application with popular Linux distributions.
+    The operating system also must include a number of dependencies required to support .NET Core applications. The documentation at <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux">https://docs.microsoft.com/en-us/dotnet/core/install/linux</a> contains the details of the dependencies required for a .NET Core application with popular Linux distributions.
+</p>
+<p class="note">
+    If a third party container is missing a library, it is usually the <b>libicu</b> library.
 </p>
 <p>
-    If your chosen Docker image does not have these prerequisites, the easiest solution is to create a custom Docker image based on the image you wish to use, install the dependencies, push the image to a public repository like Docker Hub, and select your custom image as the container image.
+    If your chosen Docker image does not have these prerequisites, the easiest solution is to create a custom Docker image based on the image you wish to use, install the required libraries, push the image to a public repository like Docker Hub, and select your custom image as the container image. We'll see this when building container images for the integration and end-to-end tests below.
 </p>
 <h3>Smoke testing the frontend API</h3>
 <p>
-    Our frontend end web application exposes a HTTP API that queries the backend database and provides quotes as part of a JSON response. Also, as we have already seen, the frontend application provides a web page that displays the quotes. Both the API and the web application would be expected to return a HTTP 200 response code after they are deployed. We'll confirm this with another smoke test.
+    Our frontend end web application exposes a HTTP API that queries the backend database and provides quotes in a JSON response. Also, as we have already seen, the frontend application provides a web page that displays the quotes. Both the API and the web application would be expected to return a HTTP 200 response code after they are deployed. We'll confirm this with another smoke test.
 </p>
 <p>
     Open the <b>Random Quotes - Frontend</b> project and add a <b>Run a Script</b> step. As before set the step to run on a worker from the <b>Testing</b> worker pool, and this time use the official <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container image.
@@ -395,12 +398,15 @@ curl -sSf http://webapp.frontend-development > /dev/null
 <p>
     We need to check if the first request failed by comparing the exit code held in the variable <b>$?</b> to zero. If it is not zero, the script will exit with that error code and the deployment will fail.
 </p>
+<p>
+    If this smoke tests succeeds we can be sure that the frontend web application has been deployed and is responding to network requests. This test does not verify that the responses are valid though. For that we'll create an integration test.
+</p>
 <h3>Performing an integration test</h3>
 <p>
     Integration tests are used to validate that two or more systems are working together as expected. In our simple application stack we only have two systems: the frontend web application and the backend database. To verify that they are working together, we will use a tool called Postman to write a test script calling the HTTP API to ensure that it is returning a non-empty string for the quote. This ensures both that the frontend HTTP API is accessible, and that it can query the backend database.
 </p>
 <p>
-    Postman is a comprehensive tool in its own right, but we'll do the bare minimum to get a test written and exported to run in our cluster.
+    Postman is a comprehensive tool in its own right. In this example we'll do the bare minimum to get a test written and exported to run in our cluster.
 </p>
 <p>
     Download and install Postman from <a href="https://www.postman.com/">https://www.postman.com/</a>. Once installed, create a new collection called <b>RandomQuotes</b>. Inside the collection, add a request. The request will perform a HTTP GET to http://webapp.frontend-development/api/quote.
@@ -513,7 +519,7 @@ docker push mcasperson/newman
 newman run IntegrationTest/RandomQuotes.postman_collection.json
 </pre>
 <p>
-    The integration test script is made available as an additional package reference. These additional packages downloaded, and optional extracted, into the calamari working directory, and are a convenient way of exposing additional tools and files to a script step.
+    The integration test script is made available as an additional package reference. These additional packages are downloaded, and optional extracted, into the calamari working directory, and are a convenient way of exposing additional tools and files to a script step.
 </p>
 <p>
     Expand the <b>Referenced Packages</b> section, click the <b>ADD</b> button, and select the <b>IntegrationTest</b> package from the built-in feed. By default the package will have the name <b>IntegrationTest</b> and is set to be extracted. These defaults are fine, so click the <b>OK</b> button.
@@ -522,30 +528,30 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
     The pattern of a script step running in a container image with package references is incredibly powerful. It means a static worker can execute custom tools from a shared container image that reference step specific files downloaded and extracted at runtime. Without this combination of features you would be forced to either build Docker images that embedded files like the integration test, or somehow expose these files to the Kubernetes cluster.
 </p>
 <p>
-    While it is possible to mount the contents of a configmap as a file in a container, configmaps can not represent directory structures due to the fact that a configmap key can not contain a slash, which limits their usefulness.
-</p>
-<p>
     The diagram below shows how the additional packages are exposed in a worker running a container image:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/additional-packages.png"/></div>
 <p>
-    Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. Once the deployment and smoke tests have passed, newman will run and query the API. The API in turn will contact the database to retrieve a quote. The tests define in the newman collection then verify the returned data.
+    Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. Once the deployment and smoke tests have passed, newman will run and query the API. The API in turn will contact the database to retrieve a quote. The tests define in the Postman collection then verify the returned data.
 </p>
 <p>
     For this integration test to pass, both the frontend and backend must be working as expected. So if the test passes, we have a good degree of confidence that our application stack was deployed as expected.
 </p>
+<p>
+    Even if the API is functioning correctly, there is still the possibility that the web application that end users interact was not deployed correctly. To verify the web interface we'll run an end-to-end test.
+</p>
 <h3>Performing an end to end test</h3>
 <p>
-    End to end tests typically represent the top level of testing. They simulate interaction with the deployed application as an end user would. If an end to end test can complete the tasks end users are expected to complete, we have can high confidence that our application is ready to use.
+    End-to-end tests typically represent the top level of testing. They simulate interacting with the deployed application as an end user would. If an end-to-end test can complete the tasks end users are expected to complete, we have gain a high level of confidence that our application is ready to use.
 </p>
 <p>
-    For the end to end tests we'll make use of a tool called Cypress. Cypress provides the ability to interact with a web page as if a human was clicking on the various buttons and links or populating forms.
-</p>
-<p class="note">
-    Cypress is a complex tool in its own right, and we won't be able to cover it in detail in this book. The test presented below is a very simple example of Cypress, and is enough to get 
+    To implement end-to-end tests we'll make use of a tool called Cypress. Cypress provides the ability to interact with a web page as if a human was clicking on the various buttons and links or populating forms.
 </p>
 <p>
-    A Cypress project follows a specific layout of files and directories. In the root directory of a Cypress project we have a file called <b>package.json</b>. This file is used by the Node Package Manager (npm) to install dependencies required to generate specific Cypress reports. In this example we want to use the Mochawesome reporter to generate HTML reports:
+    Like Postman, Cypress is a comprehensive tool, and we'll only touch on the basics required to run a simple test.
+</p>
+<p>
+    A Cypress project is a specific layout of files and directories. In the root directory of a Cypress project we have a file called <b>package.json</b>. This file is used by the Node Package Manager (npm) to install dependencies required to generate specific Cypress reports. In this example we want to use the Mochawesome reporter to generate HTML reports:
 </p>
 <pre>
 {
@@ -597,6 +603,9 @@ describe('Random Quotes', () => {
 <p>
     These three files and the <b>node_modules</b> directory are packaged up into an archive called <b>EndToEndTest.1.0.0.0.zip</b>, and the archive is uploaded to the Octopus built-in feed.
 </p>
+<p class="note">
+    A copy of this sample Cypress project can be downloaded from <a href="https://github.com/OctopusSamples/RandomQuotesCypressTest">https://github.com/OctopusSamples/RandomQuotesCypressTest</a>.
+</p>
 <p>
     We now need to build the container image required to run the Cypress tests. The official Cypress Docker images lack a library required to run calamari, so we must create our own Docker image that included the required dependencies. We'll also install a Node.js tool called <b>inline-assets</b>. This tool allows us to merge the various files referenced by a HTML page, such as external CSS and JavaScript files, into a single, self contained HTML file. We'll take advantage of this tool later when we generate a report file from Cypress.
 </p>
@@ -647,10 +656,10 @@ exit ${RESULT}
     This script starts by entering the directory <b>EndToEndTest</b>, which will be created by extracting an additional package referencing the archive we uploaded to the built-in feed earlier. The <b>cypress</b> tool is run, with the output redirected to a file called <b>output.txt</b>. The exit code from the called to <b>cypress</b> is captured in a variable called <b>RESULT</b>.
 </p>
 <p>
-    If the test succeeded and a HTML report file called <b>mochawesome.html</b> was generated, we then make use of the <b>inline-assets</b> tool to take the HTML report file and merge it and all of its external CSS and JavaScript files into a self contained HTML file called <b>selfcontained.html</b>. The self contained report file is then attached to the Octopus deployment as an artifact by calling <b>new_octopusartifact</b>.
+    If the test succeeded and a HTML report file called <b>mochawesome.html</b> was generated we then make use of the <b>inline-assets</b> tool to take the HTML report file and merge it and all of its external CSS and JavaScript files into a self contained HTML file called <b>selfcontained.html</b>. The self contained report file is then attached to the Octopus deployment as an artifact by calling <b>new_octopusartifact</b>.
 </p>
 <p class="note">
-    We build the self contained HTML report to overcome a limitation in how Octopus saves artifacts. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content, where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
+    We build the self contained HTML report to overcome a limitation in the way Octopus saves artifacts. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content, where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
 </p>
 <p>
     Cypress will automatically generate screenshots to capture the browsers display in the event of a failed test. These screenshots are saved in the directory <b>cypress/screenshots/sample_spec.js</b>. If this directory exists we'll zip up the screenshots and attach the archive as an artifact. This allows us to debug the test in the event of a failure.
@@ -678,8 +687,10 @@ exit ${RESULT}
 <ul>
     <li>Discussed the practical decisions around where tests are run.</li>
     <li>Deployed workers directly into the Kubernetes cluster to give tests access to private services.</li>
+    <li>Discussed how tentacles implement Docker-in-Docker to allow container images to be run in a Kubernetes cluster.</li>
     <li>Ran smoke tests against the backend database and frontend web application.</li>
     <li>Ran an integration test against the frontend API using Postman and its command line tool Newman.</li>
     <li>Ran an end-to-end test against the frontend web application using Cypress.</li>
     <li>Created a number of custom container images to provide the libraries required by calamari.</li>
+    <li>Discussed the limitations of Octopus artifacts, and how they can be overcome with tools that create selfcontained HTML files.</li>
 </ul>
