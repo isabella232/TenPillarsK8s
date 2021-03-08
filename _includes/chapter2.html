@@ -485,9 +485,8 @@ Compress-Archive -LiteralPath .\RandomQuotes.postman_collection.json -Destinatio
     The base newman image is one example of a third party Docker image that doesn't include the required dependencies to run calamari. Specifically we need to install <b>libicu</b> to support the execution of calamari. First create a file called <b>Dockerfile</b> with the following contents:
 </p>
 <pre>
-FROM postman/newman:ubuntu
-RUN apt-get update
-RUN apt-get install libicu60 -y
+FROM postman/newman:5.2.0-ubuntu
+RUN apt-get update; apt-get install -y libicu60
 </pre>
 <p>
     Then build the image with the command:
@@ -542,6 +541,9 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 <p>
     For the end to end tests we'll make use of a tool called Cypress. Cypress provides the ability to interact with a web page as if a human was clicking on the various buttons and links or populating forms.
 </p>
+<p class="note">
+    Cypress is a complex tool in its own right, and we won't be able to cover it in detail in this book. The test presented below is a very simple example of Cypress, and is enough to get 
+</p>
 <p>
     A Cypress project follows a specific layout of files and directories. In the root directory of a Cypress project we have a file called <b>package.json</b>. This file is used by the Node Package Manager (npm) to install dependencies required to generate specific Cypress reports. In this example we want to use the Mochawesome reporter to generate HTML reports:
 </p>
@@ -558,11 +560,17 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 }
 </pre>
 <p>
-    The next file, also in the project root directory, is called <b>cypress.json</b>. This file defines how our test will run and what reports to generate. In this example we specify that we are generating HTML reports, and that our test should open the web application at https://webapp.frontend-development:
+    To download the dependencies listed in the <b>packaes.json</b> file run the following command. A directory called <b>node_modules</b> will be created containing all the reporting dependencies:
+</p>
+<pre>
+npm install
+</pre>
+<p>
+    The next file, also in the project root directory, is called <b>cypress.json</b>. This file defines how our test will run and what reports to generate. In this example we specify that we are generating HTML reports, and that our test should open the web application at http://webapp.frontend-development:
 </p>
 <pre>
 {
-    "baseUrl": "https://webapp.frontend-development",
+    "baseUrl": "http://webapp.frontend-development",
     "reporter": "mochawesome",
     "reporterOptions": {
         "charts": true,
@@ -574,15 +582,83 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 }
 </pre>
 <p>
-    In the <b>cypress/integration</b> directory we have a file called <b>sample_spec.js</b>. This holds the details of our particular test, which is to click the <b>Refresh</b> button in our web application:
+    In the <b>cypress/integration</b> directory we have a file called <b>sample_spec.js</b>. This holds the details of our particular test, which is to click the <b>Refresh</b> button in our web application and ensure the quote text is not empty:
 </p>
 <pre>
-describe('My First Test', () => {
-    it('Does not do much!', () => {
-        expect(true).to.equal(true)
+describe('Random Quotes', () => {
+    it('Can refresh', () => {
+        cy.visit('/')
+        cy.get('#refreshQuote').click()
+        cy.wait(1000)
+        cy.get('#quoteText').should('not.be.empty')
     })
 })
 </pre>
 <p>
-    These three files are packaged up into an archive called <b>EndToEndTest.1.0.0.0.zip</b>, and the archive is uploaded to the Octopus built-in feed.
+    These three files and the <b>node_modules</b> directory are packaged up into an archive called <b>EndToEndTest.1.0.0.0.zip</b>, and the archive is uploaded to the Octopus built-in feed.
 </p>
+<p>
+    We now need to build the container image required to run the Cypress tests. The official Cypress Docker images lack a library required to run calamari, so we must create our own Docker image that included the required dependencies. We'll also install a Node.js tool called <b>inline-assets</b>. This tool allows us to merge the various files referenced by a HTML page, such as external CSS and JavaScript files, into a single, self contained HTML file. We'll take advantage of this tool later when we generate a report file from Cypress.
+</p>
+<pre>
+FROM cypress/included:6.4.0
+RUN apt-get update; apt-get install -y libicu63
+RUN npm install -g inline-assets
+</pre>
+<p>
+    Then build the image with the command:
+</p>
+<pre>
+docker build . -t mcasperson/cypress
+</pre>
+<p>
+    Publish the image with the command:
+</p>
+<pre>
+docker push mcasperson/cypress
+</pre>
+<p class="note">
+    As with all the custom Docker images shown in this book, replace the username <b>mcasperson</b> with your own Docker Hub username. Also do not use these images in production deployments as they are not maintained.
+</p>
+<p>
+    To run the end-to-end tests, add a new <b>Run a Script</b> step to the <b>Deploy Random Quotes - Frontend</b> deployment process. The step will run on a worker from the <b>Testing</b> worker pool, and use <b>mcasperson/cypress</b> for the container image.
+</p>
+<p>
+    The inline source code is set to run the following Bash script:
+</p>
+<pre>
+cd EndToEndTest
+cypress run > output.txt
+RESULT=$?
+
+if [[ -f mochawesome.html ]]; then
+    inline-assets mochawesome.html selfcontained.html
+    new_octopusartifact "${PWD}/selfcontained.html" "selfcontained.html"
+fi
+
+if [[ -d cypress/screenshots/sample_spec.js ]]; then
+    zip -r screenshots.zip cypress/screenshots/sample_spec.js
+    new_octopusartifact "${PWD}/screenshots.zip" "screenshots.zip"
+fi
+
+exit ${RESULT}
+</pre>
+<p>
+    This script starts by entering the directory <b>EndToEndTest</b>, which will be created by extracting an additional package referencing the archive we uploaded to the built-in feed earlier. The <b>cypress</b> tool is run, with the output redirected to a file called <b>output.txt</b>. The exit code from the called to <b>cypress</b> is captured in a variable called <b>RESULT</b>.
+</p>
+<p>
+    If the test succeeded and a HTML report file called <b>mochawesome.html</b> was generated, we then make use of the <b>inline-assets</b> tool to take the HTML report file and merge it and all of its external CSS and JavaScript files into a self contained HTML file called <b>selfcontained.html</b>. The self contained report file is then attached to the Octopus deployment as an artifact by calling <b>new_octopusartifact</b>.
+</p>
+<p class="note">
+    We build the self contained HTML report to overcome a limitation with the way Octopus saves artifacts during a deployment. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
+</p>
+<p>
+    Cypress will automatically generate screenshots to capture the browsers display in the event of a failed test. These screenshots are saved in the directory <b>cypress/screenshots/sample_spec.js</b>. If this directory exists we'll zip up the screenshots and attach the archive as an artifact. This allows us to debug the test in the event of a failure.
+</p>
+<p>
+    We then exit the step using the exit code from the call to <b>cypress</b>. If the test failed, this exit code will be a non-zero value, and the Octopus step will also fail.
+</p>
+<p>
+    Deploy the <b>Deploy Random Quotes - Frontend</b> is project again. If the Cypress tests were successful, an artifact called <b>selfcontained.html</b> will be shown under the deployment <b>TASK SUMMARY</b> tab. This artifact can be opened directly from the link provided to view the results of the test:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/cypress-report.png"/></div>
