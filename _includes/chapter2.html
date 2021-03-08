@@ -351,7 +351,7 @@ psql -U postgres -h postgres.backend-development -c "select schema_name from inf
     The diagram below shows these nested layers:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/docker-in-docker.png"/></div>
-<h3>Exploring third party container images</h3>
+<h3>Using third party container images</h3>
 <p>
     The database smoke test used a third party Docker image as a container image. As we saw this was a convenient way to get access to the PostgreSQL command line tools. There are some limits to which Linux Docker images can be used as a container image though.
 </p>
@@ -415,7 +415,6 @@ pm.test("response must be valid and have a body", function () {
     pm.response.to.be.json;
 
     pm.expect(pm.response.json().quote != "").to.be.true;
-});
 });
 </pre>
 <p>
@@ -518,6 +517,9 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
     The integration test script is made available as an additional package reference. These additional packages downloaded, and optional extracted, into the calamari working directory, and are a convenient way of exposing additional tools and files to a script step.
 </p>
 <p>
+    Expand the <b>Referenced Packages</b> section, click the <b>ADD</b> button, and select the <b>IntegrationTest</b> package from the built-in feed. By default the package will have the name <b>IntegrationTest</b> and is set to be extracted. These defaults are fine, so click the <b>OK</b> button.
+</p>
+<p>
     The pattern of a script step running in a container image with package references is incredibly powerful. It means a static worker can execute custom tools from a shared container image that reference step specific files downloaded and extracted at runtime. Without this combination of features you would be forced to either build Docker images that embedded files like the integration test, or somehow expose these files to the Kubernetes cluster.
 </p>
 <p>
@@ -528,8 +530,59 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 </p>
 <div><img alt="Octopus environments" src="images/octopus/additional-packages.png"/></div>
 <p>
-    Expand the <b>Referenced Packages</b> section, click the <b>ADD</b> button, and select the <b>IntegrationTest</b> package from the built-in feed. By default the package will have the name <b>IntegrationTest</b> and is set to be extracted. These defaults are fine, so click the <b>OK</b> button.
+    Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. Once the deployment and smoke tests have passed, newman will run and query the API. The API in turn will contact the database to retrieve a quote. The tests define in the newman collection then verify the returned data.
 </p>
 <p>
-    Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment.
+    For this integration test to pass, both the frontend and backend must be working as expected. So if the test passes, we have a good degree of confidence that our application stack was deployed as expected.
+</p>
+<h3>Performing an end to end test</h3>
+<p>
+    End to end tests typically represent the top level of testing. They simulate interaction with the deployed application as an end user would. If an end to end test can complete the tasks end users are expected to complete, we have can high confidence that our application is ready to use.
+</p>
+<p>
+    For the end to end tests we'll make use of a tool called Cypress. Cypress provides the ability to interact with a web page as if a human was clicking on the various buttons and links or populating forms.
+</p>
+<p>
+    A Cypress project follows a specific layout of files and directories. In the root directory of a Cypress project we have a file called <b>package.json</b>. This file is used by the Node Package Manager (npm) to install dependencies required to generate specific Cypress reports. In this example we want to use the Mochawesome reporter to generate HTML reports:
+</p>
+<pre>
+{
+    "name": "cypress-test",
+    "version": "0.0.1",
+    "description": "A simple cypress test",
+    "dependencies": {
+        "mochawesome-merge": "^4.2.0",
+        "mochawesome": "^6.2.1",
+        "mocha": "^8.2.1"
+    }
+}
+</pre>
+<p>
+    The next file, also in the project root directory, is called <b>cypress.json</b>. This file defines how our test will run and what reports to generate. In this example we specify that we are generating HTML reports, and that our test should open the web application at https://webapp.frontend-development:
+</p>
+<pre>
+{
+    "baseUrl": "https://webapp.frontend-development",
+    "reporter": "mochawesome",
+    "reporterOptions": {
+        "charts": true,
+        "overwrite": false,
+        "html": true,
+        "json": false,
+        "reportDir": "."
+    }
+}
+</pre>
+<p>
+    In the <b>cypress/integration</b> directory we have a file called <b>sample_spec.js</b>. This holds the details of our particular test, which is to click the <b>Refresh</b> button in our web application:
+</p>
+<pre>
+describe('My First Test', () => {
+    it('Does not do much!', () => {
+        expect(true).to.equal(true)
+    })
+})
+</pre>
+<p>
+    These three files are packaged up into an archive called <b>EndToEndTest.1.0.0.0.zip</b>, and the archive is uploaded to the Octopus built-in feed.
 </p>
