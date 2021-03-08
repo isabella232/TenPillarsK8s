@@ -650,7 +650,7 @@ exit ${RESULT}
     If the test succeeded and a HTML report file called <b>mochawesome.html</b> was generated, we then make use of the <b>inline-assets</b> tool to take the HTML report file and merge it and all of its external CSS and JavaScript files into a self contained HTML file called <b>selfcontained.html</b>. The self contained report file is then attached to the Octopus deployment as an artifact by calling <b>new_octopusartifact</b>.
 </p>
 <p class="note">
-    We build the self contained HTML report to overcome a limitation with the way Octopus saves artifacts during a deployment. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
+    We build the self contained HTML report to overcome a limitation in how Octopus saves artifacts. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content, where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
 </p>
 <p>
     Cypress will automatically generate screenshots to capture the browsers display in the event of a failed test. These screenshots are saved in the directory <b>cypress/screenshots/sample_spec.js</b>. If this directory exists we'll zip up the screenshots and attach the archive as an artifact. This allows us to debug the test in the event of a failure.
@@ -662,3 +662,24 @@ exit ${RESULT}
     Deploy the <b>Deploy Random Quotes - Frontend</b> is project again. If the Cypress tests were successful, an artifact called <b>selfcontained.html</b> will be shown under the deployment <b>TASK SUMMARY</b> tab. This artifact can be opened directly from the link provided to view the results of the test:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/cypress-report.png"/></div>
+<p>
+    By including an end-to-end test in our deployment process we can gain a high degree of confidence that the deployment succeeded. Cypress is now interacting with the deployed application in the same way we expect end users to, and verifying the web application works as expected.
+</p>
+<h2>Conclusion</h2>
+<p>
+    The idea of testing code before it is considered suitable to release has won wide adoption amongst developers, and for good reason; catching errors early makes them easy to fix and increases the likelihood that solutions provided to the end user work as expected.
+</p>
+<p>
+    The same benefits of testing apply to your deployment process. By running automated tests as a part of each deployment we can catch errors before they reach the production environment, providing a much better experience for end users.
+</p>
+<p>
+    In this chapter we:
+</p>
+<ul>
+    <li>Discussed the practical decisions around where tests are run.</li>
+    <li>Deployed workers directly into the Kubernetes cluster to give tests access to private services.</li>
+    <li>Ran smoke tests against the backend database and frontend web application.</li>
+    <li>Ran an integration test against the frontend API using Postman and its command line tool Newman.</li>
+    <li>Ran an end-to-end test against the frontend web application using Cypress.</li>
+    <li>Created a number of custom container images to provide the libraries required by calamari.</li>
+</ul>
