@@ -382,3 +382,110 @@ curl -sSf http://webapp.frontend-development > /dev/null
 <p>
     We need to check if the first request failed by comparing the exit code held in the variable <b>$?</b> to zero. If it is not zero, the script will exit with that error code and the deployment will fail.
 </p>
+<h3>Performing an integration test</h3>
+<p>
+    Integration tests are used to validate that two or more systems are working together as expected. In our simple application stack we only have two systems: the frontend web application and the backend database. To verify that they are working together, we will use a tool called Postman to write a test script calling the HTTP API to ensure that it is returning a non-empty string for the quote. This ensures both that the frontend HTTP API is accessible, and that it can query the backend database.
+</p>
+<p>
+    Postman is a comprehensive tool in its own right, but we'll do the bare minimum to get a test written and exported to run in our cluster.
+</p>
+<p>
+    Download and install Postman from <a href="https://www.postman.com/">https://www.postman.com/</a>. Once installed, create a new collection called <b>RandomQuotes</b>. Inside the collection, add a request. The request will perform a HTTP GET to http://webapp.frontend-development/api/quote.
+</p>
+<p>
+    Under the <b>Tests</b> tab, enter the following script. This test ensures the HTTP response is OK (i.e. a HTTP 200 response code), has a JSON body, and the <b>quote</b> property in the JSON response is not an empty string:
+</p>
+<pre>
+pm.test("response must be valid and have a body", function () {
+    pm.response.to.be.ok;
+    pm.response.to.be.withBody;
+    pm.response.to.be.json;
+
+    pm.expect(pm.response.json().quote).to().not().equal("")
+});
+</pre>
+<p>
+    Click the triple dot menu next to the collection and select the <b>Export</b> option. Save the resulting JSON file to your local PC. The file will look something like this:
+</p>
+<pre>
+{
+    "info": {
+        "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
+        "name": "RandomQuotes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Quotes API",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"response must be valid and have a body\", function () {\r",
+                            "     pm.response.to.be.ok;\r",
+                            "     pm.response.to.be.withBody;\r",
+                            "     pm.response.to.be.json;\r",
+                            "\r",
+                            "     pm.expect(pm.response.json().quote).to().not().equal(\"\")\r",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://webapp.frontend-development/api/quote",
+                    "protocol": "http",
+                    "host": [
+                        "webapp",
+                        "frontend-development"
+                    ],
+                    "path": [
+                        "api",
+                        "quote"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
+</pre>
+<p>
+    Add the Postman collection JSON file to a zip package called <b>IntegrationTest.1.0.0.0.zip</b>. In Linux and macOS, run the command:
+</p>
+<pre>
+zip IntegrationTest.1.0.0.0.zip RandomQuotes.postman_collection.json
+</pre>
+<p>In Windows, run the following PowerShell:</p>
+<pre>
+Compress-Archive -LiteralPath .\RandomQuotes.postman_collection.json -DestinationPath IntegrationTest.1.0.0.0.zip
+</pre>
+<p>
+    The resulting ZIP file then needs to be uploaded to the Octopus built-in feed. In the Octopus interface, click <b>Library -> Packages</b>, and then click the <b>UPLOAD PACKAGE</b> button. Select the ZIP file and click the <b>UPLOAD</b> button. The built-in feed now has a package called <b>IntegrationTest</b> at version <b>1.0.0.0</b>.
+</p>
+<p>
+    To run the test we need to add a new <b>Run a Script</b> step to the <b>Random Quotes - Frontend</b> deployment process. AS before this step will run on a worker from the <b>Testing</b> worker pool. This time though we use <b>postman/newman:ubuntu</b> as the container image.
+</p>
+<p>
+    The inline source code Bash script is set to the following command. This executes <b>newman</b>, which is the command line test runner for Postman:
+</p>
+<pre>
+newman run IntegrationTest/RandomQuotes.postman_collection.json
+</pre>
+<p>
+    The integration test script is made available as an additional package reference. These additional packages downloaded, and optional extracted, into the calamari working directory, and are a convenient way of exposing additional tools and files to a script step.
+</p>
+<p class="note">
+    The pattern of a script step running in a container image with package references is incredibly powerful. It means a static worker can execute custom tools from a shared container image that reference step specific files downloaded and extracted at runtime. Without this combination of features you would be forced to either build Docker images that embedded files like the integration test, or somehow expose these files to the Kubernetes cluster. While it is possible to mount the contents of a configmap as a file in a container, configmaps can not represent directory structures due to the fact that a configmap key can not contain a slash, which limits their usefulness.
+</p>
+<p>
+    Expand the <b>Referenced Packages</b> section, click the <b>ADD</b> button, and select the <b>IntegrationTest</b> package from the built-in feed. By default the package will have the name <b>IntegrationTest</b> and is set to be extracted. These defaults are fine, so click the <b>OK</b> button.
+</p>
+<p>
+    Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment.
+</p>
