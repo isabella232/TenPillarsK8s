@@ -338,6 +338,19 @@ psql -U postgres -h postgres.backend-development -c "select schema_name from inf
 <p class="note">
     All CLI commands return an exit code. Typically a value of zero indicates success. You can view the exit code with the command <b>echo $?</b> in Bash, and <b>echo $LASTEXITCODE</b> in PowerShell. A non-zero value for the last command executed in a script step will cause the step to fail.
 </p>
+<p>
+    It can be a little hard to understand the layers that went into running this test script, so let's break it down:
+</p>
+<ul>
+    <li>We have a tentacle running as a worker in a pod hosted on Kubernetes.</li>
+    <li>Inside the container hosting the worker, we expose Docker-in-Docker.</li>
+    <li>We build a container from the container image in the Docker-in-Docker environment.</li>
+    <li>Calamari then runs inside the container in the Docker-in-Docker environment</li>
+</ul>
+<p>
+    The diagram below shows these nested layers:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/docker-in-docker.png"/></div>
 <h3>Exploring third party container images</h3>
 <p>
     The database smoke test used a third party Docker image as a container image. As we saw this was a convenient way to get access to the PostgreSQL command line tools. There are some limits to which Linux Docker images can be used as a container image though.
@@ -401,7 +414,8 @@ pm.test("response must be valid and have a body", function () {
     pm.response.to.be.withBody;
     pm.response.to.be.json;
 
-    pm.expect(pm.response.json().quote).to().not().equal("")
+    pm.expect(pm.response.json().quote != "").to.be.true;
+});
 });
 </pre>
 <p>
@@ -427,7 +441,7 @@ pm.test("response must be valid and have a body", function () {
                             "     pm.response.to.be.withBody;\r",
                             "     pm.response.to.be.json;\r",
                             "\r",
-                            "     pm.expect(pm.response.json().quote).to().not().equal(\"\")\r",
+                            "     pm.expect(pm.response.json().quote != \"\").to.be.true;\r",
                             "});"
                         ],
                         "type": "text/javascript"
@@ -469,7 +483,30 @@ Compress-Archive -LiteralPath .\RandomQuotes.postman_collection.json -Destinatio
     The resulting ZIP file then needs to be uploaded to the Octopus built-in feed. In the Octopus interface, click <b>Library -> Packages</b>, and then click the <b>UPLOAD PACKAGE</b> button. Select the ZIP file and click the <b>UPLOAD</b> button. The built-in feed now has a package called <b>IntegrationTest</b> at version <b>1.0.0.0</b>.
 </p>
 <p>
-    To run the test we need to add a new <b>Run a Script</b> step to the <b>Random Quotes - Frontend</b> deployment process. AS before this step will run on a worker from the <b>Testing</b> worker pool. This time though we use <b>postman/newman:ubuntu</b> as the container image.
+    The base newman image is one example of a third party Docker image that doesn't include the required dependencies to run calamari. Specifically we need to install <b>libicu</b> to support the execution of calamari. First create a file called <b>Dockerfile</b> with the following contents:
+</p>
+<pre>
+FROM postman/newman:ubuntu
+RUN apt-get update
+RUN apt-get install libicu60 -y
+</pre>
+<p>
+    Then build the image with the command:
+</p>
+<pre>
+    docker build . -t mcasperson/newman
+</pre>
+<p>
+    Finally, publish the image with the command:
+</p>
+<pre>
+    docker push mcasperson/newman
+</pre>
+<p>
+    To run the test we need to add a new <b>Run a Script</b> step to the <b>Random Quotes - Frontend</b> deployment process. AS before this step will run on a worker from the <b>Testing</b> worker pool. This time though we use <b>mcasperson/newman</b> as the container image.
+</p>
+<p class="note">
+    As with all the custom Docker images shown in this book, replace the username <b>mcasperson</b> with your own Docker Hub username. Also do not use these images in production deployments as they are not maintained.
 </p>
 <p>
     The inline source code Bash script is set to the following command. This executes <b>newman</b>, which is the command line test runner for Postman:
