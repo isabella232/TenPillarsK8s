@@ -113,8 +113,16 @@
     The log files generated during the deployment show entries like <b>Waiting for deployment "webapp" rollout to finish: 4 out of 5 new replicas have been updated...</b>, followed by entries like <b>Waiting for deployment "webapp" rollout to finish: 2 old replicas are pending termination...</b>. This indicates that Kubernetes is deploying pods with the new image before deleting pods with the old image.
 </p>
 <p>
+    The diagram below shows how a rolling update progresses, with old pods progressively deleted and replaced with new pods:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png"/></div>
+<p>
     Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option. Save the changes and redeploy the project to the <b>Development</b> environment.
 </p>
 <p>
     Notice now the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of 5 new replicas have been updated...</b>, with the replica count increasing until all pods have been deployed. This indicates that the old pods were removed before any new pods were deployed.
 </p>
+<p>
+    The diagram below shows how a recreate update progresses, where all old pods are first deleted, and new pods are then deployed:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/recreate-deployment.png"/></div>
