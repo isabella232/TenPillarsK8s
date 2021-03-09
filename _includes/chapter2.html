@@ -679,14 +679,141 @@ exit ${RESULT}
     Making use of container images in workers hosted in a Kubernetes cluster requires them to be privileged. This is a requirement to use Docker-in-Docker. But what can you do if privileged containers are not an option for you?
 </p>
 <p>
-    One option that we have already seen is to add the required tools to the base tentacle image. This is fine for simple tools like <b>kubectl</b>. However, adding complex tools to the tentacle image can be a significant undertaking. For example, adding a tool like Cypress to the tentacle image requires reverse engineering the existing Cypress Docker build files and including those instructions on the base tentacle image. Even if it were possible to do this, it would be hard to recommend anyone devote the time required to build such an image.
+    One option that we have already seen is to add the required tools to the base tentacle image. This is fine for simple tools like <b>kubectl</b>. However, adding complex tools to the tentacle image can be a significant undertaking. For example, adding a tool like Cypress to the tentacle image requires reverse engineering the existing Cypress Docker build files and adding those instructions to the base tentacle image. Even if it were possible to do this, it would be hard to recommend anyone devote the time required to build such an image.
 </p>
 <p>
     An easier solution is to do the reverse by adding the tentacle on top of the existing Docker image provided by tools like Cypress. We've already seen how to build custom images based on existing images as we added dependencies like <b>libicu</b>. Fortunately it is relatively easy to take this process one step further and add the tentacle itself.
 </p>
+<p>
+    The <b>Dockerfile</b> below adds a tentcale as a worker on top of the base Cypress image:
+</p>
+<pre>
+FROM cypress/included:6.4.0
+RUN apt-get update; apt-get install -y libicu63
+RUN npm install -g inline-assets
+RUN curl -L https://download.octopusdeploy.com/linux-tentacle/tentacle-6.0.490-linux_x64.tar.gz --output tentacle-linux_x64.tar.gz
+RUN mkdir /opt/octopus
+RUN tar xvzf tentacle-linux_x64.tar.gz -C /opt/octopus
+RUN echo '#!/bin/bash' > /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle create-instance --instance "Worker" --config "/etc/octopus/Worker/tentacle-Worker.config"' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle new-certificate --instance "Worker" --if-blank' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle configure --instance "Worker" --app "/home/Octopus/Applications" --noListen "True" --reset-trust' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle register-worker --instance "Worker" --force --server "${ServerUrl}" --name `hostname` --comms-style "TentacleActive" --server-comms-port "10943" --apiKey "${ServerApiKey}" --space "${Space}" --workerpool "${TargetWorkerPool}"' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle agent --noninteractive --instance "Worker"' >> /opt/configure.sh
+RUN chmod +x /opt/configure.sh
+ENTRYPOINT []
+CMD ["/opt/configure.sh"]
+</pre>
+<p>
+    The commands in this Dockerfile up to the point of the <b>curl</b> command are the same as we defined in the previous section building a Cypress container image. Refer to the previous section for more details on these commands.
+</p>
+<p>
+    The <b>curl</b> command downloads a copy of the Linux tentacle archive. We then create a directory called <b>/opt/octopus</b> and extract the TAR file into it.
+</p>
+<p>
+    The next series of <b>echo</b> commands are used to build up a script file that configures and run the tentacle. The easiest way to get these commands is to install a tentacle on a Linux operating system and run through the configuration script at <b>/opt/octopus/tentacle/configure-tentacle.sh</b>. The final step in the configuration script presents the list of commands that will be run to configure the tentacle. An example of that output is shown below:
+</p>
+<pre>
+tentacle$ sudo /opt/octopus/tentacle/configure-tentacle.sh
+Name of Tentacle instance (default Tentacle):Worker
+What kind of Tentacle would you like to configure: 1) Listening or 2) Polling (default 1): 2
+Where would you like Tentacle to store log files? (/etc/octopus):
+Where would you like Tentacle to install applications to? (/home/Octopus/Applications):
+Octopus Server URL (eg. https://octopus-server):
+Octopus Server URL (eg. https://octopus-server): https://myserver
+Select auth method: 1) API-Key or 2) Username and Password (default 1): 1
+API-Key: Select type of Tentacle do you want to setup: 1) Deployment Target or 2) Worker (default 1): 2
+What Space would you like to register this Tentacle in? (Default):
+What name would you like to register this Tentacle with? (DESKTOP-3E4K4R8):
+Enter the worker pools for this Tentacle (comma seperated): Testing
+The following configuration commands will be run to configure Tentacle:
+sudo /opt/octopus/tentacle/Tentacle create-instance --instance "Worker" --config "/etc/octopus/Worker/tentacle-Worker.config"
+sudo /opt/octopus/tentacle/Tentacle new-certificate --instance "Worker" --if-blank
+sudo /opt/octopus/tentacle/Tentacle configure --instance "Worker" --app "/home/Octopus/Applications" --noListen "True" --reset-trust
+sudo /opt/octopus/tentacle/Tentacle register-worker --instance "Worker" --server "https://myserver" --name "DESKTOP-3E4K4R8" --comms-style "TentacleActive" --server-comms-port "10943" --apiKey "API-XXXXXXXXXXXXXXXXXXXXXXXXXX" --space "Default" --workerpool "Testing"
+sudo /opt/octopus/tentacle/Tentacle service --install --start --instance "Worker"
+Press enter to continue...
+</pre>
+<p>
+    As you can see, the commands the configuration script would have run have been echoed into the <b>/opt/configure.sh</b> file as part of building our Docker image, with values for the server URL, space, API key, worker pool, and name replaced with environment variables.
+</p>
+<p>
+    The only command we didn't run was <b>/opt/octopus/tentacle/Tentacle service --install --start --instance "Worker"</b>, which starts a systemd service. Our Docker image isn't running systemd, so this command is not required. Instead we run <b>/opt/octopus/tentacle/Tentacle agent --noninteractive --instance "Worker"</b> to start the tentacle manually.
+</p>
+<p class="note">
+    The documentation at <a href="https://octopus.com/docs/infrastructure/deployment-targets/linux/tentacle#installing-tentacle">https://octopus.com/docs/infrastructure/deployment-targets/linux/tentacle#installing-tentacle</a> has details on installing a tentacle on Linux and running the configuration script.
+</p>
+<p>
+    To allow the bash script we created with the <b>echo</b> statements to be executed, we add the executable flag via <b>chmod</b>.
+</p>
+<p>
+    The base Cypress image had defined an entrypoint which ran the <b>cypress</b> executable. This makes sense for the Cypress image, but is not useful when our image needs to run the tentacle instead of cypress. So we clear the entrypoint by setting it to an empty array.
+</p>
+<p>
+    Finally we set the script <b>/opt/configure.sh</b> to be run when the container is started. This will configure the tentacle and run it.
+</p>
+<p>
+    To deploy the worker, configure a <b>Deploy Kubernetes containers</b> step with the YAML shown below, replacing the <b>ServerUrl</b> environment with your Octopus instance. Note that this container does not have the <b>privileged</b> option set, and disables Docker-in-Docker by setting the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octopus-worker-cypress
+  labels:
+    app: tentacle
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  revisionHistoryLimit: 1
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tentacle
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: worker
+          image: index.docker.io/mcasperson/cypressstandalone
+          env:
+            - name: MachinePolicy
+              value: Test Worker
+            - name: Space
+              value: Default
+            - name: ACCEPT_EULA
+              value: 'Y'
+            - name: TargetWorkerPool
+              value: Testing
+            - name: ServerUrl
+              value: 'https://myserver.octopus.app'
+            - name: ServerApiKey
+              value: '#{ApiKey}'
+            - name: ServerPort
+              value: '10943'
+            - name: DISABLE_DIND
+              value: 'Y'
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+</pre>
+<p>
+    Any workers created in this method will have a limited use case. In this example, workers created with the Docker image above are only useful for running Cypress tests. This is the downside to building such specialized images.
+</p>
+<p>
+    However, these images no longer require any special permissions, allowing them to be used universally across different Kubernetes clusters.
+</p>
+<p>
+    If you find yourself in a situation where privileged containers is not an option, adding a tentacle to an existing third party Docker image to create a specialized worker image is your best bet for running tests inside a Kubernetes cluster.
+</p>
 <h2>Conclusion</h2>
 <p>
-    The idea of testing code before it is considered suitable to release has won wide adoption amongst developers, and for good reason; catching errors early makes them easy to fix and increases the likelihood that solutions provided to the end user work as expected.
+    The idea of testing code before it is considered suitable to release has won wide adoption amongst developers, and for good reason: catching errors early makes them easy to fix and increases the likelihood that solutions provided to the end user work as expected.
 </p>
 <p>
     The same benefits of testing apply to your deployment process. By running automated tests as a part of each deployment we can catch errors before they reach the production environment, providing a much better experience for end users.
@@ -698,6 +825,7 @@ exit ${RESULT}
     <li>Discussed the practical decisions around where tests are run.</li>
     <li>Deployed workers directly into the Kubernetes cluster to give tests access to private services.</li>
     <li>Discussed how tentacles implement Docker-in-Docker to allow container images to be run in a Kubernetes cluster.</li>
+    <li>Created specialized worker images based on third party Docker images that do not require privileged rights.</li>
     <li>Ran smoke tests against the backend database and frontend web application.</li>
     <li>Ran an integration test against the frontend API using Postman and its command line tool Newman.</li>
     <li>Ran an end-to-end test against the frontend web application using Cypress.</li>
