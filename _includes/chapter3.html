@@ -1,0 +1,76 @@
+<h1><a id="chapter3">Seamless deployments</a></h1>
+<p>
+    Reducing or eliminating downtime during a deployment becomes increasingly critical as the number and frequency of deployments increases. In addition, the ability to progressively roll changes out to end users and quickly recover from a bad deployment can limit the impact of an issue introduced in a new deployment. This is best captured by the metric Mean Time To Recovery (MTTR), which is a measure of the time it takes to resolve an error. The State of DevOps 2019 report, available at <a href="https://services.google.com/fh/files/misc/state-of-devops-2019.pdf">https://services.google.com/fh/files/misc/state-of-devops-2019.pdf</a>, highlights a low "time to restore service" as a key metric for high performing teams.
+</p>
+<p>
+    There are a number of deployment strategies that can be used to ensure bad deployments can be resolved quickly and efficiently, resulting in seamless deployments.
+</p>
+<h2>Dealing with databases during deployments</h2>
+<p>
+    No discussion on seamless deployments can begin without first addressing the issue of database updates.
+</p>
+<p>
+    A fundamental aspect of most seamless deployment strategies involves running two versions of your application side by side, if only for a short period of time. If both versions of the application access a shared database, then any updates to the database schema and data must be compatible with both application versions. This is referred to as backward and forward compatibility.
+</p>
+<p>
+    However, backward and forward compatibility is not trivial to implement. In the presentation Update your Database Schema with Zero Downtime Migrations (based on chapter 3 of the book Migrating to Microservice Databases), Edison Yanaga walks through the process of renaming a single column in a database. It involves six incremental updates to the database and application code, and all six versions to be deployed sequentially.
+</p>
+<p>
+    Needless to say, seamless deployments involving databases require a great deal of planning, many small steps to roll out the changes, and tight coordination between the database and application code.
+</p>
+<h2>Common deployment strategies</h2>
+<p>
+    There are multiple strategies to manage a cutover between an existing deployment and a new one.
+</p>
+<h3>Recreate</h3>
+<p>
+    The recreate strategy does not provide a seamless deployment, but is included here as it is the default option for most deployment processes. This strategy involves either removing the existing deployment and deploying the new version, or deploying the new version over the top of the existing deployment.
+</p>
+<p>
+    Both options result in downtime during the period between the existing version being stopped or removed and the new version being started. However, because the existing and new versions are not run concurrently, database upgrades can be applied as needed with no backward and forward compatibility requirements.
+</p>
+<h3>Rolling updates</h3>
+<p>
+    The rolling update strategy involves incrementally updating instances of the current deployment with the new deployment. This strategy ensures there is always at least one instance of the current or new deployment available during the rollout. This requires that any shared database must maintain backward and forward compatibility.
+</p>
+<h3>Canary deployments</h3>
+<p>
+    The canary deployment strategy is similar to the rolling update strategy in that both incrementally expose more end users to the new deployment. The difference is that the decision to progress the rollout in a canary deployment is either made automatically by a system monitoring metrics and logs to ensure the new deployment is performing as expected, or manually by a human.
+</p>
+<p>
+    Canary deployments also have the option to halt the rollout and revert back to the existing deployment if a problem is discovered.
+</p>
+<h3>Blue/green deployments</h3>
+<p>
+    The blue/green strategy involves deploying the new version (referred to as the green version) alongside the current version (referred to as the blue version), without exposing the green version to any traffic. Once the green version is deployed and verified, traffic is cutover from the blue to the green version. When the blue version is no longer used, it can be removed.
+</p>
+<p>
+    Any database changes deployed by the green version must maintain backward and forward compatibility, because even if the green version is not serving traffic, the blue version will be exposed to the database changes.
+</p>
+<h3>Session draining</h3>
+<p>
+    The session draining strategy is used when applications maintain states tied to a particular application version.
+</p>
+<p>
+    This strategy is similar to the blue/green strategy in that both will deploy the new version alongside the current version, and run both side by side. Unlike the blue/green strategy, which will cut all traffic over to the new deployment in a single step, the session draining strategy will direct new sessions to the new deployment, while the existing deployment serves traffic to existing sessions.
+</p>
+<p>
+    After the old sessions have expired, the existing deployment can be deleted.
+</p>
+<p>
+    Because the current and new deployments run side by side, any database changes must maintain backward and forward compatibility.
+</p>
+<h3>Feature flags</h3>
+<p>
+    The feature flag strategy involves building functionality into a new application version, and then exposing or hiding the feature for select end users outside of the deployment process.
+</p>
+<p>
+    In practice, the deployment of a new application version with flaggable features will be performed with one of the strategies above, so the feature flag strategy is a complement to those other strategies.
+</p>
+<h3>Feature branch</h3>
+<p>
+    The feature branch strategy allows developers to deploy an application version with changes they are currently implementing, usually in a non-production environment, alongside the main deployment.
+</p>
+<p>
+    It may not be necessary to maintain database backward and forward compatibility with feature branch deployments. Because feature branches are for testing and tend to be short-lived, it may be acceptable that each feature branch deployment has access to its own test database.
+</p>
