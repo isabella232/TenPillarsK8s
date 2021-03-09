@@ -71,6 +71,18 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 <p>
     To create workers in a Kubernetes cluster, we'll need to define a new worker pool, and a new machine policy that automatically cleans up any unavailable workers.
 </p>
+<h3>Tools used in this chapter</h3>
+<p>
+    This chapter will make use of a number of third party tools that you will need to install to follow along with the exercise including:
+</p>
+<ul>
+    <li>Docker, downloaded from <a href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a>.</li>
+    <li>Node package manager (npm), installed from <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a>.</li>
+    <li>Postman, installed from <a href="https://www.postman.com/downloads/">https://www.postman.com/downloads/</a>.</li>
+</ul>
+<p>
+    This chapter also uses Docker Hub as a Docker image repository. You can sign up to Docker Hub at <a href="https://hub.docker.com/signup">https://hub.docker.com/signup</a>.
+</p>
 <h3>Preparing the testing workers in Octopus</h3>
 <p>
     We start by creating a new worker pool to hold the workers that will be used for testing. Click <b>Infrastructure -> Worker Pools</b> and click the <b>ADD WORKER POOL</b> button. Give the pool the name of <b>Testing</b>, leave it as the default type of <b>Static</b>, and click the <b>SAVE</b> button.
