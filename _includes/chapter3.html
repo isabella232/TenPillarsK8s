@@ -1,9 +1,9 @@
 <h1><a id="chapter3">Seamless deployments</a></h1>
 <p>
-    Reducing or eliminating downtime during a deployment becomes increasingly critical as the number and frequency of deployments increases. In addition, the ability to progressively roll changes out to end users and quickly recover from a bad deployment can limit the impact of an issue introduced in a new deployment. This is best captured by the metric Mean Time To Recovery (MTTR), which is a measure of the time it takes to resolve an error. The State of DevOps 2019 report, available at <a href="https://services.google.com/fh/files/misc/state-of-devops-2019.pdf">https://services.google.com/fh/files/misc/state-of-devops-2019.pdf</a>, highlights a low "time to restore service" as a key metric for high performing teams.
+    Reducing or eliminating downtime during a deployment becomes increasingly critical as the number and frequency of deployments increases. There are a number of common deployment strategies to reduce downtime or ensure our applications remain available throughout a deployment, resulting in seamless deployments. Given the range of high quality networking solutions that are available in the Kubernetes ecosystem, Kubernetes deployments are well placed to take advantage of these strategies.
 </p>
 <p>
-    There are a number of deployment strategies that can be used to ensure bad deployments can be resolved quickly and efficiently, resulting in seamless deployments.
+    In this chapter we'll look at the common deployment strategies and provide examples of how these strategies can be realized with an Octopus deployment.
 </p>
 <h2>Dealing with databases during deployments</h2>
 <p>
@@ -13,10 +13,13 @@
     A fundamental aspect of most seamless deployment strategies involves running two versions of your application side by side, if only for a short period of time. If both versions of the application access a shared database, then any updates to the database schema and data must be compatible with both application versions. This is referred to as backward and forward compatibility.
 </p>
 <p>
-    However, backward and forward compatibility is not trivial to implement. In the presentation Update your Database Schema with Zero Downtime Migrations (based on chapter 3 of the book Migrating to Microservice Databases), Edison Yanaga walks through the process of renaming a single column in a database. It involves six incremental updates to the database and application code, and all six versions to be deployed sequentially.
+    However, backward and forward compatibility is not trivial to implement. In the presentation Update your Database Schema with Zero Downtime Migrations available at <a href="https://www.youtube.com/watch?v=3mj6Ni7sRN4">https://www.youtube.com/watch?v=3mj6Ni7sRN4</a> (based on chapter 3 of the book Migrating to Microservice Databases available at <a href="https://developers.redhat.com/books/migrating-microservice-databases-relational-monolith-distributed-data">https://developers.redhat.com/books/migrating-microservice-databases-relational-monolith-distributed-data</a>), Edison Yanaga walks through the process of renaming a single column in a database. It involves six incremental updates to the database and application code, and all six versions to be deployed sequentially.
 </p>
 <p>
     Needless to say, seamless deployments involving databases require a great deal of planning, many small steps to roll out the changes, and tight coordination between the database and application code.
+</p>
+<p>
+    We won't dive into the specifics of how to engineer an application with forward and backward database compatibility in this book. This is an application design concern, and whether or not an application supports forward and backward database compatibility is already determined when it is to be deployed. The deployment strategy does need to take into account whether an application supports running two versions side by side, but can not add this functionality if it isn't already built into the application.
 </p>
 <h2>Common deployment strategies</h2>
 <p>

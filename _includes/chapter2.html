@@ -382,7 +382,7 @@ psql -U postgres -h postgres.backend-development -c "select schema_name from inf
     The operating system must also include a number of dependencies required to support .NET Core applications. The documentation at <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux">https://docs.microsoft.com/en-us/dotnet/core/install/linux</a> lists the dependencies required for a .NET Core application with popular Linux distributions.
 </p>
 <p class="note">
-    If a third party container is missing a library, it is usually the <b>libicu</b> library.
+    If a third party container is missing a library, it is usually the <b>libicu</b> library. The error <b>Couldn't find a valid ICU package installed on the system</b> indicates the ICU library is missing.
 </p>
 <p>
     If your chosen Docker image does not have these prerequisites, the easiest solution is to create a custom Docker image based on the image you wish to use, install the required libraries, push the image to a repository like Docker Hub, and select your custom image as the container image. We'll see this when building container images for the integration and end-to-end tests below.
