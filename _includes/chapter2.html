@@ -403,7 +403,7 @@ curl -sSf http://webapp.frontend-development/api/quote > /dev/null
 
 # Fail if curl failed
 if [[ $? != 0 ]]; then
-	return $?
+	return 1
 fi;
 
 # Contact the web frontend
@@ -413,7 +413,7 @@ curl -sSf http://webapp.frontend-development > /dev/null
     This script uses <b>curl</b> to make a request to the API and web frontend. The <b>-s</b> flag configures silent mode, the <b>-S</b> flag will display an error if the request fails, and the <b>-f</b> flag prevents generic server side error pages from being displayed.
 </p>
 <p>
-    We need to check if the first request failed by comparing the exit code held in the variable <b>$?</b> to zero. If it is not zero, the script will exit with that error code and the deployment will fail.
+    We need to check if the first request failed by comparing the exit code held in the variable <b>$?</b> to zero. If it is not zero, the script will exit with code 1 and the deployment will fail.
 </p>
 <p>
     If this smoke tests succeeds we can be sure that the frontend web application has been deployed and is responding to network requests. This test does not verify that the responses are valid though. For that we'll create an integration test.

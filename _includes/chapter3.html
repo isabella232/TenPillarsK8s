@@ -63,6 +63,9 @@
 <p>
     Because the current and new deployments run side by side, any database changes must maintain backward and forward compatibility.
 </p>
+<p>
+    Session draining was particularly important for older server side stateful web applications. This style of application has largely gone out of style, in large part because it made it difficult to manage with PaaS offerings that often treated any individual application instance as ephemeral. This book won't cover session draining in Kubernetes clusters.
+</p>
 <h3>Feature flags</h3>
 <p>
     The feature flag strategy involves building functionality into a new application version, and then exposing or hiding the feature for select end users outside of the deployment process.
@@ -70,10 +73,48 @@
 <p>
     In practice, the deployment of a new application version with flaggable features will be performed with one of the strategies above, so the feature flag strategy is a complement to those other strategies.
 </p>
+<p>
+    A more limited approach to feature flags may be to enable or disable features for an entire deployment. For example, a new feature may be exposed to testers in non-production environments, but be disabled entirely when deployed to production. This broader approach is something that can be managed as part of a deployment.
+</p>
 <h3>Feature branch</h3>
 <p>
     The feature branch strategy allows developers to deploy an application version with changes they are currently implementing, usually in a non-production environment, alongside the main deployment.
 </p>
 <p>
     It may not be necessary to maintain database backward and forward compatibility with feature branch deployments. Because feature branches are for testing and tend to be short-lived, it may be acceptable that each feature branch deployment has access to its own test database.
+</p>
+<h2>Seamless {{ site.platform }} deployments</h2>
+<p>
+    Kubernetes has out of the box support for the rolling deployment strategy for pods managed by a deployment, statefulset, or daemonset. Kubernetes also supports the recreate strategy for pods managed by a deployment. This gives us tick box support to utilize these strategies while deploying our applications.
+</p>
+<p>
+    More advanced deployment strategies like blue/green or canary will often require some planing during a deployment, or rely on third party networking tools to provide fine grained control over which services respond to a request.
+</p>
+<p>
+    Kubernetes has no concept of feature branch deployments. However, with some sensible naming patterns it is possible to implement feature branch deployments in a relatively straightforward manner.
+</p>
+<h3>Rolling and recreate deployments</h3>
+<p>
+    Although we didn't call it out in <a href="chapter1">chapter 1</a>, the deployment process we created is already configured to perform a rolling update. All Kubernetes deployment resources will be updated using either a rolling or recreate strategy, and the rolling update strategy was selected for us by default.
+</p>
+<p>
+    To make either strategy meaningful we need to deploy more than one pod, so open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change the replicas count to 5. This will result in 5 pods being created with the frontend web application, with traffic distributed between them by the service.
+</p>
+<p>
+    Deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment with the new replica count to populate the cluster with the new pods.
+</p>
+<p>
+    Now redeploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. When Octopus presents the package versions, expand the packages section, click the <b>SELECT VERSION</b> button next to the <b>octopussamples/randomquotesjava</b> package, tick the <b>Pre-release packages</b> option, and select the <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed by the web frontend. Click the <b>OK</b> button to select the new version.
+</p>
+<p class="note">
+    Although Docker tags have no concept of a pre-release, Octopus treats tags like <b>0.1.9-purpleheader</b> as a prerelease version, with the identifier <b>purpleheader</b> indicating this is a pre-release.
+</p>
+<p>
+    The log files generated during the deployment show entries like <b>Waiting for deployment "webapp" rollout to finish: 4 out of 5 new replicas have been updated...</b>, followed by entries like <b>Waiting for deployment "webapp" rollout to finish: 2 old replicas are pending termination...</b>. This indicates that Kubernetes is deploying pods with the new image before deleting pods with the old image.
+</p>
+<p>
+    Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option. Save the changes and redeploy the project to the <b>Development</b> environment.
+</p>
+<p>
+    Notice now the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of 5 new replicas have been updated...</b>, with the replica count increasing until all pods have been deployed. This indicates that the old pods were removed before any new pods were deployed.
 </p>
