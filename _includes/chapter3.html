@@ -128,5 +128,43 @@
 <div><img alt="Octopus environments" src="images/kubernetes/recreate-deployment.png"/></div>
 <h3>Blue/green deployments</h3>
 <p>
-    
+    Unlike the rolling and recreate strategies, blue/green deployments are not natively supported by Kubernetes. However, Octopus does provide the ability to perform blue/green deployments by orchestrating the various Kubernetes resources for you.
 </p>
+<p>
+    Open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Blue/Green deployments</b> option. Save the changes and deploy the project to the <b>Development</b> environment.
+</p>
+<p>
+    Notice that the logs container entries like <b>deployment.apps/webapp-deployments-101 created</b>. Of particular note is that the name of the deployment is made up of the name that was entered into the step, which was <b>webapp</b>, and a suffix like <b>-deployments-101</b>.
+</p>
+<p>
+    This is a crucial aspect of cloud deployments. To have the blue and green stacks coexist side by side in the cluster, resources like the Kubernetes deployment must have unique names. Octopus ensures this by appending the deployment ID to the end of the deployment name. This ensures each deployment orchestrated by Octopus generates a unique Kubernetes deployment resource.
+</p>
+<p>
+    Note though that not all resources created by this step have a unique name. There is only one service created as part of a blue/green deployment, so it retains the name of <b>webapp</b>.
+</p>
+<p class="note">
+    The service and ingress resources created by the step do not have the deployment ID appended to their names. The deployment/statefulset/daemonset, secret, configmap, and custom resources all have the deployment ID appended to their names during a blue/green deployment.
+</p>
+<p>
+    After the first blue/green deployment, our cluster looks like this. We have a shared service pointing to a uniquely named deployment. The deployment was successful, so the new deployment becomes the green stack:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen1.png"/></div>
+<p>
+    Now lets deploy the project to the <b>Development</b> environment again. Notice now the logs container entries like <b>deployment.apps/webapp-deployments-102 created</b>. This is a new deployment, so the suffix appended to the deployment resource has been updated.
+</p>
+<p>
+    As the new deployment resource is spun on in the cluster, the state of the cluster looks like this. The new deployment, considered to be the blue stack, is created but not yet receiving traffic:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen2.png"/></div>
+<p>
+    Once the new deployment resource has passed all of its health checks and is considered fully available, the service is updated to direct traffic to the it:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen3.png"/></div>
+<p>
+    The resources in the green stack are now deleted:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen4.png"/></div>
+<p>
+    With the deployment process now done, the resources from the blue stack are now considered to be the green stack:
+</p>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png"/></div>
