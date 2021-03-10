@@ -142,9 +142,6 @@
 <p>
     Note though that not all resources created by this step have a unique name. There is only one service created as part of a blue/green deployment, so it retains the name of <b>webapp</b>.
 </p>
-<p class="note">
-    The service and ingress resources created by the step do not have the deployment ID appended to their names. The deployment/statefulset/daemonset, secret, configmap, and custom resources all have the deployment ID appended to their names during a blue/green deployment.
-</p>
 <p>
     After the first blue/green deployment, our cluster looks like this. We have a shared service pointing to a uniquely named deployment. The deployment was successful, so the new deployment becomes the green stack:
 </p>
@@ -168,3 +165,100 @@
     With the deployment process now done, the resources from the blue stack are now considered to be the green stack:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png"/></div>
+<p>
+    So, in summary, these are the steps Octopus will orchestrate for a blue/green deployment:
+</p>
+<ol>
+    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Wait for the new deployment to pass its health checks and be available.</li>
+    <li>Update a shared service to point to the new deployment resource.</li>
+    <li>Delete the old deployment resources in the green stack.</li>
+    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+</ol>
+<h3>The opinions embedded in the Deploy Kubernetes containers step</h3>
+<p>
+    While performing a blue/green deployment we saw that Octopus will ensure that certain resources have unique names by appending the ID of the Octopus deployment to the end. In the case of a deployment resource, this is required to allow the green and blue stacks to coexist while traffic is cut over from the green stack to the blue stack.
+</p>
+<p>
+    Any secrets, configmaps, or custom resources defined in the <b>Deploy Kubernetes containers</b> step also have their names altered to ensure they are unique, regardless of the deployment strategy.
+</p>
+<p class="note">
+    A custom resource is any Kubernetes resource that can be defined in YAML. The ability to define a customer resource is enabled by clicking the <b>CONFIGURE FEATURES</b> button and selecting the <b>Custom Resource</b> option.
+</p>
+<p>
+    Providing unique names for these resources is one of the opinions that is baked into the <b>Deploy Kubernetes containers</b> step. The step assumes that these resources exist to support the main deployment resource, and that they are tightly bound to the lifecycle of any pods managed by the deployment.
+</p>
+<p>
+    For example, if a configmap is defined as part of the <b>Deploy Kubernetes containers</b> step, it is assumed that the data in the configmap is required for the pods managed by the deployment to run correctly. This might be because the configmap defines values that are exposed as pod environment variables, or mounted as files.
+</p>
+<p>
+    By ensuring the configmap has a unique name for each deployment, we can be sure that during a rolling or blue/green update, the old pods have access to the data in the old configmaps, and the new pods have access to the data in the new configmaps. If both the old and the new pods had shared a single configmap, it would be possible that any new data in the shared configmap would break the old pods in unexpected ways. 
+</p>
+<p>
+    Resources created by all other Kubernetes steps in Octopus do not alter the resource's names. So if for example you need to create a configmap that is shared between all pods, you can use the <b>Deploy Kubernetes config map resource</b> step, which will create a configmap with the name supplied in the step with no modification.
+</p>
+<h3>Preparing for a canary deployment</h3>
+<p>
+    Octopus managed the blue/green deployment for us with a hard cutover from the green to the blue stack once the blue stack was ready. Canary deployments are different in that only a subset of traffic is directed to the new blue stack. The blue stack traffic is incrementally increased until eventually all traffic has migrated from the green stack to the blue stack.
+</p>
+<p>
+    The networking features native to Kubernetes do not directly support this kind of graduated traffic increase. It would technically be possible to direct more traffic to the green stack through a service that selected pods from both the blue and green stacks, decreasing the blue stack pod count, and increasing the green stack pod count. But the traffic percentage changes are limited by the number of pods, making it a rather coarse solution.
+</p>
+<p>
+    Fortunately Kubernetes has a rich ecosystem of third party networking tools that specifically support canary deployments. One popular networking solution is the NGINX ingress controller.
+</p>
+<p class="note">
+    Kubernetes services coordinate layer 4 network traffic (i.e. TCP and UDP traffic) amongst pods. Ingress controllers provide an additional layer to direct layer 7 traffic (i.e. HTTP traffic) to services. Kubernetes provides a standard ingress resource, but does not supply an ingress controller to implement the ingress rules. Third party ingress controllers, like NGINX, are installed into a Kubernetes cluster to implement ingress rules.
+</p>
+<p>
+    The easiest way to install tools like NGINX in a Kubernetes cluster is with Helm. Helm is like an operating system package manager, such as Chocolatey for Windows or APT for Ubuntu, with the obvious difference being Helm is used to deploy applications into a Kubernetes cluster.
+</p>
+<p>
+    To consume Helm packages, called charts, we need to add a Helm external feed. Open <b>Library -> External Feeds</b>, and click the <b>ADD FEED</b> button. Select <b>Helm Feed</b> as the feed type, and give the feed the name of <b>Helm</b>. The default URL of https://charts.helm.sh/stable is fine, so click the <b>SAVE</b> button.
+</p>
+<p>
+    We'll then deploy the NGINX ingress controller through a new runbook in the <b>Kubernetes DevOps</b> project called <b>Deploy NGINX Ingress Controller</b>. Add the <b>Upgrade a Helm Chart</b> step to the runbook.
+</p>
+<p>
+    This step will run on behalf of targets in the <b>Kubernetes Admin</b> role. The step will also need access to the <b>helm</b> command line tool, which we can access by using the <b>octopusdeploy/worker-tools:windows.ltsc2019</b> or <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container images.
+</p>
+<p>
+    Select the <b>Helm</b> feed in the chart section, and enter <b>nginx-ingress</b> as the package id. Finally enter <b>nginx-ingress</b> as the Kubernetes release name.
+</p>
+<p>
+    All the other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b> environment.
+</p>
+<p>
+    The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various resources needed for that application to function. One of the resources that we are interested in is the load balancer service created to direct public network traffic into the ingress controller. This load balancer service is much the same as we created in <a href="chapter1">chapter 1</a>, except that the traffic is now sent to an ingress controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
+</p>
+<p>
+    As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the <b>Get Service IP</b> runbook from <a href="chapter1">chapter 1</a>. By running this runbook in the <b>Admin</b> environment, we can get the IP address of the NGINX load balancer service. The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></div>
+<p>
+    We now have an ingress controller to split our canary traffic between an existing and a new deployment and its service. The next step is to deploy the frontend web application to support canary deployments.
+</p>
+<h3>Canary deployments</h3>
+<p>
+    While the blue/green deployment strategy was easy to implement thanks to the fact that all it took selecting an single option in the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not customizable. The process it implements is very similar to what we want to achieve in a canary deployment though. So we'll go ahead and recreate the blue/green deployment process as individual steps in a deployment process. 
+</p>
+<p>
+    If you recall from the previous section, a blue/green deployment performs the following steps:
+</p>
+<ol>
+    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Wait for the new deployment to pass its health checks and be available.</li>
+    <li>Update a shared service to point to the new deployment resource.</li>
+    <li>Delete the old deployment resources in the green stack.</li>
+    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+</ol>
+<p>
+    Performing a canary deployment is a little more complicated, but shared many of those steps. Our canary deployment will follow these steps:
+</p>
+<ol>
+    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Wait for the new deployment to pass its health checks and be available.</li>
+    <li>Create a service to direct traffic to the </li>
+    <li>Delete the old deployment resources in the green stack.</li>
+    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+</ol>
