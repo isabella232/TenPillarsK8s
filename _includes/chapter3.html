@@ -246,19 +246,216 @@
     If you recall from the previous section, a blue/green deployment performs the following steps:
 </p>
 <ol>
-    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Create a Kubernetes deployment resource with a unique name in the green stack.</li>
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Update a shared service to point to the new deployment resource.</li>
-    <li>Delete the old deployment resources in the green stack.</li>
-    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+    <li>Delete the old deployment resources in the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
 </ol>
 <p>
-    Performing a canary deployment is a little more complicated, but shared many of those steps. Our canary deployment will follow these steps:
+    Performing a canary deployment is a little more complicated, but shares many of those steps. Our canary deployment will follow this process:
 </p>
 <ol>
-    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Create a Kubernetes deployment resource with a unique name in the green stack.</li>
     <li>Wait for the new deployment to pass its health checks and be available.</li>
-    <li>Create a service to direct traffic to the </li>
-    <li>Delete the old deployment resources in the green stack.</li>
-    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+    <li>Create a unique service to direct traffic to the pods in the green stack.</li>
+    <li>Create an temporary ingress to direct traffic to the green stacks.</li>
+    <li>Incrementally increase the traffic directed to the green stack until it reaches 100%.</li>
+    <li>(Re)create the main ingress to point traffic to the green stack.</li>
+    <li>Delete the temporary ingress.</li>
+    <li>Delete the old deployment resources in the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
 </ol>
+<p>
+    Let's create a new project called <b>Random Quotes - Frontend - Canary</b>. Go to the process editor and add a new <b>Deploy Kubernetes containers</b> step.
+</p>
+<p>
+    Import the following YAML in the <b>Deployment</b> section:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'webapp-canary-#{Octopus.Deployment.Id | ToLower}'
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: webapp
+          image: index.docker.io/octopussamples/randomquotesjava
+          ports:
+            - name: web
+              containerPort: 5555
+          env:
+            - name: SPRING_CONFIG_NAME
+              value: postgres-application
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_URL
+              value: 'jdbc:postgresql://postgres.backend-development:5432/postgres'
+            - name: POSTGRES_PASS
+              value: '#{DatabasePassword}'
+          readinessProbe:
+            failureThreshold: 6
+            periodSeconds: 20
+            tcpSocket:
+              host: ''
+              port: 5555
+</pre>
+<p>
+    Notice the deployment name is set to <b>webapp-canary-#{Octopus.Deployment.Id | ToLower}</b>. Generating a unique name with each deployment replicates the functionality that Octopus provides automatically when performing a blue/green deployment.
+</p>
+<p>
+    Otherwise the configuration of this deployment is the same as we configured previously.
+</p>
+<p>
+    Under the <b>Service</b> section import the following YAML:
+</p>
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'webapp-canary-#{Octopus.Deployment.Id | ToLower}'
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 80
+      targetPort: 5555
+      protocol: TCP
+  selector:
+    octopusexport: OctopusExport
+</pre>
+<p>
+    Again we have given this service a unique name, ensuring each time we deploy this project with Octopus a new service will be created.
+</p>
+<p>
+    The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only thing that needs to change is the URL that each of the tests contacts, which has changed now to http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development thanks to the unique name now assigned to the service with each deployment.
+</p>
+<p>
+    Making this change in the smoke tests is easy, as we implemented those with inline Bash scripts, and the URL can be updated im place by updating the script. But how do you go ahead and update in the Postman and Cypress scripts we used for the integration and end-to-end tests?
+</p>
+<p>
+    To achieve this, we'll make use a feature in Octopus called <b>Structured Configuration Variables</b>, which will inject values into structured data files such as YAML, JSON, XML, or Java Properties files.
+</p>
+<p>
+    Let's start with the Postman collection JSON file. Because this test uses a format recognized by the <b>Structured Configuration Variables</b> feature, we can reuse the existing test and modify it at runtime to suit our needs.
+</p>
+<p>
+    Here is the JSON file again:
+</p>
+<pre>
+{
+    "info": {
+        "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
+        "name": "RandomQuotes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Quotes API",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"response must be valid and have a body\", function () {\r",
+                            "     pm.response.to.be.ok;\r",
+                            "     pm.response.to.be.withBody;\r",
+                            "     pm.response.to.be.json;\r",
+                            "\r",
+                            "     pm.expect(pm.response.json().quote != \"\").to.be.true;\r",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://webapp.frontend-development/api/quote",
+                    "protocol": "http",
+                    "host": [
+                        "webapp",
+                        "frontend-development"
+                    ],
+                    "path": [
+                        "api",
+                        "quote"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
+</pre>
+<p>
+    To edit this file to make it useful for our new service URL we need to update the <b>item[0].request.url.raw</b> property from <b>http://webapp.frontend-development/api/quote</b> to <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development</b>.
+</p>
+<p>
+    The syntax we used to create the property <b>item[0].request.url.raw</b> will likely be familiar to developers, but it can be strange if you do not write code for a living.
+</p>
+<p>
+    The property is broken down by periods into four items: <b>item[0]</b>, <b>request</b>, <b>url</b>, and <b>raw</b>. The first element of <b>item</b> refers to the array of the same name in the JSON file. The square brackets of <b>[0]</b> indicates that we are selecting the first item in the array. 
+</p>
+<p class="note">
+    JSON arrays are identified by square brackets. Arrays use a zero based index, meaning the index of zero references the first item.
+</p>
+<p>
+    We then continue to traverse the JSON tree. The <b>request</b> element selects the object of the same name inside the first element of the <b>item</b> array. We then select the <b>url</b> object, and finally the <b>raw</b> property.
+</p>
+<p class="note">
+    JSON objects are identified by curly brackets.
+</p>
+<p>
+    We also need to update the <b>item[0].request.url.host[0]</b> property to <b>webapp-canary-#{Octopus.Deployment.Id | ToLower}</b>, and <b>item[0].request.url.host[1]</b> to <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    To configure Octopus to make these changes for us we need to create three variables. The first will have the name <b>item[0].request.url.raw</b> and the value <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}</b>. The second will have the name <b>item[0].request.url.host[0]</b> and the value <b>webapp-canary-#{Octopus.Deployment.Id | ToLower}</b>. The third will have the name <b>item[0].request.url.host[1]</b> and the value <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    Then in the script step that is running the integration test, click the <b>CONFIGURE FEATURES</b> button, select the <b>Structured Configuration Variables</b> option, and save the changes.
+</p>
+<p>
+    This will display a new section in the step called <b>Structured Configuration Variables</b>. We then list the files that we want Octopus to process in the target files text box. We can enter <b>IntegrationTest/*.json</b> to have Octopus attempt to inject any the values of the two variables we created earlier into any JSON file found from the <b>IntegrationTest</b> additional package reference. The wildcard syntax means our file called <b>RandomQuotes.postman_collection.json</b> will be matched and processed.
+</p>
+<p>
+    We can perform a similar manipulation in the script step running the end-to-end test. Edit that step to enabled the <b>Structured Configuration Variables</b> feature, and then specify the file <b>cypress/cypress.json</b> in the target files text box.
+</p>
+<p>
+    If you recall from <a href="#chapter2">chapter 2</a> the <b>cypress.json</b> file looks like this:
+</p>
+<pre>
+{
+    "baseUrl": "http://webapp.frontend-development",
+    "reporter": "mochawesome",
+    "reporterOptions": {
+        "charts": true,
+        "overwrite": false,
+        "html": true,
+        "json": false,
+        "reportDir": "."
+    }
+}
+</pre>
+<p>
+    We want to update the <b>baseUrl</b> property to  <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development</b>. So add an Octopus variable called <b>baseUrl</b> with the value of <b> http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    By using the <b>Structured Configuration Variables</b> options in our integration and end-to-end test scripts we can take test scripts generated by external tools with values that are not specific to our infrastructure and modify them at deployment time to suit our needs. This pattern allows us to write test scripts that work on a local PC (for example targeting URLs like http://localhost) and use them across multiple environments. Doing so frees the test writers from providing multiple test packages to support each environment, or even from knowing the details of the environments that the tests will eventually be run in. We take care of this at deployment time.
+</p>
+<p>
+    Once the tests pass we will direct a subset of incoming traffic to the canary stack (or green stack in keeping with the terminology we have already used in blue/green deployments) via an ingress.
+</p>
