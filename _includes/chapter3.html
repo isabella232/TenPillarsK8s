@@ -143,7 +143,7 @@
     Note though that not all resources created by this step have a unique name. There is only one service created as part of a blue/green deployment, so it retains the name of <b>webapp</b>.
 </p>
 <p>
-    After the first blue/green deployment, our cluster looks like this. We have a shared service pointing to a uniquely named deployment. The deployment was successful, so the new deployment becomes the green stack:
+    After the first blue/green deployment, our cluster looks like this. We have a shared service pointing to a uniquely named deployment. The deployment was successful, so the new deployment becomes the blue stack:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen1.png"/></div>
 <p>
@@ -158,22 +158,22 @@
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen3.png"/></div>
 <p>
-    The resources in the green stack are now deleted:
+    The resources in the blue stack are now deleted:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen4.png"/></div>
 <p>
-    With the deployment process now done, the resources from the blue stack are now considered to be the green stack:
+    With the deployment process now done, the resources from the green stack are now considered to be the blue stack:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png"/></div>
 <p>
     So, in summary, these are the steps Octopus will orchestrate for a blue/green deployment:
 </p>
 <ol>
-    <li>Create a Kubernetes deployment resource with a unique name in the blue stack.</li>
+    <li>Create a Kubernetes deployment resource with a unique name in the green stack.</li>
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Update a shared service to point to the new deployment resource.</li>
-    <li>Delete the old deployment resources in the green stack.</li>
-    <li>At the end of the deployment, the blue stack is considered to now be the green stack.</li>
+    <li>Delete the old deployment resources in the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
 </ol>
 <h3>The opinions embedded in the Deploy Kubernetes containers step</h3>
 <p>
