@@ -835,6 +835,143 @@ spec:
 <p>
     If you find yourself in a situation where privileged containers are not an option, adding a tentacle to an existing third party Docker image to create a specialized worker image is your best bet for running tests inside a Kubernetes cluster.
 </p>
+<h3>Modifying tests for other environments</h3>
+<p>
+    If you had a keen eye you may have noticed that our tests hard code a URL to the web application in the frontend namespace. If we progress the deployment to the test and production environments, our tests would still be run against the development environment. Obviously this is not going to achieve the outcome we need, so we need a way to make the tests target the environment we are currently deploying to.
+</p>
+<p>
+    Modifying the smoke test is easy as this is an inline script. Update the script to reference the environment name as a variable, like so:
+</p>
+<pre>
+# Contact the HTTP API
+curl -sSf http://webapp.frontend-#{Octopus.Environment.Name | ToLower}/api/quote > /dev/null
+
+# Fail if curl failed
+if [[ $? != 0 ]]; then
+    return 1
+fi;
+
+# Contact the web frontend
+curl -sSf http://webapp.frontend-#{Octopus.Environment.Name | ToLower} > /dev/null
+</pre>
+<p>
+    To achieve this, we'll use a feature in Octopus called <b>Structured Configuration Variables</b>, which injects values into structured data files such as YAML, JSON, XML, or Java Properties files.
+</p>
+<p>
+    Let's start with the Postman collection JSON file. Because this file is a format recognized by the <b>Structured Configuration Variables</b> feature, we can reuse the existing test and modify it at runtime to suit our needs.
+</p>
+<p>
+    Here is the JSON file again:
+</p>
+<pre>
+{
+    "info": {
+        "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
+        "name": "RandomQuotes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Quotes API",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"response must be valid and have a body\", function () {\r",
+                            "     pm.response.to.be.ok;\r",
+                            "     pm.response.to.be.withBody;\r",
+                            "     pm.response.to.be.json;\r",
+                            "\r",
+                            "     pm.expect(pm.response.json().quote != \"\").to.be.true;\r",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://webapp.frontend-development/api/quote",
+                    "protocol": "http",
+                    "host": [
+                        "webapp",
+                        "frontend-development"
+                    ],
+                    "path": [
+                        "api",
+                        "quote"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
+</pre>
+<p>
+    To edit this file to make it useful for our new service URL we need to update the <b>item:0:request:url:raw</b> property from <b>http://webapp.frontend-development/api/quote</b> to <b>http://webapp.{Octopus.Environment.Name | ToLower}-development</b>.
+</p>
+<p>
+    The syntax we used to create the property <b>item:0:request:url:raw</b> is unique to Octopus, so let's explain each element.
+</p>
+<p>
+    The property is broken down by colons into five items: <b>item</b>, <b>0,</b>, <b>request</b>, <b>url</b>, and <b>raw</b>.
+</p>
+<p>
+    The first element of <b>item</b> refers to the array of the same name in the JSON file.
+</p>
+<p>
+    The second element of <b>0</b> indicates that we are selecting the first item in the array. 
+</p>
+<p class="note">
+    JSON arrays are identified by square brackets. Arrays use a zero based index, meaning the index of zero references the first item.
+</p>
+<p>
+    We then continue to traverse the JSON tree. The <b>request</b> element selects the object of the same name inside the first element of the <b>item</b> array. We then select the <b>url</b> object, and finally the <b>raw</b> property.
+</p>
+<p class="note">
+    JSON objects are identified by curly brackets.
+</p>
+<p>
+    We also need to update the <b>item:0:request:url:host:1:</b> to <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    To configure Octopus to make these changes for us we need to create three variables. The first will have the name <b>item:0:request:url:raw</b> and the value <b>http://webapp.frontend-#{Octopus.Environment.Name | ToLower}</b>. The second will have the name <b>item:0:request:url:host:1</b> and the value <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    Then in the script step that is running the integration test, click the <b>CONFIGURE FEATURES</b> button, select the <b>Structured Configuration Variables</b> option, and save the changes.
+</p>
+<p>
+    This will display a new section in the step called <b>Structured Configuration Variables</b>. We then list the files that we want Octopus to process in the target files text box. We can enter <b>IntegrationTest/*.json</b> to have Octopus attempt to inject any the values of the two variables we created earlier into any JSON file found from the <b>IntegrationTest</b> additional package reference. The wildcard syntax means our file called <b>RandomQuotes.postman_collection.json</b> will be matched and processed.
+</p>
+<p>
+    We can perform a similar manipulation in the script step running the end-to-end test. Edit that step to enabled the <b>Structured Configuration Variables</b> feature, and then specify the file <b>cypress/cypress.json</b> in the target files text box.
+</p>
+<p>
+    Here is the <b>cypress.json</b> file again:
+</p>
+<pre>
+{
+    "baseUrl": "http://webapp.frontend-development",
+    "reporter": "mochawesome",
+    "reporterOptions": {
+        "charts": true,
+        "overwrite": false,
+        "html": true,
+        "json": false,
+        "reportDir": "."
+    }
+}
+</pre>
+<p>
+    We want to update the <b>baseUrl</b> property to  <b>http://webapp.frontend-development</b>. So add an Octopus variable called <b>baseUrl</b> with the value of <b> http://webapp.frontend-#{Octopus.Environment.Name | ToLower}</b>.
+</p>
+<p>
+    By using the <b>Structured Configuration Variables</b> options in our integration and end-to-end test scripts we can take test scripts generated by external tools with values that are not specific to our infrastructure and modify them at deployment time to suit our needs. Although our test scripts were written to expressly target the original web application in the development environment with the hard coded URL http://webapp.frontend-development, typically this pattern is used to write test scripts that work on a local PC (for example targeting URLs like http://localhost) and then implement them across multiple environments. Doing so frees the test writers from providing multiple test packages to support each environment, or even from knowing the details of the environments that the tests will eventually be run in. We take care of this at deployment time.
+</p>
 <h2>Conclusion</h2>
 <p>
     The idea of testing code before it is considered suitable to release has won wide adoption amongst developers, and for good reason: catching errors early makes them easier to fix and increases the likelihood that solutions provided to the end user work as expected.
@@ -853,6 +990,7 @@ spec:
     <li>Ran smoke tests against the backend database and frontend web application.</li>
     <li>Ran an integration test against the frontend API using Postman and its command line tool Newman.</li>
     <li>Ran an end-to-end test against the frontend web application using Cypress.</li>
+    <li>Used structured variable replacement to modify JSON files for each environment.</li>
     <li>Created a number of custom container images to provide the libraries required by calamari.</li>
     <li>Discussed the limitations of Octopus artifacts, and how they can be overcome with tools that create selfcontained HTML files.</li>
 </ul>
