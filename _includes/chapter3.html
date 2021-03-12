@@ -700,7 +700,7 @@ spec:
     We start by creating a second lifecycle with only the <b>Development</b> and <b>Test</b> environments. Open <b>Library -> Lifecycles</b>, and using the same process that we followed in <a href="@chapter1">chapter 1</a>, create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain the environment of the same name.
 </p>
 <p>
-    Back in our deployment project, lick the <b>Channels</b> link. Each project has a <b>Default</b> lifecycle that inherits the lifecycle assigned to the deployment process. This lifecycle allows deployments to be progressed all the way to production. We want to ensure that only images without a prerelease version component, for example versions like <b>0.1.9</b>, can be deployed through this lifecycle.
+    Back in our deployment project, click the <b>Channels</b> link. Each project has a <b>Default</b> lifecycle that inherits the lifecycle assigned to the deployment process. In our case this lifecycle allows deployments to be progressed all the way to production. We want to ensure that only images without a prerelease version component, for example versions like <b>0.1.9</b>, can be deployed through this lifecycle.
 </p>
 <p>
     Click the <b>Default</b> lifecycle, and click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>^$</b> for the pre-release tag. This string is a regular expression that only matches an empty string, which means it only matches versions like <b>0.1.9</b>.
@@ -709,13 +709,13 @@ spec:
     Save the changes, and return to the list of channels again. Click the <b>ADD CHANNEL</b> button to add a new channel rule. Give it the name <b>Feature Branch</b> and select the <b>Dev and Test</b> lifecycle.
 </p>
 <p>
-    Click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>.+</b> for the pre-release tag. This is a regular expression that matches any character one or more times, which means it only matches versions like <b>0.1.9-purpleheader</b>. CLick <b>SAVE</b> to save the changes.
+    Click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>.+</b> for the pre-release tag. This is a regular expression that matches any character one or more times, which means it only matches versions like <b>0.1.9-purpleheader</b>. Click <b>SAVE</b> to save the changes.
 </p>
 <p>
-    Now create a new release, select the feature branch channel, and select the image version <b>0.1.9-purpleheader</b>. Note that when you browse for image versions, mainline versions like <b>0.1.9</b> are not available. Deploy the release to the <b>Development</b> environment.
+    Now create a new release, select the <b>Feature Branch</b> channel, and select the image version <b>0.1.9-purpleheader</b>. Note that when you browse for image versions, mainline versions like <b>0.1.9</b> are not available. Deploy the release to the <b>Development</b> environment.
 </p>
 <p>
-    Return to the <b>Overview</b> page, and notice now that the feature branch release can only be promoted from the <b>Development</b> environment to the <b>Test</b> environment. There is no ability to deploy it into the <b>Production</b> environment.
+    Return to the <b>Overview</b> page, and notice now that the feature branch release can only be promoted from the <b>Development</b> environment to the <b>Test</b> environment. There is no ability to deploy it into the <b>Production</b> environment:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/channel-dashboard.png"/></div>
 <p>
