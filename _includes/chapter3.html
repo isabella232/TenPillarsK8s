@@ -442,7 +442,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were <b>not</b> created by the current deployment, which means it only matches resources created by previous deployments.</li>
 </ul>
 <p class="note">
-    Octopus tenants provide an additional dimension along which deployments can be managed. The canonical use case is where an application is deployed independently for multiple customers. For example, Acme Corporation may receive each now release of an application, while Globex Corporation may only receive major releases. Defining these companies as tenants allows their deployments to be managed separately.
+    Octopus tenants provide an additional dimension along which deployments can be managed. The canonical use case is where an application is deployed independently for multiple customers. For example, Acme Corporation may receive each minor release of an application, while Globex Corporation may only receive major releases. Defining these companies as tenants allows their deployments to be managed separately.
 </p>
 <p>
     The end result of these <b>kubectl</b> commands is to delete any resources created by a previous deployment by this project in the same environment for the same tenant. Or, in other words, deleting the blue stack.
