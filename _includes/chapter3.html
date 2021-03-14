@@ -3,7 +3,7 @@
     Reducing or eliminating downtime during a deployment becomes increasingly critical as the number and frequency of deployments increases. There are a number of common deployment strategies to reduce downtime or ensure our applications remain available throughout a deployment, resulting in seamless deployments. Given the range of high quality networking solutions that are available in the Kubernetes ecosystem, Kubernetes deployments are well placed to take advantage of these strategies.
 </p>
 <p>
-    In this chapter we'll look at the common deployment strategies and provide examples of how these strategies can be realized with an Octopus deployment.
+    In this chapter we'll look at the common deployment strategies and provide examples of how these strategies can be realized within Octopus.
 </p>
 <h2>Dealing with databases during deployments</h2>
 <p>
@@ -88,23 +88,23 @@
     Kubernetes has out of the box support for the rolling deployment strategy for pods managed by a deployment, statefulset, or daemonset. Kubernetes also supports the recreate strategy for pods managed by a deployment. This gives us tick box support to utilize these strategies while deploying our applications.
 </p>
 <p>
-    More advanced deployment strategies like blue/green or canary will often require some planing during a deployment, or rely on third party networking tools to provide fine grained control over which services respond to a request.
+    More advanced deployment strategies like blue/green or canary will require some planning during a deployment, or rely on third party networking tools to provide fine grained control over which services respond to a request.
 </p>
 <p>
-    Kubernetes has no concept of feature branch deployments. However, with some sensible naming patterns it is possible to implement feature branch deployments in a relatively straightforward manner.
+    Kubernetes has no concept of feature branch deployments. However, with some sensible naming conventions it is possible to implement feature branch deployments in a relatively straightforward manner.
 </p>
 <h3>Rolling and recreate deployments</h3>
 <p>
     Although we didn't call it out in <a href="chapter1">chapter 1</a>, the deployment process we created is already configured to perform a rolling update. All Kubernetes deployment resources will be updated using either a rolling or recreate strategy, and the rolling update strategy was selected for us by default.
 </p>
 <p>
-    To make either strategy meaningful we need to deploy more than one pod, so open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change the replicas count to 5. This will result in 5 pods being created with the frontend web application, with traffic distributed between them by the service.
+    To make either strategy meaningful we need to deploy more than one pod, so open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change the replicas count to 5. This will result in 5 pods being created hosting the frontend web application, with traffic distributed between them by the service.
 </p>
 <p>
     Deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment with the new replica count to populate the cluster with the new pods.
 </p>
 <p>
-    Now redeploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. When Octopus presents the package versions, expand the packages section, click the <b>SELECT VERSION</b> button next to the <b>octopussamples/randomquotesjava</b> package, tick the <b>Pre-release packages</b> option, and select the <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed by the web frontend. Click the <b>OK</b> button to select the new version.
+    Now redeploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. When Octopus presents the package versions, expand the packages section, click the <b>SELECT VERSION</b> button next to the <b>octopussamples/randomquotesjava</b> package, tick the <b>Pre-release packages</b> option, and select the <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed by the web application. Click the <b>OK</b> button to select the new version.
 </p>
 <p class="note">
     Although Docker tags have no concept of a pre-release, Octopus treats tags like <b>0.1.9-purpleheader</b> as a prerelease version, with the identifier <b>purpleheader</b> indicating this is a pre-release.
@@ -117,7 +117,7 @@
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png"/></div>
 <p>
-    Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option. Save the changes and redeploy the project to the <b>Development</b> environment.
+    Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step deploying the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option. Save the changes and redeploy the project to the <b>Development</b> environment.
 </p>
 <p>
     Notice now the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of 5 new replicas have been updated...</b>, with the replica count increasing until all pods have been deployed. This indicates that the old pods were removed before any new pods were deployed.
@@ -131,13 +131,13 @@
     Unlike the rolling and recreate strategies, blue/green deployments are not natively supported by Kubernetes. However, Octopus does provide the ability to perform blue/green deployments by orchestrating the various Kubernetes resources for you.
 </p>
 <p>
-    Open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Blue/Green deployments</b> option. Save the changes and deploy the project to the <b>Development</b> environment.
+    Open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step deploying the frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Blue/Green deployments</b> option. Save the changes and deploy the project to the <b>Development</b> environment.
 </p>
 <p>
-    Notice that the logs container entries like <b>deployment.apps/webapp-deployments-101 created</b>. Of particular note is that the name of the deployment is made up of the name that was entered into the step, which was <b>webapp</b>, and a suffix like <b>-deployments-101</b>.
+    Notice that the logs contains entries like <b>deployment.apps/webapp-deployments-101 created</b>. Of particular note is that the name of the deployment is made up of the name that was entered into the step, which was <b>webapp</b>, and a suffix like <b>-deployments-101</b>.
 </p>
 <p>
-    This is a crucial aspect of cloud deployments. To have the blue and green stacks coexist side by side in the cluster, resources like the Kubernetes deployment must have unique names. Octopus ensures this by appending the deployment ID to the end of the deployment name. This ensures each deployment orchestrated by Octopus generates a unique Kubernetes deployment resource.
+    This is a crucial aspect of blue/green deployments. To have the blue and green stacks coexist side by side in the cluster, resources like the Kubernetes deployment must have unique names. Octopus ensures this by appending the deployment ID to the end of the deployment name. This ensures each deployment orchestrated by Octopus generates a unique Kubernetes deployment resource.
 </p>
 <p>
     Note though that not all resources created by this step have a unique name. There is only one service created as part of a blue/green deployment, so it retains the name of <b>webapp</b>.
@@ -147,14 +147,14 @@
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen1.png"/></div>
 <p>
-    Now lets deploy the project to the <b>Development</b> environment again. Notice now the logs container entries like <b>deployment.apps/webapp-deployments-102 created</b>. This is a new deployment, so the suffix appended to the deployment resource has been updated.
+    Now lets deploy the project to the <b>Development</b> environment again. Notice now the logs contain entries like <b>deployment.apps/webapp-deployments-102 created</b>. This is a new deployment, so the suffix appended to the deployment resource has been updated.
 </p>
 <p>
-    As the new deployment resource is spun on in the cluster, the state of the cluster looks like this. The new deployment, considered to be the green stack, is created but not yet receiving traffic:
+    As the new deployment resource is spun up in the cluster, the state of the cluster looks like this. The new deployment, considered to be the green stack, is created but not yet receiving traffic:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen2.png"/></div>
 <p>
-    Once the new deployment resource has passed all of its health checks and is considered fully available, the service is updated to direct traffic to the it:
+    Once the new deployment resource has passed all of its health checks and is considered fully available, the service is updated to direct traffic to it:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen3.png"/></div>
 <p>
@@ -162,7 +162,7 @@
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen4.png"/></div>
 <p>
-    With the deployment process now done, the resources from the green stack are now considered to be the blue stack:
+    With the deployment process now done, the resources from the green stack are considered to be the blue stack:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png"/></div>
 <p>
@@ -173,20 +173,20 @@
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Update a shared service to point to the new deployment resource.</li>
     <li>Delete the old deployment resources in the blue stack.</li>
-    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to be the blue stack.</li>
 </ol>
 <h3>The opinions embedded in the Deploy Kubernetes containers step</h3>
 <p>
-    While performing a blue/green deployment we saw that Octopus will ensure that certain resources have unique names by appending the ID of the Octopus deployment to the end. In the case of a deployment resource, this is required to allow the green and blue stacks to coexist while traffic is cut over from the green stack to the blue stack.
+    While performing a blue/green deployment we saw that Octopus will ensure certain resources have unique names by appending the ID of the Octopus deployment to the end. In the case of a deployment resource, this is required to allow the green and blue stacks to coexist while traffic is cut over from the blue stack to the green stack.
 </p>
 <p>
     Any secrets, configmaps, or custom resources defined in the <b>Deploy Kubernetes containers</b> step also have their names altered to ensure they are unique, regardless of the deployment strategy.
 </p>
 <p class="note">
-    A custom resource is any Kubernetes resource that can be defined in YAML. The ability to define a customer resource is enabled by clicking the <b>CONFIGURE FEATURES</b> button and selecting the <b>Custom Resource</b> option.
+    A custom resource is any Kubernetes resource that can be defined in YAML. The ability to define a custom resource is enabled by clicking the <b>CONFIGURE FEATURES</b> button and selecting the <b>Custom Resource</b> option.
 </p>
 <p>
-    Providing unique names for these resources is one of the opinions that is baked into the <b>Deploy Kubernetes containers</b> step. The step assumes that these resources exist to support the main deployment resource, and that they are tightly bound to the lifecycle of any pods managed by the deployment.
+    Providing unique names for these resources is one of the opinions baked into the <b>Deploy Kubernetes containers</b> step. The step assumes that these resources exist to support the main deployment resource, and that they are tightly bound to the lifecycle of any pods managed by the deployment.
 </p>
 <p>
     For example, if a configmap is defined as part of the <b>Deploy Kubernetes containers</b> step, it is assumed that the data in the configmap is required for the pods managed by the deployment to run correctly. This might be because the configmap defines values that are exposed as pod environment variables, or mounted as files.
@@ -195,11 +195,11 @@
     By ensuring the configmap has a unique name for each deployment, we can be sure that during a rolling or blue/green update, the old pods have access to the data in the old configmaps, and the new pods have access to the data in the new configmaps. If both the old and the new pods had shared a single configmap, it would be possible that any new data in the shared configmap would break the old pods in unexpected ways. 
 </p>
 <p>
-    Resources created by all other Kubernetes steps in Octopus do not alter the resource's names. So if for example you need to create a configmap that is shared between all pods, you can use the <b>Deploy Kubernetes config map resource</b> step, which will create a configmap with the name supplied in the step with no modification.
+    Resources created by all other Kubernetes steps in Octopus do not alter the resource's names. So if, for example, you need to create a configmap that is shared between all pods at all times, you can use the <b>Deploy Kubernetes config map resource</b> step, which will create a configmap with the name supplied in the step with no modification.
 </p>
 <h3>Preparing for a canary deployment</h3>
 <p>
-    Octopus managed the blue/green deployment for us with a hard cutover from the green to the blue stack once the blue stack was ready. Canary deployments are different in that only a subset of traffic is directed to the new blue stack. The blue stack traffic is incrementally increased until eventually all traffic has migrated from the green stack to the blue stack.
+    Octopus managed the blue/green deployment for us with a hard cutover from the blue to the green stack once the blue stack was ready. Canary deployments are different in that only a subset of traffic is directed to the new green stack. The green stack traffic is incrementally increased until eventually all traffic has migrated from the blue stack to the green stack.
 </p>
 <p>
     The networking features native to Kubernetes do not directly support this kind of graduated traffic increase. It would technically be possible to direct more traffic to the green stack through a service that selected pods from both the blue and green stacks, decreasing the blue stack pod count, and increasing the green stack pod count. But the traffic percentage changes are limited by the number of pods, making it a rather coarse solution.
