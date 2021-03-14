@@ -1,0 +1,160 @@
+<h1><a id="chapter4">Recoverable deployments</a></h1>
+<p>
+    The aim of implementing repeatable and verifiable deployments, tested in non-production environments before being released to production, is to identify bugs before they can affect end users. However, some bugs will inevitably find their way to production. When they do, it is important to restore the production environment to a desirable state.
+</p>
+<h2>Rolling back or forward</h2>
+<p>
+    Recovering from an undesirable deployment means rolling back to a previous good deployment, or rolling forward to a new version that returns the environment to a desirable state.
+</p>
+<p>
+    Either solution is suitable for stateless applications, but when a database is involved, rollbacks must be treated with care.
+</p>
+<p>
+    This is the advice from the FlyWay project, which is an open source tool to perform database migrations:
+</p>
+<blockquote>
+    While the idea of undo migrations is nice, unfortunately it sometimes breaks down in practice. As soon as you have destructive changes (drop, delete, truncate, …), you start getting into trouble. And even if you don’t, you end up creating home-made alternatives for restoring backups, which need to be properly tested as well.
+</blockquote>
+<p>
+    RedGate, a company specializing in database tooling, offers this advice for database rollbacks:
+</p>
+<blockquote>
+    Rather than investing time and energy into rollback planning, an alternative is to follow an approach that keeps you moving forward.
+</blockquote>
+<p>
+    The Octopus blog post Pitfalls with SQL rollbacks and automated database deployments has this advice:
+</p>
+<blockquote>
+    More often than not, the effort to successfully rollback a deployment far exceeds the effort it would take to push a fix to production.
+</blockquote>
+<p>
+    When deployments involve database changes, the general recommendation is that you roll forward to recover from an undesirable deployment.
+</p>
+<h2>Rolling back</h2>
+<p>
+    With repeatable deployments, rolling back can be achieved by rerunning a previous deployment. This is possible because the package versions, scripts, and variables are all defined by a repeatable deployment.
+</p>
+<p>
+    Rollbacks are also an explicit feature of several seamless deployment strategies:
+</p>
+<ul>
+    <ol>Canary deployments implement rollbacks by redirecting all traffic from the new deployment to the current deployment.</ol>
+    <ol>Blue/green deployments can rollback a deployment by cutting traffic back to the blue stack.</ol>
+    <ol>Session draining deployments can redirect new sessions to the current deployment, and optionally kill any sessions in the new deployment.</ol>
+</ul>
+<p>
+    Rollbacks have the following benefits:
+</p>
+<ul>
+    <ol>A deployment issue can be fixed, without writing code, by rolling back to a previous deployment.</ol>
+    <ol>A rollback leaves the system in a known, verified state.</ol>
+    <ol>The time to complete a rollback can be measured in non-production environments.</ol>
+</ul>
+<p>
+    Rollbacks have the following disadvantages:
+</p>
+<ul>
+    <ol>Rollbacks are all or nothing operations. You can not roll back individual features, only entire deployments.</ol>
+    <ol>Rollbacks need to be tested as part of the deployment process to ensure they work as expected, which increases the complexity and time of the deployment process.</ol>
+    <ol>If a rollback fails, it is likely that you will need to resolve the issue by rolling forward.</ol>
+    <ol>Database rollbacks require special consideration to ensure data is not lost.</ol>
+</ul>
+<h2>Rolling forward</h2>
+<p>
+    Rolling forward is simply another way to describe performing a new deployment. In this case the new deployment will only contain the fixes required to restore an environment.
+</p>
+<p>
+    Rolling forward has the following benefits:
+</p>
+<ul>
+    <li>All deployments strategies, with or without a database, inherently support rolling forward.</li>
+    <li>Teams gain experience in rolling forward with every deployment.</li>
+    <li>You can choose the scope of a change or fix when rolling forward.</li>
+    <li>Multiple deployments can be made in succession while rolling forward to resolve an undesirable deployment.</li>
+</ul>
+<p>
+    Rolling forward has the following disadvantages:
+</p>
+<ul>
+    <li>Rolling forward typically requires a developer to implement a fix to include in the next deployment.</li>
+    <li>Rolling forward may involve bypassing the environmental progression typically used to verify a deployment to get a fix deployed as quickly as possible.</li>
+    <li>The production environment will be left in an undesirable state for as long as it takes to develop and deploy the next version.</li>
+</ul>
+<h2>Recoverable {{ site.platform }} deployments</h2>
+<p>
+    Rolling forward or back is conceptually easy to understand, and Kubernetes even offers native support for rollbacks. However, there are some considerations we need to take into account when rolling back or forwards.
+</p>
+<h2>{{ site.platform }} Rollbacks</h2>
+<p>
+    Kubernetes provides the ability to roll back a deployment, statefulset, and daemonset. The command below will roll back the changes of a deployment called <b>mydeployment</b> to a previous version:
+</p>
+<pre>
+kubectl rollout undo deployment.v1.apps/mydeployment
+</pre>
+<p>
+    Despite this built in functionality, we will not use this feature in this book, because it does not take into account the reality that a deployment resource is typically dependant on many other resources not considered by the native undo command.
+</p>
+<p>
+    Back in <a href="#chapter3">chapter 3</a> we looked at the opinions baked into the <b>Deploy Kubernetes containers</b> step, and noted how resources like configmaps and secrets create by the step have unique names generated each time the step is run.
+</p>
+<p>
+    This is because a configmap or secret can contain values that are tightly coupled to an individual deployment resources. For example, a configmap or secret can contain values used as environment variables in the associated deployment, or may expose items that are mounted as files. When used this way, a configmap or secret can be thought of as children of the deployment resource rather than independent resources.
+</p>
+<p>
+    The native rollback functionality provided by Kubernetes does not take into account the reality that rolling back to a previous deployment will also often require that associated secrets and configmaps will also have to be rolled back.
+</p>
+<p>
+    Instead, we'll redeploy a previous release in Octopus. Because an Octopus release snapshots the variables, image versions, and deployment process, redeploying a previous release ensures that the state of the previous deployment will be recreated.
+</p>
+<p>
+    Also, because opinionated steps like <b>Deploy Kubernetes containers</b> ensure coupled resources like deployments, configmaps, and secrets are recreated in a way that ensures each deployment has access to the supporting resource it needs, we know that the entire stack of Kubernetes resources have been rolled back.
+</p>
+<p>
+    Go to the <b>Random Quotes - Frontend</b> application and click the <b>Overview</b> link. Notice that the dashboard shows the current and previous deployments. Click the one of the previous deployments, open the hamburger menu, and select the <b>Re-deploy</b> option:
+</p>
+<div><img alt="Redeploy" src="images/octopus/redeploy.png"/></div>
+<p>
+    You can then redeploy the old release back to the selected environment, effectively performing a deployment roll back.
+</p>
+<p>
+    Rolling back via the redeployment of an old release also work with the more advanced strategies like blue/green and canary. If you recall from <a href="chapter3">chapter 3</a> we always left a blue/green or canary deployment in a state where the green stack was the stack that end users had access to. This means rollbacks implementing blue/green or canary deployments will continue to work as expected, only now the blue stack is deploying a previous image or associated configuration.
+</p>
+<h2>Rolling forward with hotfixes</h2>
+<p>
+    An opinion of Octopus in general is that deployments progress through environments before reaching production. This is sensible when performing typical deployments, but when your production environment is on fire from a bad deployment and you need to roll forward quickly, it can be useful to deploy a hot fix directly to production.
+</p>
+<p>
+    A hot fix is typically a small change to code or configuration designed to address a very specific issue in a production environment. If your production environment is down and restoring it is the highest priority, deploying a hot fix directly to the <b>Production</b> environment makes sense.
+</p>
+<p>
+    As we saw in <a href="chapter3">chapter 3</a>, channels allow deployments to follow a custom lifecycle, and so we'll add a new channel rule to allow us to deploy directly to production if needed.
+</p>
+<p>
+    We'll start by creating a new lifecycle called <b>Hotfix</b>. Unlike our other lifecycles, this lifecycle will have one phase called <b>Any environment</b>. We then add the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments to this phase. By adding all environment to a single phase, we have created a lifecycle in which a release can be promoted to any environment without first being deployed to any previous environment.
+</p>
+<p>
+    Back in our deployment project, add a new channel called <b>Hotfix</b>, select the <b>Hotfix</b> lifecycle, and save the changes.
+</p>
+<p>
+    Now create a new release using the <b>Hotfix</b> channel. Notice that we can now select the environment that we deploy the release to:
+</p>
+<div><img alt="Hotfix" src="images/octopus/hotfixdeployment.png"/></div>
+<p>
+    A hotfix channel gives us the ability to push a release to any environment. If we still need some verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is also an option.
+</p>
+<h2>Conclusion</h2>
+<p>
+    There are two main ways to recover from undesirable deployment: rolling forwards or back. Rolling forwards is just another name for performing a new deployment, while rolling back involves redeploying a previous release.
+</p>
+<p>
+    In this chapter we:
+</p>
+<ul>
+    <li>Covered the pros and cons of rolling back or forwards.</li>
+    <li>Discussed the limitations of the native rollback functionality in Kubernetes.</li>
+    <li>Demonstrated a rollback by redeploying a previous release in Octopus.</li>
+    <li>Introduced a hotfix channel and lifecycle to allow rolling forward directly to the production environment in an emergency.</li>
+</ul>
+<p>
+    
+</p>
