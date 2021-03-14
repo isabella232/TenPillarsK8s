@@ -220,13 +220,13 @@
     We'll then deploy the NGINX ingress controller through a new runbook in the <b>Kubernetes DevOps</b> project called <b>Deploy NGINX Ingress Controller</b>. Add the <b>Upgrade a Helm Chart</b> step to the runbook.
 </p>
 <p>
-    This step will run on behalf of targets in the <b>Kubernetes Admin</b> role. The step will also need access to the <b>helm</b> command line tool, which we can access by using the <b>octopusdeploy/worker-tools:windows.ltsc2019</b> or <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container images.
+    This step will run on behalf of targets in the <b>Kubernetes Admin</b> role. The step will also need access to the <b>helm</b> command line tool, which we can provide via the <b>octopusdeploy/worker-tools:windows.ltsc2019</b> or <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container images.
 </p>
 <p>
     Select the <b>Helm</b> feed in the chart section, and enter <b>nginx-ingress</b> as the package id. Finally enter <b>nginx-ingress</b> as the Kubernetes release name.
 </p>
 <p>
-    All the other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b> environment.
+    All other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b> environment.
 </p>
 <p>
     The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various resources needed for that application to function. One of the resources that we are interested in is the load balancer service created to direct public network traffic into the ingress controller. This load balancer service is much the same as we created in <a href="chapter1">chapter 1</a>, except that the traffic is now sent to an ingress controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
@@ -240,7 +240,7 @@
 </p>
 <h3>Canary deployments</h3>
 <p>
-    While the blue/green deployment strategy was easy to implement thanks to the fact that all it took selecting an single option in the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not customizable. The process it implements is very similar to what we want to achieve in a canary deployment though. So we'll go ahead and recreate the blue/green deployment process as individual steps in a deployment process. 
+    While the blue/green deployment strategy was easy to implement thanks to the checkbox exposed by the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not customizable. The process it implements is very similar to what we want to achieve in a canary deployment though. So we'll go ahead and recreate the blue/green deployment strategy as individual steps in a deployment process. 
 </p>
 <p>
     If you recall from the previous section, a blue/green deployment performs the following steps:
@@ -250,7 +250,7 @@
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Update a shared service to point to the new deployment resource.</li>
     <li>Delete the old deployment resources in the blue stack.</li>
-    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to be the blue stack.</li>
 </ol>
 <p>
     Performing a canary deployment is a little more complicated, but shares many of those steps. Our canary deployment will follow this process:
@@ -259,15 +259,15 @@
     <li>Create a Kubernetes deployment resource with a unique name in the canary, or green, stack.</li>
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Create a new, unique service to direct traffic to the pods in the green stack.</li>
-    <li>Create an temporary ingress to direct traffic to the green stacks.</li>
+    <li>Create a temporary ingress to direct traffic to the green stacks.</li>
     <li>Incrementally increase the traffic directed to the green stack until it reaches 100%.</li>
     <li>Update the main ingress to point traffic to the green stack.</li>
     <li>Delete the temporary ingress.</li>
     <li>Delete the old deployment resources in the blue stack.</li>
-    <li>At the end of the deployment, the green stack is considered to now be the blue stack.</li>
+    <li>At the end of the deployment, the green stack is considered to be the blue stack.</li>
 </ol>
 <p>
-    Let's create a new project called <b>Random Quotes - Frontend - Canary</b>. Go to the process editor and add a new <b>Deploy Kubernetes containers</b> step.
+    Let's create a new project called <b>Random Quotes - Frontend - Canary</b>. Go to the process editor and add a new <b>Deploy Kubernetes containers</b> step called <b>Deploy Web App</b>.
 </p>
 <p>
     Import the following YAML in the <b>Deployment</b> section:
@@ -339,10 +339,10 @@ spec:
     Again we have given this service a unique name, ensuring each time we deploy this project with Octopus a new service will be created.
 </p>
 <p>
-    By creating a service for each deployment, we will end up with two services running along side the two deployments. This is different from the blue/green deployment where there was one service that either pointed to the green or blue stacks, and updating the service resulted in the traffic being cut over to the new green stack. Having two services is crucial for canary deployments though, as the NGINX ingress controller can split traffic between two services.
+    By creating a service for each deployment, we will end up with two services running along side the two deployments. This is different from the blue/green deployment where there was one service that either pointed to the green or blue stacks, and updating the service resulted in the traffic being cut over to the new green stack. Having two services is crucial for canary deployments though, as the NGINX ingress controller splits traffic between two services.
 </p>
 <p>
-    The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only change required being the URL that each of the tests contacts, which has changed now to http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development thanks to the unique name now assigned to the service with each deployment.
+    The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only change required being the URL that each of the tests contacts, which has changed to http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development due to the unique name now assigned to the service with each deployment.
 </p>
 <p>
     Modifying the URL can be achieved by updating the variables used by the structured variable replacement feature. The new variables will be set to:
@@ -357,7 +357,7 @@ spec:
     While we are modifying variables, add a new variable called <b>Hostname</b>. The value of this variable will be set to the hostname of the ingress controller load balancer.
 </p>
 <p>
-    Different cloud providers expose load balancer hostnames differently. Google cloud uses the format <b>[ip address].bc.googleusercontent.com</b>. Azure allows the annotation <b>service.beta.kubernetes.io/azure-dns-label-name</b> to be defined on a load balancer service, which generates a hostname like <b>[dns label].[region].cloudapp.azure.com</b> (e.g. mydnslabel.centralus.cloudapp.azure.com). AWS Elastic Kubernetes Service (EKS) load balancers expose a hostname directly to Kubernetes, so it will appear as the external ip when the <b>kubectl get services</b> command is run.
+    Different cloud providers expose load balancer hostnames differently. Google cloud uses the format <b>[ip address].bc.googleusercontent.com</b>. Azure allows the annotation <b>service.beta.kubernetes.io/azure-dns-label-name</b> to be defined on a load balancer service, which generates a hostname like <b>[dns label].[region].cloudapp.azure.com</b> (e.g. mydnslabel.centralus.cloudapp.azure.com). AWS Elastic Kubernetes Service (EKS) load balancers expose a hostname directly to Kubernetes, so it will appear as the external IP when the <b>kubectl get services</b> command is run.
 </p>
 <p>
     Because we are using GKE in this book, the value of the <b>Hostname</b> variable will be set to <b>[ip address].bc.googleusercontent.com</b>.
@@ -385,7 +385,7 @@ spec:
                 serviceName: 'webapp-canary-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    The annotations assigned to the ingress configure settings recognized by the NGINX ingress controller. The <b>nginx.ingress.kubernetes.io/canary-weight</b> annotation defines how much traffic to send to the service for any incoming traffic matching the ingress rules. The <b>nginx.ingress.kubernetes.io/canary</b> annotation is set to <b>true</b> to indicate that this ingress rule is used to split traffic with a second main ingress rule (which we will create in later steps).
+    The annotations assigned to the ingress configure settings are recognized by the NGINX ingress controller. The <b>nginx.ingress.kubernetes.io/canary-weight</b> annotation defines how much traffic to send to the service for any incoming traffic matching the ingress rules. The <b>nginx.ingress.kubernetes.io/canary</b> annotation is set to <b>true</b> to indicate that this ingress rule is used to split traffic with a second main ingress rule (which we will create in later steps).
 </p>
 <p>
     The ingress rules define that any HTTP traffic to the load balancer hostname will be directed to the green stack service.
@@ -433,7 +433,7 @@ kubectl delete service -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},Oct
 kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},Octopus.Environment.Id=#{Octopus.Environment.Id | ToLower},Octopus.Deployment.Tenant.Id=#{unless Octopus.Deployment.Tenant.Id}untenanted#{/unless}#{if Octopus.Deployment.Tenant.Id}#{Octopus.Deployment.Tenant.Id | ToLower}#{/if},Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}
 </pre>
 <p>
-    Those commands can look a little daunting, so lets break them down. Each command is deleting old resources with a command like <b>kubectl delete [resource]</b>. The resources to be deleted are matched by their labels with the <b>-l</b> flag. We match resources based on labels that are automatically added by Octopus. The overall label matching expression is broken down by commas:
+    Those commands can look a little daunting, so let's break them down. Each command is deleting old resources with a command like <b>kubectl delete [resource]</b>. The resources to be deleted are matched by their labels with the <b>-l</b> flag. We match resources based on labels that are automatically added by Octopus. The overall label matching expression is broken down by commas:
 </p>
 <ul>
     <li><b>Octopus.Project.Id=#{Octopus.Project.Id | ToLower}</b> matches resources created by the same project.</li>
@@ -442,7 +442,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were <b>not</b> created by the current deployment, which means it only matches resources created by previous deployments.</li>
 </ul>
 <p class="note">
-    Octopus tenants provide an additional dimension along which deployments can be managed. The canonical use case is where an application is deployed independently for multiple customers. For example, Acme Corporation may receive each minor release of an application, while Globex Corporation may only receive major releases. Defining these companies as tenants allows their deployments to be managed separately.
+    Octopus tenants provide an additional dimension along which deployments can be managed. The canonical use case is where an application is deployed independently for multiple customers. For example, Acme Corporation may receive each minor release of an application, while Globex Corporation may only receive major releases. Defining these companies as tenants allows their deployments to be managed separately, while sharing a single deployment project.
 </p>
 <p>
     The end result of these <b>kubectl</b> commands is to delete any resources created by a previous deployment by this project in the same environment for the same tenant. Or, in other words, deleting the blue stack.
@@ -461,11 +461,11 @@ kubectl delete service -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLowe
 kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLower}
 </pre>
 <p>
-    The label matches here use a simplified expression to match on the deployment ID <b>Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLower}</b>. This means resources created as part of the current deployment are cleaned up.
+    The label matches here use a simplified expression that match on the deployment ID <b>Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLower}</b>. This means resources created as part of the current deployment are cleaned up.
 </p>
 <h3>Canary deployments in pictures</h3>
 <p>
-    Creating our canary deployment was not a trivial undertaking, and it can be difficult to understand exactly what all the steps above did, so lets run through the process with diagrams showing the process.
+    Creating our canary deployment was not a trivial undertaking, and it can be difficult to understand exactly what all the steps above did, so lets run through the process with diagrams demonstrating the high level workflow.
 </p>
 <p>
     We start with the blue stack receiving 100% of traffic:
@@ -476,11 +476,11 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/canary2.png"/></div>
 <p>
-    A canary ingress is created directed 50% of traffic to the green stack:
+    A canary ingress is created directing 50% of traffic to the green stack:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/canary3.png"/></div>
 <p>
-    The decision is made to progress to 100% traffic to the green stack, so the main ingress is reconfigured and the temporary service and ingress are deleted:
+    The decision is made to direct 100% of traffic to the green stack, so the main ingress is reconfigured and the temporary service and ingress are deleted:
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/canary4.png"/></div>
 <p>
@@ -489,16 +489,16 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <div><img alt="Octopus environments" src="images/kubernetes/canary5.png"/></div>
 <h3>Feature branch deployments</h3>
 <p>
-    Conceptually, deploying feature branches is easy, as all it involves is deploying a new container built from a feature branch side by side with the container built from the mainline branch. Here we will extend the canary deployment process described above to allow multiple feature branches to be deployed side by side. Although in practice feature branches would likely be recreated in test environments, given canary deployments are one of the most complex deployment strategies you can implement, if we can get feature branches working with canary deployments, we can get them working anywhere. 
+    Conceptually, deploying feature branches is easy, as all it involves is deploying a new container built from a feature branch side by side with the container built from the mainline branch. In this section we will extend the canary deployment process described above to allow multiple feature branches to be deployed side by side. Although in practice feature branches would likely be recreated in test environments, given canary deployments are one of the most complex deployment strategies you can implement, if we can get feature branches working with canary deployments, we can get them working anywhere. 
 </p>
 <p>
-    This raises two questions: How do we identify feature branch containers, and how do we exposed feature branch deployments alongside the main deployment?
+    This raises two questions: How do we identify feature branch images, and how do we exposed feature branch deployments alongside the main deployment?
 </p>
 <p>
-    The most common way to identify feature branch container is via the prerelease identifier on the image tag. This means the tag <b>0.1.9-purpleheader</b> we used earlier represents a feature branch called <b>purpleheader</b>. This works nicely because feature branches are applications under development, and are therefor prereleases.
+    The most common way to identify feature branch images is via the prerelease identifier on the image tag. This means the tag <b>0.1.9-purpleheader</b> we used earlier represents a feature branch called <b>purpleheader</b>. This works nicely because feature branches are applications under development, and are therefor prereleases.
 </p>
 <p>
-    To access a feature branch deployment, we'll expose them under a subdirectory in the URL, such as http://40.83.21.189.bc.googleusercontent.com/purpleheader. This leave the main deployment available at a URL like http://40.83.21.189.bc.googleusercontent.com/.
+    To access a feature branch deployment, we'll expose them under a subdirectory in the URL, such as http://[ip address].bc.googleusercontent.com/purpleheader. This leaves the main deployment available at a URL like http://[ip address].bc.googleusercontent.com/.
 </p>
 <p>
     To extract the prerelease component from the image being deployed, we create a new variable called <b>PackagePreRelease</b> with the value <b>#{Octopus.Action[Deploy Web App].Package[webapp].PackageVersion | VersionPreReleasePrefix}</b>. This takes the package version from the step called <b>Deploy Web App</b> and runs it through the filter <b>VersionPreReleasePrefix</b>. This filter extracts the string <b>purpleheader</b> from a version like <b>0.1.9-purpleheader</b>.
@@ -507,7 +507,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
     Octopus contributes a lot of variables that can be consumed during a deployment process. These variables are not typically documented, but by setting the <b>OctopusPrintVariables</b> variable to true, all of the available variables are printed to the deployment logs. A second variable called <b>OctopusPrintEvaluatedVariables</b> can be set to <b>True</b> to print the final evaluated value of each variable (i.e. the values of variables once any nested variable expressions have been resolved) to the logs. It is then possible to scan the logs for any interesting variables that you may want to consume in a deployment.
 </p>
 <p>
-    The feature branch name (i.e. the package prerelease) will be used in two different ways in our deployment. First, it will be included in the names of Kubernetes resources starting with a dash. However, because the mainline containers have no prerelease component, and therefor have no feature branch name, we only want to include the feature branch name in the resource names when there is a feature branch name to include.
+    The feature branch name (i.e. the package prerelease) will be used in two different ways in our deployment. First, the feature branch name with a dash prepended will be included in the names of Kubernetes resources. However, because the mainline containers have no prerelease component, and therefor have no feature branch name, we only want to include the feature branch name in the resource names when there is a feature branch name to include.
 </p>
 <p>
     To accommodate this we create a variable called <b>ServiceSuffix</b> set to the value of <b>#{if PackagePreRelease}-#{PackagePreRelease}#{/if}</b>. This variable syntax says that if the <b>PackagePreRelease</b> has any value, <b>ServiceSuffix</b> is set to a dash and then the value of <b>PackagePreRelease</b>. If <b>PackagePreRelease</b> is an empty string, <b>ServiceSuffix</b> is also an empty string.
@@ -598,7 +598,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
 }
 </pre>
 <p class="note">
-    Replacing two values and regenerating an array is arguably pushing the limits of what you would expect to do as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured variables replacements. However, the more changes you make to a template, the more risk you run that your injected values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be passed in as command line arguments to <b>newman</b>, which is a more robust solution to creating environment agnostic tests.
+    Replacing two values and regenerating an array is arguably pushing the limits of the transforms you would expect to perform as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured variables replacements. However, the more changes you make to a template, the more risk you run that your injected values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be passed in as command line arguments to <b>newman</b>, which is a more robust solution for creating environment agnostic tests.
 </p>
 <p>
     The base URL used by our Cypress test needs to be updated, so set the value of the <b>baseUrl</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b>.
@@ -612,6 +612,72 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
 <p>
     The name of the deployment resource will be updated to <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>, and the name of the service will be <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>.
 </p>
+<p>
+    Or, if you prefer, copy and paste the deployment YAML below. Labels defined on the deployment resource will be read by the <b>Deploy Kubernetes containers</b> step and applied to all resources created by the step:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
+  labels:
+    FeatureBranch: '#{PackagePreRelease}'
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        FeatureBranch: '#{PackagePreRelease}'
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: webapp
+          image: index.docker.io/octopussamples/randomquotesjava
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 5555
+          env:
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: '/#{PackagePreRelease}'
+            - name: SPRING_CONFIG_NAME
+              value: postgres-application
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_URL
+              value: 'jdbc:postgresql://postgres.backend-development:5432/postgres'
+            - name: POSTGRES_PASS
+              value: '#{DatabasePassword}'
+          readinessProbe:
+            failureThreshold: 6
+            periodSeconds: 20
+            tcpSocket:
+              host: ''
+              port: 5555
+</pre>
+<p>
+    Here is the YAML for the updated service:
+</p>
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
+spec:
+  type: LoadBalancer
+  ports:
+    - name: web
+      port: 80
+      targetPort: 5555
+      protocol: TCP
+  selector:
+    octopusexport: OctopusExport
+</pre>
 <p>
     When cleaning up old resources, we only want to delete those resources that were previous created for the feature branch we are deploying. To delete the temporary ingress, the script changes to this:
 </p>
@@ -632,7 +698,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     These calls to <b>kubectl</b> are the same as we used previously, with the addition of one new expression in the label selection of <b>FeatureBranch=#{PackagePreRelease}</b>, which restricts the matched resources to those that were created as part of this feature branch deployment.
 </p>
 <p>
-    The final change is to update the name of the ingress resources, add the <b>FeatureBranch</b> label, change the name of the service they direct traffic to, and configure the HTTP path they match. The YAML for the temporary canary ingress is:
+    The final change is to update the name of the ingress resources, add the <b>FeatureBranch</b> label, change the name of the service they direct traffic to, and configure the HTTP path they match. The YAML for the temporary canary ingress resource is:
 </p>
 <pre>
 apiVersion: networking.k8s.io/v1beta1
@@ -678,10 +744,10 @@ spec:
               serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://40.83.21.189.bc.googleusercontent.com/purpleheader. 
+    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[ip address].bc.googleusercontent.com/purpleheader. 
 </p>
 <p>
-    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://40.83.21.189.bc.googleusercontent.com/.
+    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[ip address].bc.googleusercontent.com/.
 </p>
 <p>
     Also note how the cleanup code doesn't cross the lines between individual feature branches and the mainline deployment. We can redeploy the feature branch image over and over, and the mainline deployment is not affected.
@@ -691,19 +757,21 @@ spec:
 </p>
 <h3>Preventing feature branches from being deployed to production</h3>
 <p>
-    Feature branches are, by their very nature, test deployments of code under development. They are not intended for end users to interact with. But with the feature branch deployments we created above, there is nothing stopping anyone from deploying a feature branch into the production environment.
+    Feature branches are, by their very nature, deployments of test code under development. They are not intended for end users to interact with. But with the feature branch deployments we created above, there is nothing stopping anyone from deploying a feature branch into the production environment.
 </p>
 <p>
-    Fortunately Octopus has a solution for this called channels. A channel defines a set of rules that the a package version must conform to, and any matching packages can then be deployed along a custom lifecycle.
+    Fortunately Octopus has a solution for this called channels. A channel defines a set of rules that the package version must conform to, and any matching packages can then be deployed along a custom lifecycle.
 </p>
 <p>
-    We start by creating a second lifecycle with only the <b>Development</b> and <b>Test</b> environments. Open <b>Library -> Lifecycles</b>, and using the same process that we followed in <a href="@chapter1">chapter 1</a>, create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain the environment of the same name.
+    We start by creating an additional lifecycle with only the <b>Development</b> and <b>Test</b> environments. Open <b>Library -> Lifecycles</b>, and using the same process that we followed in <a href="@chapter1">chapter 1</a> create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain the environment of the same name:
 </p>
+<div><img alt="Octopus environments" src="images/octopus/feature-branch-lifecycle.png"/></div>
+<p>
 <p>
     Back in our deployment project, click the <b>Channels</b> link. Each project has a <b>Default</b> lifecycle that inherits the lifecycle assigned to the deployment process. In our case this lifecycle allows deployments to be progressed all the way to production. We want to ensure that only images without a prerelease version component, for example versions like <b>0.1.9</b>, can be deployed through this lifecycle.
 </p>
 <p>
-    Click the <b>Default</b> lifecycle, and click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>^$</b> for the pre-release tag. This string is a regular expression that only matches an empty string, which means it only matches versions like <b>0.1.9</b>.
+    Click the <b>Default</b> channel, and click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>^$</b> for the pre-release tag. This string is a regular expression that only matches an empty string, which means it only matches versions like <b>0.1.9</b>.
 </p>
 <p>
     Save the changes, and return to the list of channels again. Click the <b>ADD CHANNEL</b> button to add a new channel rule. Give it the name <b>Feature Branch</b> and select the <b>Dev and Test</b> lifecycle.
@@ -715,25 +783,28 @@ spec:
     Now create a new release, select the <b>Feature Branch</b> channel, and select the image version <b>0.1.9-purpleheader</b>. Note that when you browse for image versions, mainline versions like <b>0.1.9</b> are not available. Deploy the release to the <b>Development</b> environment.
 </p>
 <p>
-    Return to the <b>Overview</b> page, and notice now that the feature branch release can only be promoted from the <b>Development</b> environment to the <b>Test</b> environment. There is no ability to deploy it into the <b>Production</b> environment:
+    Return to the <b>Overview</b> page, and notice that the feature branch release can only be promoted from the <b>Development</b> environment to the <b>Test</b> environment. There is no ability to deploy it into the <b>Production</b> environment:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/channel-dashboard.png"/></div>
 <p>
     Now go ahead and create a release in the <b>Default</b> channel. Notice that you are unable to select versions like <b>0.1.9-purpleheader</b>. This means only mainline versions can be deployed in the <b>Dev, Test, and Prod</b> lifecycle, and therefor only mainline versions can be deployed into the <b>Production</b> environment.
 </p>
 <p>
-    We now have a feature branch deployment strategy that prevents feature branches from being deployed to production. This gives developers the ability to test their changes in isolation, safe in the knowledge that their test code won't be exposed to end users.
+    We have created feature branch deployment strategy that prevents feature branches from being deployed to production. This gives developers the ability to test their changes in isolation, safe in the knowledge that their test code won't be exposed to end users.
 </p>
 <h2>Conclusion</h2>
 <p>
-    As your deployments increase in frequency, it is desirable to be able to perform them with little or no downtime for end users. Progressively rolling out deployments to more end users can also be used to limit the blast radius of any errors that you may have inadvertency introduced into your production environment. And running feature branches side by side with the main deployments is a convenient way for developers to test changes before they are merged into the main code base.
+    As your deployments increase in frequency, it is desirable to perform them with little or no downtime for end users. Progressively rolling out deployments to more end users can also be used to limit the blast radius of any errors that you may have inadvertently introduced into your production environment. And running feature branches side by side with the main deployments is a convenient way for developers to test changes before they are merged into the main code base.
 </p>
 <p>
-    In this chapter we looked at common deployment strategies, and provided implementing for the recreate, rolling, blue/green, canary, and feature branch deployments in Kubernetes.
+    In this chapter we:
 </p>
-<p>
-    We also looked at how channel rules can define and restrict the environments that certain versions of our application can be deployed to in order to prevent feature branches from inadventaly being deployed to production.
-</p>
+<ul>
+    <li>Listed the common deployment strategies generally used today, noting those that apply to Kubernetes.</li>
+    <li>Provided examples for implementing rolling, recreate, blue/green, canary, and feature branch deployments in Octopus.</li>
+    <li>Installed the NGINX ingress controller to implement canary deployments.</li>
+    <li>Use channels and lifecycles to prevent test code from being deployed to production.</li>
+</ul>
 <p>
     It can take a bit of work to build up the more complex deployment patterns like canary deployments, but as we'll see the these deployment patterns provide a nice foundation as we move into the next pillar of recoverable deployments.
 </p>
