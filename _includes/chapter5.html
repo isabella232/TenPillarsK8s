@@ -328,3 +328,22 @@ run: >-
 2021-03-15T04:43:27.3473150Z [INFO] |  |  \- org.yaml:snakeyaml:jar:1.25:runtime
 ...
 </pre>
+<h2>Conclusion</h2>
+<p>
+    While it is a simple idea, the ability to see what deployments were made to which environments is a very powerful feature. It provides a quick summary of the state of your infrastructure, and means non-technical folk can understand what has been delivered to end users and when.
+</p>
+<p>
+    Going a step further, being able to trace which changes were included in a deployment, why they were made, and view the log files of the CI system that built the packages provides a comprehensive insight into exactly what each particular Docker image or other application package provides.
+</p>
+<p>
+    In this chapter we:
+</p>
+<ul>
+    <li>Explored the difference between a Kubernetes resource management console and the Octopus dashboard.</li>
+    <li>Discussed Octopus build information.</li>
+    <li>Provided an example of how build information JSON files can be created and pushed to Octopus from GitHub Actions.</li>
+    <li>Explored how to trace back from a release to the source control commits and CI builds that generated the release packages.</li>
+</ul>
+<p>
+    Visible deployments was a way to gain specific insight into your deployments. In the next chapter we'll step back a bit and observe the overall health of our deployments with the pillar measurable deployments.
+</p>
