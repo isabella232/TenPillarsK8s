@@ -84,21 +84,26 @@
     We need a way to work backwards from the Docker image we reference in our Octopus deployment back to each of the elements that resulted in the image being created. This is where build information come in.
 </p>
 <p>
-    Build information contains a specially formatted JSON file including metadata and links about a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the information it contains is contributed to the deployment in the form of variables.
+    Build information is a specially formatted JSON file including metadata and links about a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the information it contains is contributed to the variables available to the deployment release notes.
 </p>
 <p>
-    Build information JSON files are created by one of the many CI plugins available for Octopus. However, in this example we'll see how to create a build information JSON file from a project hosted in GitHub and built with GitHub Actions.
+    Build information JSON files are created by one of the many CI plugins available for Octopus. However, in this example we'll see how to create a build information JSON file manually from a project hosted in GitHub and built with GitHub Actions.
 </p>
 <p class="note">
-    At the time of writing there is no official GitHub Actions plugin that can be used to create a build information JSON file. Some third party solutions exist, but I could not get them to work as expected.
+    GitHub actions provide an execution environment in which the code from an associated GitHub repository can be processed. We use it here to build and push the Docker image, and push build information to Octopus.
 </p>
+<p class="note">
+    At the time of writing there is no official Octopus GitHub Actions plugin that can be used to create a build information JSON file.
 <p>
     The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is build with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
 </p>
+{% raw %}
 <pre>
 name: Java CI
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -186,10 +191,11 @@ jobs:
         --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
         --server=${{ secrets.OCTOPUS_SERVER_URL }}
         --apiKey=${{ secrets.OCTOPUS_API_KEY }}
-        --package-id=ctopussamples/randomquotesjava
+        --package-id=octopussamples/randomquotesjava
         --version=0.1.${{ github.run_number }}
         --file=dockerbuildinfo.json
 </pre>
+{% endraw %}
 <p>
     There are three important sections in this YAML file as they relate to build information.
 </p>
@@ -205,6 +211,7 @@ with:
 <p>
     Second, we build the JSON file defining the metadata to associate with the Docker image being built by this workflow:
 </p>
+{% raw %}
 <pre>
 - name: Build Docker Package Info
 run: >-
@@ -223,6 +230,7 @@ run: >-
   [{\"Id\":\"${{ github.sha }}\", \"LinkUrl\":\"https://github.com/OctopusSamples/RandomQuotes-Java/commit/${{ github.sha }}\", \"Comment\": \"${{ github.event.head_commit.message }}\"}]
   }" > dockerbuildinfo.json; cat dockerbuildinfo.json
 </pre>
+{% endraw %}
 <p class="note">
     This JSON file is what a native Octopus CI plugin would create for you as part of a build.
 </p>
@@ -256,6 +264,7 @@ run: >-
 <p>
     Third, we push the JSON file as build information to the Octopus server:
 </p>
+{% raw %}
 <pre>
 - name: Push Build Info Package
 run: >-
@@ -263,11 +272,59 @@ run: >-
   --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
   --server=${{ secrets.OCTOPUS_SERVER_URL }}
   --apiKey=${{ secrets.OCTOPUS_API_KEY }}
-  --package-id=ctopussamples/randomquotesjava
+  --package-id=octopussamples/randomquotesjava
   --version=0.1.${{ github.run_number }}
   --file=dockerbuildinfo.json
 </pre>
+{% endraw %}
 <p>
-    The build information appears under <b>Library -> build Information</b>:
+    The build information appears under <b>Library -> Build Information</b>:
 </p>
 <div><img alt="Redeploy" src="images/octopus/build-information.png"/></div>
+<p>
+    To make use of the build information, we can create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Exapnd the <b>Release Notes Template</b> section, and paste in the following template:
+</p>
+<pre>
+#{each package in Octopus.Release.Package}
+#{each commit in package.Commits}
+* [#{commit.CommitId}](#{commit.LinkUrl}) - #{commit.Comment}
+#{/each}
+#{/each}
+</pre>
+<p>
+    This template loops over the packages referenced in a release, and creates a link for each commit associated with the package version:
+</p>
+<div><img alt="Redeploy" src="images/octopus/release-notes.png"/></div>
+<p>
+    Links to the CI build and commit are available in the list of packages for a release:
+</p>
+<div><img alt="Redeploy" src="images/octopus/package-build-info.png"/></div>
+<p>
+    Between the custom release notes and build information linked to packages referenced as part of a release it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
+</p>
+<p>
+    One aspect of build information that was mentioned in the chapter introduction was the list of dependencies that were included in a build. This information is not saved as part of build information, but we have captured this information in the CI logs. Because our sample application is built with Maven, we can use the <b>mvn dependency:tree</b> command to list the dependencies that are used for a build:
+</p>
+<pre>
+- name: List dependencies
+  run: mvn dependency:tree
+</pre>
+<p>
+    This produces log output like the following, where we can see the dependencies that were included in the Docker image by this build:
+</p>
+<pre>
+2021-03-15T04:43:27.3371829Z [INFO] com.octopus:randomquotes:jar:0.1.166
+2021-03-15T04:43:27.3379981Z [INFO] +- org.springframework.boot:spring-boot-starter-web:jar:2.2.5.RELEASE:compile
+2021-03-15T04:43:27.3388288Z [INFO] |  +- org.springframework.boot:spring-boot-starter:jar:2.2.5.RELEASE:compile
+2021-03-15T04:43:27.3395705Z [INFO] |  |  +- org.springframework.boot:spring-boot:jar:2.2.5.RELEASE:compile
+2021-03-15T04:43:27.3403935Z [INFO] |  |  +- org.springframework.boot:spring-boot-autoconfigure:jar:2.2.5.RELEASE:compile
+2021-03-15T04:43:27.3412426Z [INFO] |  |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.2.5.RELEASE:compile
+2021-03-15T04:43:27.3419125Z [INFO] |  |  |  +- ch.qos.logback:logback-classic:jar:1.2.3:compile
+2021-03-15T04:43:27.3425670Z [INFO] |  |  |  |  \- ch.qos.logback:logback-core:jar:1.2.3:compile
+2021-03-15T04:43:27.3432792Z [INFO] |  |  |  +- org.apache.logging.log4j:log4j-to-slf4j:jar:2.12.1:compile
+2021-03-15T04:43:27.3439839Z [INFO] |  |  |  |  \- org.apache.logging.log4j:log4j-api:jar:2.12.1:compile
+2021-03-15T04:43:27.3445873Z [INFO] |  |  |  \- org.slf4j:jul-to-slf4j:jar:1.7.30:compile
+2021-03-15T04:43:27.3452558Z [INFO] |  |  +- jakarta.annotation:jakarta.annotation-api:jar:1.3.5:compile
+2021-03-15T04:43:27.3473150Z [INFO] |  |  \- org.yaml:snakeyaml:jar:1.25:runtime
+...
+</pre>
