@@ -95,6 +95,10 @@
 </p>
 <p class="note">
     At the time of writing there is no official Octopus GitHub Actions plugin that can be used to create a build information JSON file.
+</p>
+<p>
+    Before we start pushing build information, we need to enable Octopus to parse commit messages looking for links to work items (or, as they are know in GitHub, issues). This is done through <b>Configuration -> Settings -> GitHub Issue Tracker</b>. By enabling this setting, GIT commit messages like <b>Updated the blah class to expose x. Fixes #123</b> will be parsed and the <b>Fixes #123</b> string is converted into a link to the GitHub issue number 123.
+</p>
 <p>
     The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is built with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
 </p>
@@ -177,7 +181,7 @@ jobs:
         \"BuildUrl\": \"https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}\",
         \"BuildNumber\": \"${{ github.run_number }}\",
         \"Branch\": \"${{ github.ref }}\",
-        \"BuildEnvironment\":\"GithubActions\",
+        \"BuildEnvironment\":\"GitHub\",
         \"VcsCommitNumber\":\"${{ github.sha }}\",
         \"VcsCommitUrl\":\"https://github.com/OctopusSamples/RandomQuotes-Java/commit/${{ github.sha }}\",
         \"VcsType\": \"Git\",
@@ -222,7 +226,7 @@ run: >-
   \"BuildUrl\": \"https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}\",
   \"BuildNumber\": \"${{ github.run_number }}\",
   \"Branch\": \"${{ github.ref }}\",
-  \"BuildEnvironment\":\"GithubActions\",
+  \"BuildEnvironment\":\"GitHub\",
   \"VcsCommitNumber\":\"${{ github.sha }}\",
   \"VcsCommitUrl\":\"https://github.com/OctopusSamples/RandomQuotes-Java/commit/${{ github.sha }}\",
   \"VcsType\": \"Git\",
@@ -248,7 +252,7 @@ run: >-
   "BuildUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/actions/runs/652926986",
   "BuildNumber": "164",
   "Branch": "refs/heads/master",
-  "BuildEnvironment": "GithubActions",
+  "BuildEnvironment": "GitHub",
   "VcsCommitNumber": "20070c3d0c0543c4be3cfec8d63c6d6e64fe43e6",
   "VcsCommitUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/commit/20070c3d0c0543c4be3cfec8d63c6d6e64fe43e6",
   "VcsType": "Git",
@@ -290,10 +294,13 @@ run: >-
 #{each commit in package.Commits}
 * [#{commit.CommitId}](#{commit.LinkUrl}) - #{commit.Comment}
 #{/each}
+#{each workItem in package.WorkItems}
+* [#{workItem.Id}](#{workItem.LinkUrl}) - #{workItem.Description}
+#{/each}
 #{/each}
 </pre>
 <p>
-    This template loops over the packages referenced in a release, and creates a link for each commit associated with the package version:
+    This template loops over the packages referenced in a release, and creates a link for each commit and work item associated with the package version:
 </p>
 <div><img alt="Redeploy" src="images/octopus/release-notes.png"/></div>
 <p>
