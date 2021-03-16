@@ -42,29 +42,29 @@
 </p>
 <h2>Visible {{ site.platform }} deployments</h2>
 <p>
-    There are two main features in Octopus that facilitate the pillar of visible deployments.
+    There are two main features in Octopus to facilitate the pillar of visible deployments.
 </p>
 <h3>The Octopus dashboard</h3>
 <p>
-    Throughout this book we have performed many deployments and seen the state of our environments in the Octopus dashboard. We've taken it for granted that this dashboard exists, but it is worth exploring how the Octopus dashboard differs from a traditional Kubernetes management console.
+    Throughout this book we have performed many deployments and observed the state of our environments in the Octopus dashboard. We've taken it for granted that this dashboard exists, but it is worth exploring how the Octopus dashboard differs from a traditional Kubernetes management console.
 </p>
 <p>
-    The official Kubernetes Web UI provides a user interface that allows you to view, create, delete, and modify Kubernetes resources. The navigation structure starts with a list of resource types, like the deployment resources we've been creating, and then allows you to drill further down into the associated pods and containers.
+    The official Kubernetes Web UI provides a user interface that allows you to view, create, delete, and modify Kubernetes resources. The navigation structure starts with a list of resource types, such as the deployment resources we've been creating, and then allows you to drill further down into the associated pods and containers.
 </p>
 <p>
-    This "resource view" is how most Kubernetes administrators think about a cluster, and it is a very effective way of presenting the state of a cluster. However, it is difficult to understand the state of your deployments though a traditional resource management console like the Kubernetes Web UI. 
+    This "resource view" is how most Kubernetes administrators think about a cluster, and it is a very effective way of presenting the cluster's current resources and configuration. However, it is difficult to understand the state of your deployments through a traditional resource management console like the Kubernetes Web UI. 
 </p>
 <p>
-    The most obvious limitation is that these resource management consoles do not understand the concept of an environment. It is up to the end user to juggle the resources being presented with the namespaces and clusters that are used to separate environments.
+    The most obvious limitation is that these resource management consoles do not understand the concept of an environment. It is up to the end user to juggle the presented resources with the namespaces and clusters that are used to separate environments.
 </p>
 <p>
-    It is also difficult to view the application versions that have been deployed. The image that a container is running is at the bottom of the hierarchy of resources exposed by these consoles, meaning you have to click through a deployment, to a pod, and then to a container to see what image is being run.
+    It is also difficult to view the deployed application versions. The image that a container is running is at the bottom of the hierarchy of resources exposed by these consoles, meaning you have to click through a deployment, to a pod, and then to a container to see what image version has been deployed.
 </p>
 <p>
-    Finally a Kubernetes dashboard does not capture any information outside of the Kubernetes cluster. While Kubernetes is an incredible platform, the reality is other PaaS offerings like database and file hosting will often be more appealing than trying to recreate these platforms within your own cluster. If you did choose to deploy your database outside of the cluster, it won't be shown in a Kubernetes resource management console.
+    Finally, a Kubernetes dashboard does not capture any information outside of the Kubernetes cluster. While Kubernetes is an incredible platform, the reality is other PaaS offerings like database and file hosting will often be more appealing than recreating these platforms within your own cluster. If you did choose to deploy your database outside of the cluster, it won't be shown in a Kubernetes resource management console.
 </p>
 <p>
-    This is where the Octopus dashboard adds value. It displays the state of deployments across environments, and because Octopus is cloud agnostic, those deployments can be to Kubernetes or other PaaS offerings like hosted databases. It surfaces the versions of deployed applications quickly, along with any associated information like release notes (which we'll explore later in this chapter).
+    This is where the Octopus dashboard adds value. It displays the state of deployments across environments, and because Octopus is cloud and platform agnostic, those deployments can be to Kubernetes or other PaaS offerings like hosted databases. It surfaces the versions of deployed applications directly, along with any associated information like release notes (which we'll explore later in this chapter).
 </p>
 <p>
     The Octopus dashboard and Kubernetes specific dashboards complement each other nicely, with Octopus providing a high level environment view and a Kubernetes dashboard providing the low level resource view.
@@ -81,21 +81,21 @@
     <li>The resulting Docker image is pushed to a Docker registry.</li>
 </ol>
 <p>
-    We need a way to work backwards from the Docker image we reference in our Octopus deployment back to each of the elements that resulted in the image being created. This is where build information come in.
+    We need a way to work backwards from the Docker image we reference in our Octopus deployment to each of the elements that resulted in the image being created. This is where build information comes in.
 </p>
 <p>
-    Build information is a specially formatted JSON file including metadata and links about a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the information it contains is contributed to the variables available to the deployment release notes.
+    Build information is a specially formatted JSON file containing metadata and links about a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the metadata it contains is contributed to the variables available to the deployment release notes.
 </p>
 <p>
     Build information JSON files are created by one of the many CI plugins available for Octopus. However, in this example we'll see how to create a build information JSON file manually from a project hosted in GitHub and built with GitHub Actions.
 </p>
 <p class="note">
-    GitHub actions provide an execution environment in which the code from an associated GitHub repository can be processed. We use it here to build and push the Docker image, and push build information to Octopus.
+    GitHub Actions provide an execution environment in which the code from an associated GitHub repository can be processed. We use it here to build and push the Docker image, and push build information to Octopus.
 </p>
 <p class="note">
     At the time of writing there is no official Octopus GitHub Actions plugin that can be used to create a build information JSON file.
 <p>
-    The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is build with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
+    The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is built with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
 </p>
 {% raw %}
 <pre>
@@ -185,7 +185,7 @@ jobs:
         [{\"Id\":\"${{ github.sha }}\", \"LinkUrl\":\"https://github.com/OctopusSamples/RandomQuotes-Java/commit/${{ github.sha }}\", \"Comment\": \"${{ github.event.head_commit.message }}\"}]
         }" > dockerbuildinfo.json; cat dockerbuildinfo.json
 
-    - name: Push Build Info Package
+    - name: Push Build Info
       run: >-
         octo build-information
         --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
@@ -232,13 +232,13 @@ run: >-
 </pre>
 {% endraw %}
 <p class="note">
-    This JSON file is what a native Octopus CI plugin would create for you as part of a build.
+    This JSON file is what a native Octopus CI plugin would create for you as part of a build, removing the need to construct it manually.
 </p>
 <p>
-    There is a lot of escaping and concatenation in that echo command, so to make it easier to understand what is being saved here, this is an example of the resulting JSON.
+    There is a lot of escaping and concatenation in that echo command, so to make it easier to understand what is being constructed here, this is an example of the resulting JSON.
 </p>
 <p>
-    The information in this JSON file links identifies a package ID called <b>octopussamples/randomquotesjava</b> (which is our Docker image) with the version <b>0.1.163</b> (which is Docker image tag) with a host of information about the GIT commit that triggered the build, the commit message, and links to the GitHub Action build:
+    The information in this JSON file identifies a package ID called <b>octopussamples/randomquotesjava</b> (which is our Docker image) with the version <b>0.1.163</b> (which is the Docker image tag) with a host of information about the GIT commit that triggered the build, the commit message, and links to the GitHub Action build:
 </p>
 <pre>
 {
@@ -266,7 +266,7 @@ run: >-
 </p>
 {% raw %}
 <pre>
-- name: Push Build Info Package
+- name: Push Build Info
 run: >-
   octo build-information
   --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
@@ -282,7 +282,7 @@ run: >-
 </p>
 <div><img alt="Redeploy" src="images/octopus/build-information.png"/></div>
 <p>
-    To make use of the build information, we can create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Exapnd the <b>Release Notes Template</b> section, and paste in the following template:
+    To make use of the build information, we create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Expand the <b>Release Notes Template</b> section, and paste in the following template:
 </p>
 <pre>
 #{each package in Octopus.Release.Package}
@@ -300,10 +300,10 @@ run: >-
 </p>
 <div><img alt="Redeploy" src="images/octopus/package-build-info.png"/></div>
 <p>
-    Between the custom release notes and build information linked to packages referenced as part of a release it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
+    Between the custom release notes and build information linked to packages referenced as part of a release, it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
 </p>
 <p>
-    One aspect of build information that was mentioned in the chapter introduction was the list of dependencies that were included in a build. This information is not saved as part of build information, but we have captured this information in the CI logs. Because our sample application is built with Maven, we can use the <b>mvn dependency:tree</b> command to list the dependencies that are used for a build:
+    The list of dependencies that were included in a build was mentioned in the chapter introduction. This information is not saved as part of build information, but we have captured this information in the CI logs. Because our sample application is built with Maven, we can use the <b>mvn dependency:tree</b> command to list the dependencies that are used for a build:
 </p>
 <pre>
 - name: List dependencies
@@ -345,5 +345,5 @@ run: >-
     <li>Explored how to trace back from a release to the source control commits and CI builds that generated the release packages.</li>
 </ul>
 <p>
-    Visible deployments was a way to gain specific insight into your deployments. In the next chapter we'll step back a bit and observe the overall health of our deployments with the pillar measurable deployments.
+    The pillar of visible deployments provided specific insight into our deployments. In the next chapter we'll step back a bit and observe the overall health of our deployments with the pillar measurable deployments.
 </p>
