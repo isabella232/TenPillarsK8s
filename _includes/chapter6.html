@@ -9,6 +9,28 @@
 <p>
     Octopus provides a plugin for Grafana, which is an open source tool for presenting charts and performing data queries and filtering. In this chapter we'll focus on creating a Grafana dashboard to surface interesting metrics regarding our Octopus deployments.
 </p>
+<h2>Why are these metrics important?</h2>
+<p>
+    A popular and respected annual report produced by DevOps Research & Assessment (DORA) called The Accelerate State of DevOps Report calls out four key metrics used to measure the performance of DevOps teams:
+</p>
+<ul>
+    <li>Deployment frequency - For the primary application or service you work on, how often does your organization deploy code to production or release it to end users?</li>
+    <li>Lead time for changes - For the primary application or service you work on, what is your lead time for changes (i.e., how long does it take to go from code committed to code successfully running in production)?</li>
+    <li>Time to restore service - For the primary application or service you work on, how long does it generally take to restore service when a service incident or a defect that impacts users occurs (e.g., unplanned outage or service impairment)?</li>
+    <li>Change failure rate - For the primary application or service you work on, what percentage of changes to production or released to users result in degraded service (e.g., lead to service impairment or service outage) and subsequently require remediation (e.g., require a hotfix, rollback, fix forward, patch)?</li>
+</ul>
+<p>
+    While there are many other interesting metrics that can be used to measure the performance of your deployments, the four listed above have the benefit of being researched across a wide audience and whose values can be compared against high performing teams.
+</p>
+<p>
+    However, these metrics are quite broad and cover the spectrum of the CI/CD pipeline, as well as encompassing maintenance tasks outside of deployments. This means we'll need to apply some interpretation to the metrics to find meaningful measurements that can be applied to the deployment process.
+</p>
+<p>
+    Deployment frequency is an easy win for us. As Octopus performs the deployments, we have all the information to know how frequently our production environment is updated.
+</p>
+<p>
+    Lead time for changes takes into account all the time from the a commit to source control to a deployment in production.
+</p>
 <h2>Creating a Grafana service account</h2>
 <p>
     Grafana uses the Octopus API to get its data, which means it needs a service account and API key.
@@ -17,15 +39,32 @@
     Open <b>Configuration -> Users</b>, and click <b>CREATE SERVICE ACCOUNT</b>. Give the new service account the username of <b>Grafana</b>, the description of <b>Grafana service account</b>, and click the <b>SAVE</b> button. Then, under the <b>Api Keys</b> section, click the <b>NEW API KEY</b> button. Set the purpose to <b>Grafana data source</b> and click <b>GENERATE NEW</b>. Make a note of the new key and close the dialog.
 </p>
 <p>
-    The service account will need the following permissions:
+    The Grafana plugin has the ability to look up almost any entity from the Octopus API. Below are the roles that grant read only access to the API:
 </p>
 <ul>
+    <li>AccountView</li>
+    <li>ActionTemplateView</li>
+    <li>CertificateView</li>
     <li>DeploymentView</li>
     <li>EnvironmentView</li>
-    <li>TenantView</li>
+    <li>FeedView</li>
+    <li>LibraryVariableSetView</li>
+    <li>LifecycleView</li>
+    <li>MachinePolicyView</li>
+    <li>MachineView</li>
     <li>ProcessView</li>
+    <li>ProjectGroupView</li>
     <li>ProjectView</li>
+    <li>ProxyView</li>
     <li>ReleaseView</li>
+    <li>RunbookRunView</li>
+    <li>RunbookView</li>
+    <li>SubscriptionView</li>
+    <li>TaskView</li>
+    <li>TenantView</li>
+    <li>TriggerView</li>
+    <li>VariableView</li>
+    <li>WorkerView</li>
 </ul>
 <p>
     To grant these permissions we'll need to create a new user role. Open <b>Configuration -> User Roles</b>, click the <b>ADD CUSTOM ROLE</b> button, set the name to <b>Grafana</b>, select each of the permissions above from the <b>SPACE PERMISSIONS</b> tab, and click the <b>SAVE</b> button.
@@ -98,8 +137,48 @@ spec:
     octopusexport: OctopusExport
 </pre>
 <p>
-    As before we can use the <b>Get Service IP</b> runbook to find the public IP of our new load balancer. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
+    As before we can use the <b>Get Service IP</b> runbook to find the public IP of our new load balancer.
+</p>
+<h2>Configuring Grafana</h2>
+<p>
+    Opening the IP address of the load balancer service prompts you to log in. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
 </p>
 <p>
-    Under <b>Configuration -> DataSources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button.
+    We start by adding an Octopus data source. Under <b>Configuration -> DataSources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button. Enter the Octopus server, and paste in the API key created for the <b>Grafana</b> user earlier. Click the <b>Save & Test</b> button to save the changes.
+</p>
+<p>
+    We can now add a dashboard. Click <b>Dashboards -> Manage</b> (the dashboards link is the four tiles icon), click <b>Import</b>, enter <b>https://grafana.com/grafana/dashboards/13413</b> as the dashboard URL, and click the <b>Load</b> button. On the next screen select the data source created above and click the <b>Import</b> button.
+</p>
+<p>
+    This process imports a preconfigured dashboard that has been shared on the Grafana web site. It includes a number of charts and tiles to provide insight into the performance and health of our deployment processes.
+</p>
+<p>
+    For deployment frequency we have a chart that measures the number of deployments over the reporting time period, grouped by successful (green) and unsuccessful (red) deployments. This data tells us how frequently the selected environment is being updated with new deployments.
+</p>
+<p>
+
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/deployment-frequency.png"/></div>
+<p>
+    Lead time for deployments are captured as the time it took for the last release to be deployed to the selected environment, and the average time it takes for releases to be deployed to the selected environment. This data tells us how long we are waiting between a release being created and being deployed in the selected environment.
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/release-lead-time-tiles.png"/></div>
+<p>
+    A chart is also provided showing the average deployment lead time over the reporting time period:
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/release-lead-time-chart.png"/></div>
+<p>
+    The maximum and average time to recover deployments are shown as tiles:
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/time-to-recovery.png"/></div>
+<p>
+    The average time to recover a deployment is also presented as a chart:
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/time-to-recovery-chart.png"/></div>
+<p>
+    Deployment fail rate is shown as a ratio of failed deployments to successful deployments:
+</p>
+<div><img alt="Deployment frequency" src="images/grafana/failure-ratio.png"/></div>
+<p>
+    Deployment duration
 </p>
