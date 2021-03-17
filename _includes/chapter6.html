@@ -1,0 +1,105 @@
+<h1><a id="chapter6">Measurable deployments</a></h1>
+<h2>Measurable {{ site.platform }} deployments</h2>
+<p>
+    While the Octopus dashboard has a exposes a wealth of information regarding the state of environments, build information associated with packages, and the history of releases, it doesn't allow you to really drill into metrics, like those noted above, that show you the health and performance of your deployment processes.
+</p>
+<p>
+    The Octopus REST API exposes a feed of data relating to deployments via the <b>/api/reporting/deployments/xml</b> endpoint, although in its raw XML form this information is not something we inspect and interpret directly. In order to make sense of this firehose of information we need to link a reporting and graphing tool to Octopus.
+</p>
+<p>
+    Octopus provides a plugin for Grafana, which is an open source tool for presenting charts and performing data queries and filtering. In this chapter we'll focus on creating a Grafana dashboard to surface interesting metrics regarding our Octopus deployments.
+</p>
+<h2>Creating a Grafana service account</h2>
+<p>
+    Grafana uses the Octopus API to get its data, which means it needs a service account and API key.
+</p>
+<p>
+    Open <b>Configuration -> Users</b>, and click <b>CREATE SERVICE ACCOUNT</b>. Give the new service account the username of <b>Grafana</b>, the description of <b>Grafana service account</b>, and click the <b>SAVE</b> button. Then, under the <b>Api Keys</b> section, click the <b>NEW API KEY</b> button. Set the purpose to <b>Grafana data source</b> and click <b>GENERATE NEW</b>. Make a note of the new key and close the dialog.
+</p>
+<p>
+    The service account will need the following permissions:
+</p>
+<ul>
+    <li>DeploymentView</li>
+    <li>EnvironmentView</li>
+    <li>TenantView</li>
+    <li>ProcessView</li>
+    <li>ProjectView</li>
+    <li>ReleaseView</li>
+</ul>
+<p>
+    To grant these permissions we'll need to create a new user role. Open <b>Configuration -> User Roles</b>, click the <b>ADD CUSTOM ROLE</b> button, set the name to <b>Grafana</b>, select each of the permissions above from the <b>SPACE PERMISSIONS</b> tab, and click the <b>SAVE</b> button.
+</p>
+<p>
+    To grant these permissions we'll need to create a new team. Open <b>Configuration -> Team</b>, click the <b>ADD TEAM</b> button, set the name to <b>Grafana</b>, select the <b>Accessible in all spaces</b> option, and click the <b>SAVE</b> button.
+</p>
+<p>
+    Under the <b>USER ROLES</b> tab, click the <b>INCLUDE USER ROLE</b> button, select the <b>Grafana</b> user role we created above, and click the <b>APPLY</b> button. 
+</p>
+<p>
+    Under the <b>MEMBERS</b> tab, click the <b>ADD MEMBER</b> button, select the <b>Grafana</b> service account we created above, and click the <b>ADD</b> button.
+</p>
+<p>
+    Click the <b>SAVE</b> button to save the new team.
+</p>
+<h2>Deploying Grafana to Kubernetes</h2>
+<p>
+    Octopus provides a Docker image called <b>octopussamples/grafana</b> which includes the Octopus Grafana plugin built in and configured in Grafana. We'll deploy this image into our cluster to give us a quick and easy way to access a Grafana instance.
+</p>
+<p class="note">
+    We'll do the bare minimum here to get a Grafana instance up and running. The result won't address any concerns around high availability or data persistence.
+</p>
+<p>
+    In our <b>Kubernetes DevOps</b> project, create a new runbook called <b>Deploy Grafana</b>, and add the <b>Deploy Kubernetes containers</b> step to the deployment process.
+</p>
+<p>
+    The deployment YAML is shown below:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: granafa
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: grafana
+          image: index.docker.io/octopussamples/grafana
+          ports:
+            - name: web
+              containerPort: 3000
+</pre>
+<p>
+    We expose Grafana by a load balancer service:
+</p>
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: LoadBalancer
+  ports:
+    - name: web
+      port: 80
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    octopusexport: OctopusExport
+</pre>
+<p>
+    As before we can use the <b>Get Service IP</b> runbook to find the public IP of our new load balancer. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
+</p>
+<p>
+    Under <b>Configuration -> DataSources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button.
+</p>
