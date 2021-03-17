@@ -1,17 +1,38 @@
 <h1><a id="chapter6">Measurable deployments</a></h1>
+<p>
+    Getting your software into the hands of your customers is the primary goal of any deployment process. To understand how well your deployment process is performing, you need to measure the metrics that define success for you.
+</p>
+<p>
+    Having measurable deployments means defining a set of common and agreed upon metrics, reliably collecting those metrics, and surfacing them in an easy to understand format.
+</p>
+<p>
+    Some common metrics that apply to deployments are:
+</p>
+<ul>
+    <li>Deployment frequency: How frequently do you deploy to production?</li>
+    <li>Lead time for changes: How long does it take for a commit to be deployed into production?</li>
+    <li>Lead time for deployments: How long does it take for a release to be deployed to production?</li>
+    <li>Time to recover deployment: How long does it take to successfully deploy a release after a failed deployment?</li>
+    <li>Deployment fail rate: What is the ratio between failed deployments and successful deployments?</li>
+    <li>Change fail rate: What is the ratio between hotfix deployments and regular deployments?</li>
+    <li>Deployment duration: How long does each deployment take?</li>
+</ul>
+<p>
+    In this chapter we'll identify the most important metrics you can monitor for your deployment processes and provide a graphing solution to present them to stakeholders.
+</p>
 <h2>Measurable {{ site.platform }} deployments</h2>
 <p>
-    While the Octopus dashboard has a exposes a wealth of information regarding the state of environments, build information associated with packages, and the history of releases, it doesn't allow you to really drill into metrics, like those noted above, that show you the health and performance of your deployment processes.
+    The Octopus dashboard presents a view of the current state of our infrastructure, and, as we saw in <a href="#chapter5">chapter 5</a>, also allows us to inspect the changes that went into the packages for each release. However, to understand the state of deployments over time, we need some new tools.
 </p>
 <p>
-    The Octopus REST API exposes a feed of data relating to deployments via the <b>/api/reporting/deployments/xml</b> endpoint, although in its raw XML form this information is not something we inspect and interpret directly. In order to make sense of this firehose of information we need to link a reporting and graphing tool to Octopus.
+    The Octopus REST API exposes a feed of data relating to deployments via the <b>/api/reporting/deployments/xml</b> endpoint. In its raw XML form this feed is not something we inspect and interpret directly, so to make sense of this firehose of information we need a reporting and graphing tool to consume it.
 </p>
 <p>
-    Octopus provides a plugin for Grafana, which is an open source tool for presenting charts and performing data queries and filtering. In this chapter we'll focus on creating a Grafana dashboard to surface interesting metrics regarding our Octopus deployments.
+    Octopus provides a plugin for Grafana, available at <a href="https://github.com/OctopusDeploy/OctopusGrafanaDataSource">https://github.com/OctopusDeploy/OctopusGrafanaDataSource</a>, which is an open source tool for presenting charts and performing data queries and filtering. In this chapter we'll focus on creating a Grafana dashboard to surface interesting metrics regarding our Octopus deployments.
 </p>
 <h2>Why are these metrics important?</h2>
 <p>
-    A popular and respected annual report produced by DevOps Research & Assessment (DORA) called The Accelerate State of DevOps Report, available at <a href="https://services.google.com/fh/files/misc/state-of-devops-2019.pdf">https://services.google.com/fh/files/misc/state-of-devops-2019.pdf</a>, calls out four key metrics used to measure the performance of DevOps teams:
+    A popular and respected annual report produced by DevOps Research & Assessment (DORA) called The Accelerate State of DevOps Report, available at <a href="https://services.google.com/fh/files/misc/state-of-devops-2019.pdf">https://services.google.com/fh/files/misc/state-of-devops-2019.pdf</a>, calls out four key metrics to measure the performance of DevOps teams:
 </p>
 <ul>
     <li>Deployment frequency - For the primary application or service you work on, how often does your organization deploy code to production or release it to end users?</li>
@@ -20,22 +41,22 @@
     <li>Change failure rate - For the primary application or service you work on, what percentage of changes to production or released to users result in degraded service (e.g., lead to service impairment or service outage) and subsequently require remediation (e.g., require a hotfix, rollback, fix forward, patch)?</li>
 </ul>
 <p>
-    While there are many other interesting metrics that can be used to measure the performance of your deployments, the four listed above have the benefit of being researched across a wide audience and whose values can be compared against high performing teams.
+    While there are many other interesting metrics (some of which were listed in the chapter introduction) that can be used to measure deployment performance, the four listed above have the benefit of being researched across a wide audience and whose values can be compared against high performing teams.
 </p>
 <p>
-    However, these metrics are quite broad and cover the spectrum of the CI/CD pipeline, as well as encompassing maintenance tasks outside of deployments. This means we'll need to apply some interpretation to the metrics to find meaningful measurements that can be applied to the deployment process.
+    However, these metrics are quite broad and cover the spectrum of the CI/CD pipeline, as well as encompassing maintenance tasks outside of deployments. This means we'll need to apply some interpretation to the metrics to find meaningful measurements relating to the deployment process.
 </p>
 <p>
-    Deployment frequency is an easy win for us. As Octopus performs the deployments, we have all the information to know how frequently our production environment is updated.
+    <i>Deployment frequency</i> is an easy win for us. Given Octopus performs the deployments, we have all the information to know how frequently our production environment is updated.
 </p>
 <p>
-    Lead time for changes takes into account all the time from the a commit to source control to a deployment in production. This requires visibility across the source control, CI and CD systems, which is not available in this Grafana plugin. However, from a deployment point of view we can consider the time between when a release is created, and when it is deployed into production. We've called this metric the lead time for releases.
+    <i>Lead time for changes</i> takes into account the duration from the a commit to source control to a deployment in production. This requires visibility across the source control, CI and CD systems, which is not available in this Grafana plugin. However, from a deployment point of view we can consider the time between when a release is created, and when it is deployed into production. We've called this metric the <i>lead time for releases</i>.
 </p>
 <p>
-    Time to restore service is another broad metric that spans many different systems. A service may become unavailable for any number of reasons not related to a deployment such as hardware failure, networking issues, power outages etc. A comprehensive measurement of this metric would likely be found by analyzing the data in a help desk ticketing system to track the time between a critical issue being raised and resolved, or a monitoring system that can directly track the uptime of systems. Bringing this concept back to deployments though, we can consider the time it takes to go from an unsuccessful deployment to a successful one. This measurement has more weight if our deployment processes have robust tests associated with them to ensure what was deployed represents a working system, as we described in <a href="#chapter2">chapter 2</a>. We've called this metric the time to recover deployment.
+    <i>Time to restore service</i> is another broad metric that spans many different systems. A service may become unavailable for any number of reasons not related to a deployment such as hardware failure, networking issues, power outages etc. A comprehensive measurement of this metric would likely be found by analyzing the data in a help desk ticketing system to track the time between a critical issue being raised and resolved, or a monitoring system that can directly track the uptime of systems. Bringing this concept back to deployments though, we can consider the time it takes to go from an unsuccessful deployment to a successful one. This measurement has more weight if our deployment processes have robust tests associated with them to ensure what was deployed represents a working system, as we described in <a href="#chapter2">chapter 2</a>. We've called this metric the <i>time to recover deployment</i>.
 </p>
 <p>
-    Change failure rate is also a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> as a way of determining how many deployments were performed solely for the purpose of restoring our production environment.
+    <i>Change failure rate</i> is also a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> as a way of determining how many deployments were performed solely for the purpose of restoring our production environment.
 </p>
 <p>
     Now that we have some meaningful measurements to make on our deployments, we can configure a Grafana dashboard to present them in real time.
@@ -45,7 +66,7 @@
     Grafana uses the Octopus API to get its data, which means it needs a service account and API key.
 </p>
 <p>
-    Open <b>Configuration -> Users</b>, and click <b>CREATE SERVICE ACCOUNT</b>. Give the new service account the username of <b>Grafana</b>, the description of <b>Grafana service account</b>, and click the <b>SAVE</b> button. Then, under the <b>Api Keys</b> section, click the <b>NEW API KEY</b> button. Set the purpose to <b>Grafana data source</b> and click <b>GENERATE NEW</b>. Make a note of the new key and close the dialog.
+    Open <b>Configuration -> Users</b>, and click the <b>CREATE SERVICE ACCOUNT</b> button. Give the new service account the username of <b>Grafana</b>, the description of <b>Grafana service account</b>, and click the <b>SAVE</b> button. Then, under the <b>Api Keys</b> section, click the <b>NEW API KEY</b> button. Set the purpose to <b>Grafana data source</b> and click <b>GENERATE NEW</b>. Make a note of the new key and close the dialog.
 </p>
 <p>
     The Grafana plugin has the ability to look up almost any entity from the Octopus API. Below are the roles that grant read only access to the API:
@@ -90,18 +111,21 @@
 <p>
     Click the <b>SAVE</b> button to save the new team.
 </p>
+<p>
+    Our service account now has the read only access to the Octopus API that it needs to retrieve any required data.
+</p>
 <h2>Deploying Grafana to Kubernetes</h2>
 <p>
     Octopus provides a Docker image called <b>octopussamples/grafana</b> which includes the Octopus Grafana plugin configured in Grafana. We'll deploy this image into our cluster to give us a quick and easy way to access a Grafana instance.
 </p>
 <p class="note">
-    We'll do the bare minimum here to get a Grafana instance up and running. The result won't address any concerns around high availability or data persistence of the Grafana application.
+    We'll configure the bare minimum here to get a Grafana instance up and running. The result won't address any concerns around high availability or data persistence of the Grafana application.
 </p>
 <p>
     In our <b>Kubernetes DevOps</b> project, create a new runbook called <b>Deploy Grafana</b>, and add the <b>Deploy Kubernetes containers</b> step to the deployment process.
 </p>
 <p>
-    The deployment YAML is shown below:
+    The deployment YAML to import into the step is shown below:
 </p>
 <pre>
 apiVersion: apps/v1
@@ -128,7 +152,7 @@ spec:
               containerPort: 3000
 </pre>
 <p>
-    We expose Grafana by a load balancer service:
+    We expose Grafana by a load balancer service. The YAML to import for the service is shown below:
 </p>
 <pre>
 apiVersion: v1
@@ -146,11 +170,11 @@ spec:
     octopusexport: OctopusExport
 </pre>
 <p>
-    As before we can use the <b>Get Service IP</b> runbook to find the public IP of our new load balancer.
+    As before we can use the <b>Get Service IP</b> runbook to find the public IP of our new load balancer. Open Grafana via the url http://[load balancer ip].
 </p>
 <h2>Configuring Grafana</h2>
 <p>
-    Opening the IP address of the load balancer service prompts you to log in. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
+    Opening the IP address of the load balancer service displays a login page. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
 </p>
 <p>
     We start by adding an Octopus data source. Under <b>Configuration -> Data Sources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button. Enter the Octopus server URL, and paste in the API key created for the <b>Grafana</b> user earlier. Click the <b>Save & Test</b> button to save the changes.
@@ -166,11 +190,11 @@ spec:
 </p>
 <div><img alt="Deployment frequency" src="images/grafana/deployment-frequency.png"/></div>
 <p>
-    Lead time for deployments are captured as the time it took for the last release to be deployed to the selected environment, and the average time it takes for releases to be deployed to the selected environment. This data tells us how long we are waiting between a release being created and being deployed in the selected environment:
+    Lead time for releases are captured as the time it took for the last release to be deployed to the selected environment, and the average time it takes for releases to be deployed to the selected environment. This data tells us how long we are waiting between a release being created and being deployed in the selected environment:
 </p>
 <div><img alt="Lead time" src="images/grafana/release-lead-time-tiles.png"/></div>
 <p>
-    A chart is also provided showing the average deployments lead time over the reporting time period:
+    A chart is also provided showing the average release lead time over the reporting time period:
 </p>
 <div><img alt="Lead time" src="images/grafana/release-lead-time-chart.png"/></div>
 <p>
@@ -186,11 +210,11 @@ spec:
 </p>
 <div><img alt="Time to recovery" src="images/grafana/change-failure-rate.png"/></div>
 <p>
-    The sample dashboard also includes a number of other metrics like the ratio of failed to successful deployments, deployment times, and counts of common resources like targets, workers, environments etc that have been configured in Octopus.
+    The sample dashboard also includes a number of other metrics like the ratio of failed to successful deployments, deployment times, and counts of common resources like targets, workers, environments etc. that have been configured in Octopus.
 </p>
 <h2>Conclusion</h2>
 <p>
-    The pillar of measurable deployments saw us deploy an instance of Grafana and configure a dashboard providing a comprehensive overview of the performance of our deployments. By adapting some of the broader metrics from the State of DevOps report to align them with our deployment process, we have a objective, measurable, actionable, and comparable measurements that help inform any future improvements in our deployment processes.
+    The pillar of measurable deployments saw us configure an instance of Grafana and import a dashboard providing a comprehensive overview of the performance of our deployments. By adapting some of the broader metrics from the State of DevOps report to align them with our deployment process, we have objective, measurable, actionable, and comparable measurements that help inform any future improvements in our deployment processes.
 </p>
 <p>
     In this chapter we:
@@ -199,8 +223,8 @@ spec:
     <li>Looked at some common metrics that apply to deployments.</li>
     <li>Reviewed the four key metrics championed by the State of DevOps report, and discussed how they apply to deployments.</li>
     <li>Installed Grafana into our cluster.</li>
-    <li>Imported a dashboard and looked at the measurements it presented.</li>
+    <li>Imported a dashboard and reviewed at the measurements it presented.</li>
 </ul>
 <p>
-    Many of the measurements presented in this chapter highlight the idea of recovering from deployment failures as a key indicator of success. When things do go wrong, the next pillar of auditable deployments describes how you can help you narrow down what actions and changes lead to a particular outcome.
+    Measurable deployments provides a high level summary of the state of deployments over time, often with the goal of reducing failures and the time it takes to recover from them. The next pillar of auditable deployments looks at how we can trace what changes were made to a deployment process and by whom.
 </p>
