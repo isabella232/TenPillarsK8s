@@ -74,7 +74,7 @@
     <li>ActionTemplateView</li>
 </ul>
 <p>
-    If the users consuming action templates do not have <b>ActionTemplateCreate</b>, <b>ActionTemplateDelete</b>, or <b>ActionTemplateEdit</b> permissions, we can be sure that they must only consume step templates as is, and can not make any modifications to the standardized templates created for them.
+    If the users consuming action templates do not have <b>ActionTemplateCreate</b>, <b>ActionTemplateDelete</b>, or <b>ActionTemplateEdit</b> permissions, we can be sure that they must only consume step templates as they are, and can not make any modifications beyond supplying values for parameters.
 </p>
 <h2>Exporting and importing projects</h2>
 <p>
@@ -97,7 +97,7 @@
     When exporting and importing a standardized project template there are a few things to take into account:
 </p>
 <ul>
-    <li>Previous releases are included in the export. This are not likely to be useful for someone creating a new project, so ensure the existing release are deleted before exporting a project.</li>
+    <li>Previous releases are included in the export. This are not likely to be useful for someone creating a new project, so ensure the existing releases are deleted before exporting a project.</li>
     <li>Environments and lifecycles are included in the export. If this is not desirable, create the template project in a space with no environments, and have the project reference the default lifecycle.</li>
     <li>Worker pools are included in the export, including the default worker pools created for you on a hosted instance. Exporting a project from a hosted Octopus instance for use on a selfhosted instance, or vice versa, may lead to unnecessary worker pools being generated.</li>
     <li>Secret variables are included in the export, but these are trivial to extract by anyone with the credentials required to import the project. Don't rely on secret variables remaining a secret in an exported project.</li>
