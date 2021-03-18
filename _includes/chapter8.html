@@ -28,12 +28,12 @@
     Under the <b>PARAMETERS</b> tab, click the <b>ADD PARAMETER</b> button, and add the following parameters:
 </p>
 <ol>
-    <li>DeployKubernetesWorkerServerUrl</li> with description <b>The URL of the Octopus server to connect the worker to</b>.
-    <li>DeployKubernetesWorkerApiKey</li> with description <b>The Octopus server API key</b> as a <b>Sensitive/password box</b>.
-    <li>DeployKubernetesWorkerSpace</li> with description <b>The Octopus space to register the workers in</b>.
-    <li>DeployKubernetesWorkerPool</li> with description <b>The pool to place the workers in</b> and a default value of <b>Testing</b>.
-    <li>DeployKubernetesWorkerMachinePolicy</li> with description <b>The machine policy to assign to the workers</b> and a default value of <b>Test Worker</b>.
-    <li>DeployKubernetesWorkerReplicas</li> with description <b>The number of workers to create</b> and a default value of <b>1</b>.
+    <li><b>DeployKubernetesWorkerServerUrl</b> with description <b>The URL of the Octopus server to connect the worker to</b>.</li>
+    <li><b>DeployKubernetesWorkerApiKey</b> with description <b>The Octopus server API key</b> as a <b>Sensitive/password box</b>.</li>
+    <li><b>DeployKubernetesWorkerSpace</b> with description <b>The Octopus space to register the workers in</b>.</li>
+    <li><b>DeployKubernetesWorkerPool</b> with description <b>The pool to place the workers in</b> and a default value of <b>Testing</b>.</li>
+    <li><b>DeployKubernetesWorkerMachinePolicy</b> with description <b>The machine policy to assign to the workers</b> and a default value of <b>Test Worker</b>.</li>
+    <li><b>DeployKubernetesWorkerReplicas</b> with description <b>The number of workers to create</b> and a default value of <b>1</b>.</li>
 </ol>
 <p class="note">
     Parameters are contributed to a step as variables during deployment time. To reduce the chance that a variable defined in a project conflicts with a parameter name, we ensure the parameter names are quite verbose.
