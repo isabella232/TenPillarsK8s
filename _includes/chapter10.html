@@ -15,3 +15,69 @@ Deploying a package into an environment is just one small part of the deployment
 <p>
     In practice a deployment process may be a single component in a wider ecosystem of business process management tools. The ability to orchestrate deployments from third party platforms and report results back allows teams to manage complex deployments as part of a broader business process.
 </p>
+<p>
+    Octopus includes a number of steps and features that allow high level coordination of deployment processes and runbooks, which we'll explore in this chapter.
+</p>
+<h2>Coordinated {{ site.platform }} deployments</h2>
+<p>
+    Let's break down the examples given above to see how we can implement them in Octopus.
+</p>
+<h3>Manual approval to proceed</h3>
+<p>
+    There are times when a person needs to make the decision to proceed with a deployment. We've already see this in <a href="#chapter3">chapter 3</a> where we configure canary deployments where the decision to direct 100% of traffic to the new deployment was made via the <b>Manual Intervention</b> step.
+</p>
+<p>
+    This step also allows for members of a specific team to approve a manual intervention step with the <b>Responsible Teams</b> option. Where multiple teams all need to approve a deployment, we can have multiple manual intervention steps running in parallel. 
+</p>
+<p>
+    To see this in action we will create two new teams called <b>Product Owners</b> and <b>Release Managers</b>. Then in the <b>Random Quotes - Frontend - Canary</b> project, clone the <b>Increase canary traffic to 100%</b> step by clicking the hamburger menu next to the step in the process list and selecting the <b>Clone</b> option. Accept the default options and click the <b>OK</b> button. The new step will be placed after the original step.
+</p>
+<p class="note">
+    Refer to <a href="#chapter2">chapter 2</a> for instructions on creating new teams.
+</p>
+<p>
+    Rename the original step to <b>Increase canary traffic to 100%- Product Owners</b>, and rename the cloned step to <b>Increase canary traffic to 100% - Release Managers</b>. 
+</p>
+<p>
+    In the <b>Increase canary traffic to 100%- Product Owners</b> step set the <b>Responsible Teams</b> to <b>Product Owners</b>, and in the <b>Increase canary traffic to 100% - Release Managers</b> step set the <b>Responsible Teams</b> to <b>Release Managers</b>.
+</p>
+<p>
+    Finally, in the <b>Increase canary traffic to 100% - Release Managers</b> step expand the <b>STart Trigger</b> section and select the <b>Run in parallel with the previous step</b> option. Note that the two manual approval steps are shown with an icon with two parallel lines between them. This indicates that the steps are run in parallel:
+</p>
+<div><img alt="Time to recovery" src="images/octopus/multiple-approvals.png"/></div>
+<p>
+    When we reach these steps during the deployment, both the approvals are displayed in the <b>TASK SUMMARY</b>:
+</p>
+<div><img alt="Time to recovery" src="images/octopus/multiple-approval-prompt.png"/></div>
+<h3>Notifications during deployments</h3>
+<p>
+    The Octopus dashboard provides a useful overview of the state of deployments, but we very much have to pull this information by opening Octopus and reviewing the state of various deployments. By including notifications in our deployment processes and runbooks we can implement a push model that sends details about important events to external systems like email and chat platforms.
+</p>
+<p>
+    To send emails we need a Simple Mail Transfer Protocol (SMTP) server. For convenience we'll use Gmail as our SMTP server, which is accessible to anyone with a Gmail account.
+</p>
+<p>
+    Open <b>Configuration -> SMTP</b> and enter the following values:
+</p>
+<ul>
+    <li>Enter <b>smtp.gmail.com</b> as the SMTP Host.</li>
+    <li>Enter <b>587</b> as the SMTP Port.</li>
+    <li>Enable the <b>Use SSL/TLS</b> option.</li>
+    <li>Enter your Gmail address as the From Address.</li>
+    <li>Enter your Gmail address and password in the credentials.</li>
+</ul>
+<p class="note">
+    You will enable the Less secure apps option on your Google account for Octopus to send emails via the Google SMTP server. See <a href="https://g.octopushq.com/GoogleLessSecureApps">https://g.octopushq.com/GoogleLessSecureApps</a> for details.
+</p>
+<p>
+    In any of our deployment projects add the <b>Send an Email</b> step. Enter your email address in the <b>To</b> field, set the <b>Subject</b> to <b>#{Octopus.Project.Name} failed to deploy</b>, and set the <b>Body</b> to <b>The #{Octopus.Project.Name} project failed to deploy. Please review the logs in the Octopus dashboard for more details.</b> Under the <b>Run Condition</b> select the <b>Failure: only run when previous steps fail</b> option.
+</p>
+<p>
+    Now if the project fails to deploy for any reason we'll get an email notification. This also means we are notified immediately rather than waiting for someone to log into the Octopus dashboard and notice the failure.
+</p>
+<h3>Enforcing deployment order</h3>
+<h3>Enforcing deployment times</h3>
+<h3>Scheduling deployments</h3>
+<h3>Triggering deployments</h3>
+<h3>Triggering external events</h3>
+<h2>Conclusion</h2>
