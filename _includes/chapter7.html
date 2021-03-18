@@ -73,6 +73,9 @@
     To consume the raw JSON data, we can query the <b>/api/events</b> API endpoint. To get the full URL to query, configure the appropriate filters in the web UI and watch the browser's network traffic through the developer console as you refresh the results. In the screenshot below you can see the URL accessed by the browser to retrieve the list of audit events, capturing the URL <b>/api/events?eventGroups=Deployment&from=2021-02-16T00:00:00+10:00&to=2021-03-18T23:59:59+10:00&spaces=Spaces-142&includeSystem=true&excludeDifference=true</b>:
 </p>
 <div><img alt="Time to recovery" src="images/browser/network-traffic.png"/></div>
+<p class="note">
+    Most browsers use the F12 key to open the developer console or tools.
+</p>
 <p>
     To query this API externally, we first need a service account with the <b>Event View</b> role assigned to it. We've created service account, API key, user roles and teams a few times now in this book, so refer back to <a href="#chapter6">chapter 6</a> for more detailed instructions.
 </p>
