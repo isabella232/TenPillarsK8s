@@ -13,7 +13,7 @@
 </p>
 <h2>Auditable {{ site.platform }} deployments</h2>
 <p>
-    Auditing is happily one of those features of Octopus you get for free. The auditing system in Octopus automatically tracks important events with no additional configuration required.
+    Auditing is happily one of those Octopus features you get for free. The auditing system in Octopus automatically tracks important events with no additional configuration required.
 </p>
 <p>
     To view the audit logs, open <b>Configuration -> Audit</b>. You'll be presented with a sortable and filterable list of events that have been tracked by the system.
@@ -23,47 +23,47 @@
 </p>
 <div><img alt="Time to recovery" src="images/octopus/audit-entry.png"/></div>
 <p>
-    The audit entry has a date and time, the details of the user who made the changes, and a description of the change that was made. Often these descriptions have links back to the entity they refers to.
+    The audit entry has a date and time, the details of the user who made the changes, and a description of the change that was made. Often these descriptions have links back to the entity they refer to.
 </p>
 <p>
     Expanding the audit entry reveals the method that was used to authenticate the user, the details of the client that made the connection, and the category that the audit event belongs to. 
 </p>
 <p>
-    The <b>Established with</b> field of <b>Session cookie</b> shows this action was taken by someone through a web browser. Other examples may list the API key that was responsible for the event, or if the event was trigger internally this value may simply be <b>Unknown</b>.
+    The <b>Established with</b> field of <b>Session cookie</b> shows this action was taken by someone through a web browser. Other audit events may list the API key that was responsible for the event, or if the event was triggered internally this value may simply be <b>Unknown</b>.
 </p>
 <p>
-    The <b>User agent</b> field shows <b>Portal</b>, meaning the action was initiated through the Octopus web UI. When using the Octopus CLI or CI tool plugins, the user agent will capture information about the platform that executed the action like, operating system versions, as well as capturing the name of the CI server that ran the CLI tool.
+    The <b>User agent</b> field shows <b>Portal</b>, meaning the action was initiated through the Octopus web UI. When using the Octopus CLI or CI tool plugins, the user agent will capture information about the platform that executed the action, such as operating system versions, as well as capturing the name of the CI server that ran the CLI tool.
 </p>
 <p class="note">
-    The term <i>user agent</i> was borrowed from the concept in a web browser that provides some details about the browser's name, version, and other capabilities. However, Octopus does not capture a browser's user agent, even if actions are triggered via the web UI.
+    The term <i>user agent</i> was borrowed a similar the concept implemented by web browsers that provides some details about the browser's name, version, and other capabilities. However, Octopus does not capture a browser's user agent, even if actions are triggered via the web UI.
 </p>
 <p>
     The <b>Category</b> field is used to group similar types of events with general names.
 </p>
 <p>
-    Below the audit event fields we then see the diff of a JSON document. Although Octopus uses a relational database to persist data, quite often the data is saved as JSON documents. Updates to the database then mean changing JSON documents, and the diff view shown in the audit logs is the change to the underlying JSON data relating to the audited event.
+    Below the audit event fields we then see the diff of a JSON document. Although Octopus uses a relational database to persist data, most data is saved as JSON documents. Updates to the database then mean changing JSON documents, and the diff view shown in the audit logs is the change to the underlying JSON data relating to the audited event.
 </p>
 <p>
     The structure of the JSON documents is not documented and is subject to change between Octopus versions. End users are not expected to have a deep knowledge of the JSON documents managed by Octopus. But in many cases it is easy enough to understand what change was made from this diff view.
 </p>
 <p class="note">
-    Octopus has an open source project called Nevermore, available at <a href="https://github.com/OctopusDeploy/Nevermore">https://github.com/OctopusDeploy/Nevermore</a>, to manage the persistence and querying of JSON documents in a relational database.
+    Octopus provides an open source project called Nevermore, available at <a href="https://github.com/OctopusDeploy/Nevermore">https://github.com/OctopusDeploy/Nevermore</a>, to manage the persistence and querying of JSON documents in a relational database.
 </p>
 <h2>Filtering audit logs</h2>
 <p>
-    As you can see Octopus generates a lot of audit events, and manually scrolling through them all to find the event your are interested in could take quite some time. Clicking the <b>SHOW ADVANCED FILTERS</b> button displays a number of fields that allow specific audit events to be displayed. Most of the search fields are self explanatory, but a few deserve mention.
+    As you can see Octopus generates a lot of audit events, and manually scrolling through them all to find the event you are interested in could take quite some time. Clicking the <b>SHOW ADVANCED FILTERS</b> button displays a number of fields that allow specific audit events to be displayed. Most of the search fields are self explanatory, but a few deserve mention.
 </p>
 <p>
     The <b>Include system events</b> option displays anything that can not reasonably be categorized as happening within a space. An example of a system event is the creation of a system team, which is a team that is available across all spaces.
 </p>
 <p>
-    The <b>Document types</b> filter limits events to certain types of entities, like projects, certificates, accounts etc. The term <i>document</i> here is a reference to the fact that Octopus stores its information in JSON "documents" in the database.
+    The <b>Document types</b> filter limits events to certain types of entities, like projects, certificates, accounts etc. The term <i>document</i> here is a reference to the fact that Octopus stores its data as JSON "documents" in the database.
 </p>
 <p>
     The <b>Event agents</b> field refers to the user agent we described above that generated the event. The options available in this filter are not necessarily a one-to-one match with the user agent listed on the event itself. For example, if you filter by <b>Octopus Web UI</b>, the audit events will show a user agent of <b>Portal</b>.
 </p>
 <p>
-    The <b>Event groups</b> provide a higher level of grouping over event categories. By selecting an event group, an number of event categories are selected for you.
+    <b>Event groups</b> provide a higher level of grouping over event categories. By selecting an event group, an number of event categories are selected for you.
 </p>
 <h2>Exporting audit events</h2>
 <p>
@@ -77,14 +77,14 @@
     Most browsers use the F12 key to open the developer console or tools.
 </p>
 <p>
-    To query this API externally, we first need a service account with the <b>Event View</b> role assigned to it. We've created service account, API key, user roles and teams a few times now in this book, so refer back to <a href="#chapter6">chapter 6</a> for more detailed instructions.
+    To query this API externally, we first need a service account with the <b>Event View</b> role assigned to it. We've created service accounts, API keys, user roles and teams a few times now in this book, so refer back to <a href="#chapter6">chapter 6</a> for more detailed instructions.
 </p>
 <p>
-    The API key needs be passed in the <b>X-Octopus-ApiKey</b> HTTP header as you make a GET request to the <b>/api/events</b> endpoint. In the screenshot below I have used Postman to make the request to the events endpoint:
+    The API key must be passed in the <b>X-Octopus-ApiKey</b> HTTP header as you make a GET request to the <b>/api/events</b> endpoint. In the screenshot below I have used Postman to make the request to the events endpoint:
 </p>
 <div><img alt="Time to recovery" src="images/postman/events-query.png"/></div>
 <p>
-    One thing to be aware of with the Octopus REST API is that it will often only return a subset of results with each call, requiring multiple API calls to return all the available results. There is a <b>Links</b> section returned as part of the JSON response that includes links to the next set of results, or a link that returns all the results:
+    One thing to be aware of with the Octopus REST API is that it often only returns a subset of results with each call, requiring multiple API calls to return all the available results. There is a <b>Links</b> section returned as part of the JSON response that includes links to the next set of results, or a link that returns all the results:
 </p>
 <pre>
 "Links": {
@@ -97,7 +97,7 @@
 }
 </pre>
 <p class="note">
-    Octopus implements a strict client/server design pattern where the web UI gets all of its data from the server through the REST API. Anything that can be done via the web UI can be done via raw HTTP calls.
+    Octopus implements a strict client/server design pattern where the web UI obtains all of its data from the server through the REST API. Anything that can be performed via the web UI can be done via raw HTTP calls.
 </p>
 <h2>Conclusion</h2>
 <p>
@@ -109,7 +109,7 @@
 <ul>
     <li>Explored the audit screen in Octopus.</li>
     <li>Learned how to filter the audit events.</li>
-    <li>Exported the audit events both as a CSV file and as JSON document from a REST API call.</li>
+    <li>Exported the audit events both as a CSV file and as a JSON document from a REST API call.</li>
 </ul>
 <p>
     The next pillar of standardized deployments explores how teams can abstract away much of the common configuration that goes into steps, reducing the time it takes to build a new deployment process and ensuring consistency across projects.
