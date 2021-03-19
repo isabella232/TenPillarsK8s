@@ -69,7 +69,7 @@ including those conforming to the relaxed constraints of OPS 2.0 -->
       <navLabel><text>Coordinated deployments</text></navLabel>
       <content src="book.html#chapter10" />
   </navPoint>
-  </navPoint>
+  <navPoint>
       <navPoint class="book" id="epilogue" playOrder="12">
       <navLabel><text>Epilogue</text></navLabel>
       <content src="book.html#epilogue" />

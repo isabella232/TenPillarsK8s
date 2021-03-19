@@ -95,7 +95,7 @@
 </p>
 <h3>Rolling and recreate deployments</h3>
 <p>
-    Although we didn't call it out in <a href="chapter1">chapter 1</a>, the deployment process we created is already configured to perform a rolling update. All Kubernetes deployment resources will be updated using either a rolling or recreate strategy, and the rolling update strategy was selected for us by default.
+    Although we didn't call it out in <a href="#chapter1">chapter 1</a>, the deployment process we created is already configured to perform a rolling update. All Kubernetes deployment resources will be updated using either a rolling or recreate strategy, and the rolling update strategy was selected for us by default.
 </p>
 <p>
     To make either strategy meaningful we need to deploy more than one pod, so open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change the replicas count to 5. This will result in 5 pods being created hosting the frontend web application, with traffic distributed between them by the service.
@@ -229,10 +229,10 @@
     All other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b> environment.
 </p>
 <p>
-    The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various resources needed for that application to function. One of the resources that we are interested in is the load balancer service created to direct public network traffic into the ingress controller. This load balancer service is much the same as we created in <a href="chapter1">chapter 1</a>, except that the traffic is now sent to an ingress controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
+    The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various resources needed for that application to function. One of the resources that we are interested in is the load balancer service created to direct public network traffic into the ingress controller. This load balancer service is much the same as we created in <a href="#chapter1">chapter 1</a>, except that the traffic is now sent to an ingress controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
 </p>
 <p>
-    As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the <b>Get Service IP</b> runbook from <a href="chapter1">chapter 1</a>. By running this runbook in the <b>Admin</b> environment, we can get the IP address of the NGINX load balancer service. The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
+    As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. By running this runbook in the <b>Admin</b> environment, we can get the IP address of the NGINX load balancer service. The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></div>
 <p>
@@ -342,7 +342,7 @@ spec:
     By creating a service for each deployment, we will end up with two services running along side the two deployments. This is different from the blue/green deployment where there was one service that either pointed to the green or blue stacks, and updating the service resulted in the traffic being cut over to the new green stack. Having two services is crucial for canary deployments though, as the NGINX ingress controller splits traffic between two services.
 </p>
 <p>
-    The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only change required being the URL that each of the tests contacts, which has changed to http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development due to the unique name now assigned to the service with each deployment.
+    The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="#chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only change required being the URL that each of the tests contacts, which has changed to http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-development due to the unique name now assigned to the service with each deployment.
 </p>
 <p>
     Modifying the URL can be achieved by updating the variables used by the structured variable replacement feature. The new variables will be set to:
@@ -763,7 +763,7 @@ spec:
     Fortunately Octopus has a solution for this called channels. A channel defines a set of rules that the package version must conform to, and any matching packages can then be deployed along a custom lifecycle.
 </p>
 <p>
-    We start by creating an additional lifecycle with only the <b>Development</b> and <b>Test</b> environments. Open <b>Library -> Lifecycles</b>, and using the same process that we followed in <a href="@chapter1">chapter 1</a> create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain the environment of the same name:
+    We start by creating an additional lifecycle with only the <b>Development</b> and <b>Test</b> environments. Open <b>Library -> Lifecycles</b>, and using the same process that we followed in <a href="#chapter1">chapter 1</a> create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain the environment of the same name:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/feature-branch-lifecycle.png"/></div>
 <p>
