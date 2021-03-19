@@ -24,56 +24,55 @@ including those conforming to the relaxed constraints of OPS 2.0 -->
     <text>Casperson, Matthew</text>
   </docAuthor>
 
-<navMap>
-	<navPoint class="toc" id="table" playOrder="1">
-		<navLabel><text>Table of Contents</text></navLabel>
-		<content src="toc.html" /> 
-	</navPoint>
-	<navPoint class="titlepage" id="chapter1" playOrder="2">
-		<navLabel><text>Repeatable deployments</text></navLabel>
-		<content src="book.html#chapter1" />
-	</navPoint>
-	<navPoint class="book" id="chapter2" playOrder="3">
-  <navLabel><text>Verifiable deployments</text></navLabel>
-		<content src="book.html#chapter2" />
-  </navPoint>
-  <navPoint class="book" id="chapter3" playOrder="4">
+  <navMap>
+    <navPoint class="toc" id="table" playOrder="1">
+      <navLabel><text>Table of Contents</text></navLabel>
+      <content src="toc.html" /> 
+    </navPoint>
+    <navPoint class="titlepage" id="chapter1" playOrder="2">
+      <navLabel><text>Repeatable deployments</text></navLabel>
+      <content src="book.html#chapter1" />
+    </navPoint>
+    <navPoint class="book" id="chapter2" playOrder="3">
+      <navLabel><text>Verifiable deployments</text></navLabel>
+      <content src="book.html#chapter2" />
+    </navPoint>
+    <navPoint class="book" id="chapter3" playOrder="4">
       <navLabel><text>Seamless deployments</text></navLabel>
       <content src="book.html#chapter3" />
-  </navPoint>
-  <navPoint class="book" id="chapter4" playOrder="5">
+    </navPoint>
+    <navPoint class="book" id="chapter4" playOrder="5">
       <navLabel><text>Recoverable deployments</text></navLabel>
       <content src="book.html#chapter4" />
-  </navPoint>
-  <navPoint class="book" id="chapter5" playOrder="6">
+    </navPoint>
+    <navPoint class="book" id="chapter5" playOrder="6">
       <navLabel><text>Visible deployments</text></navLabel>
       <content src="book.html#chapter5" />
-  </navPoint>
-  <navPoint class="book" id="chapter6" playOrder="7">
+    </navPoint>
+    <navPoint class="book" id="chapter6" playOrder="7">
       <navLabel><text>Measurable deployments</text></navLabel>
       <content src="book.html#chapter6" />
-  </navPoint>
+    </navPoint>
     <navPoint class="book" id="chapter7" playOrder="8">
       <navLabel><text>Auditable deployments</text></navLabel>
       <content src="book.html#chapter7" />
-  </navPoint>
-      <navPoint class="book" id="chapter8" playOrder="9">
+    </navPoint>
+    <navPoint class="book" id="chapter8" playOrder="9">
       <navLabel><text>Standardized deployments</text></navLabel>
       <content src="book.html#chapter8" />
-  </navPoint>
-      <navPoint class="book" id="chapter9" playOrder="10">
+    </navPoint>
+    <navPoint class="book" id="chapter9" playOrder="10">
       <navLabel><text>Maintainable deployments</text></navLabel>
       <content src="book.html#chapter9" />
-  </navPoint>
-      <navPoint class="book" id="chapter10" playOrder="11">
+    </navPoint>
+    <navPoint class="book" id="chapter10" playOrder="11">
       <navLabel><text>Coordinated deployments</text></navLabel>
       <content src="book.html#chapter10" />
-  </navPoint>
-  <navPoint>
-      <navPoint class="book" id="epilogue" playOrder="12">
+    </navPoint>
+    <navPoint class="book" id="epilogue" playOrder="12">
       <navLabel><text>Epilogue</text></navLabel>
       <content src="book.html#epilogue" />
-  </navPoint>
-</navMap>
+    </navPoint>
+  </navMap>
 
 </ncx>
