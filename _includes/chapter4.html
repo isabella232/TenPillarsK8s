@@ -117,7 +117,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     You can then redeploy the old release back to the selected environment, effectively performing a deployment roll back.
 </p>
 <p>
-    Rolling back via the redeployment of an old release also work with the more advanced strategies like blue/green and canary. If you recall from <a href="chapter3">chapter 3</a> we always left a blue/green or canary deployment in a state where the green stack was the stack that end users had access to. This means rollbacks implementing blue/green or canary deployments will continue to work as expected, only now the blue stack is deploying a previous image or associated configuration.
+    Rolling back via the redeployment of an old release also work with the more advanced strategies like blue/green and canary. If you recall from <a href="#chapter3">chapter 3</a> we always left a blue/green or canary deployment in a state where the green stack was the stack that end users had access to. This means rollbacks implementing blue/green or canary deployments will continue to work as expected, only now the blue stack is deploying a previous image or associated configuration.
 </p>
 <h2>Rolling forward with hotfixes</h2>
 <p>
@@ -127,7 +127,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     A hot fix is typically a small change to code or configuration designed to address a very specific issue in a production environment. If your production environment is down and restoring it is the highest priority, deploying a hot fix directly to the <b>Production</b> environment makes sense.
 </p>
 <p>
-    As we saw in <a href="chapter3">chapter 3</a>, channels allow deployments to follow a custom lifecycle, and so we'll add a new channel rule to allow us to deploy directly to production if needed.
+    As we saw in <a href="#chapter3">chapter 3</a>, channels allow deployments to follow a custom lifecycle, and so we'll add a new channel rule to allow us to deploy directly to production if needed.
 </p>
 <p>
     We'll start by creating a new lifecycle called <b>Hotfix</b>. Unlike our other lifecycles, this lifecycle will have one phase called <b>Any environment</b>. We then add the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments to this phase. By adding all environment to a single phase, we have created a lifecycle in which a release can be promoted to any environment without first being deployed to any previous environment.
