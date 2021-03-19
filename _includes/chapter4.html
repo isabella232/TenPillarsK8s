@@ -13,19 +13,19 @@
     This is the advice from the FlyWay project, which is an open source tool to perform database migrations:
 </p>
 <blockquote>
-    While the idea of undo migrations is nice, unfortunately it sometimes breaks down in practice. As soon as you have destructive changes (drop, delete, truncate, …), you start getting into trouble. And even if you don’t, you end up creating home-made alternatives for restoring backups, which need to be properly tested as well.
+    <p>While the idea of undo migrations is nice, unfortunately it sometimes breaks down in practice. As soon as you have destructive changes (drop, delete, truncate, …), you start getting into trouble. And even if you don’t, you end up creating home-made alternatives for restoring backups, which need to be properly tested as well.</p>
 </blockquote>
 <p>
     RedGate, a company specializing in database tooling, offers this advice for database rollbacks:
 </p>
 <blockquote>
-    Rather than investing time and energy into rollback planning, an alternative is to follow an approach that keeps you moving forward.
+    <p>Rather than investing time and energy into rollback planning, an alternative is to follow an approach that keeps you moving forward.</p>
 </blockquote>
 <p>
     The Octopus blog post Pitfalls with SQL rollbacks and automated database deployments has this advice:
 </p>
 <blockquote>
-    More often than not, the effort to successfully rollback a deployment far exceeds the effort it would take to push a fix to production.
+    <p>More often than not, the effort to successfully rollback a deployment far exceeds the effort it would take to push a fix to production.</p>
 </blockquote>
 <p>
     When deployments involve database changes, the general recommendation is that you roll forward to recover from an undesirable deployment.
