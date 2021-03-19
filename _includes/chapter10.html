@@ -24,10 +24,13 @@
 </p>
 <h3>Manual approval to proceed</h3>
 <p>
-    There are times when a person needs to make the decision to proceed with a deployment. We've already see this in <a href="#chapter3">chapter 3</a> where we configure canary deployments where the decision to direct 100% of traffic to the new deployment was made via the <b>Manual Intervention</b> step.
+    There are times when a person needs to make the decision to proceed with a deployment. We've already seen this in <a href="#chapter3">chapter 3</a>, where we configure canary deployments where the decision to direct 100% of traffic to the new deployment was made via the <b>Manual Intervention</b> step.
 </p>
 <p>
-    This step also allows for members of a specific team to approve a manual intervention step with the <b>Responsible Teams</b> option. Where multiple teams all need to approve a deployment, we can have multiple manual intervention steps running in parallel. 
+    This step also allows for members of a specific team to approve a manual intervention step with the <b>Responsible Teams</b> option. 
+</p>
+<p>
+    Where multiple teams all need to approve a deployment, we can have multiple manual intervention steps running in parallel. 
 </p>
 <p>
     To see this in action we will create two new teams called <b>Product Owners</b> and <b>Release Managers</b>. Then in the <b>Random Quotes - Frontend - Canary</b> project, clone the <b>Increase canary traffic to 100%</b> step by clicking the hamburger menu next to the step in the process list and selecting the <b>Clone</b> option. Accept the default options and click the <b>OK</b> button. The new step will be placed after the original step.
@@ -36,13 +39,13 @@
     Refer to <a href="#chapter2">chapter 2</a> for instructions on creating new teams.
 </p>
 <p>
-    Rename the original step to <b>Increase canary traffic to 100%- Product Owners</b>, and rename the cloned step to <b>Increase canary traffic to 100% - Release Managers</b>. 
+    Rename the original step to <b>Increase canary traffic to 100% - Product Owners</b>, and rename the cloned step to <b>Increase canary traffic to 100% - Release Managers</b>. 
 </p>
 <p>
-    In the <b>Increase canary traffic to 100%- Product Owners</b> step set the <b>Responsible Teams</b> to <b>Product Owners</b>, and in the <b>Increase canary traffic to 100% - Release Managers</b> step set the <b>Responsible Teams</b> to <b>Release Managers</b>.
+    In the <b>Increase canary traffic to 100% - Product Owners</b> step set the <b>Responsible Teams</b> to <b>Product Owners</b>, and in the <b>Increase canary traffic to 100% - Release Managers</b> step set the <b>Responsible Teams</b> to <b>Release Managers</b>.
 </p>
 <p>
-    Finally, in the <b>Increase canary traffic to 100% - Release Managers</b> step expand the <b>STart Trigger</b> section and select the <b>Run in parallel with the previous step</b> option. Note that the two manual approval steps are shown with an icon with two parallel lines between them. This indicates that the steps are run in parallel:
+    Finally, in the <b>Increase canary traffic to 100% - Release Managers</b> step, expand the <b>Start Trigger</b> section and select the <b>Run in parallel with the previous step</b> option. Note that the two manual approval steps are shown with an icon with two parallel lines between them. This indicates that the steps are run in parallel:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/multiple-approvals.png"/></div>
 <p>
@@ -51,7 +54,7 @@
 <div><img alt="Time to recovery" src="images/octopus/multiple-approval-prompt.png"/></div>
 <h3>Notifications during deployments</h3>
 <p>
-    The Octopus dashboard provides a useful overview of the state of deployments, but we very much have to pull this information by opening Octopus and reviewing the state of various deployments. By including notifications in our deployment processes and runbooks we can implement a push model that sends details about important events to external systems like email and chat platforms.
+    The Octopus dashboard provides a useful overview of the state of deployments, but we very much have to "pull" this information by opening Octopus and reviewing the state of various deployments. By including notifications in our deployment processes and runbooks we can implement a "push" model that sends details about important events to external systems, like email and chat platforms.
 </p>
 <p>
     To send emails we need a Simple Mail Transfer Protocol (SMTP) server. For convenience we'll use Gmail as our SMTP server, which is accessible to anyone with a Gmail account.
@@ -70,14 +73,14 @@
     You will enable the Less secure apps option on your Google account for Octopus to send emails via the Google SMTP server. See <a href="https://g.octopushq.com/GoogleLessSecureApps">https://g.octopushq.com/GoogleLessSecureApps</a> for details.
 </p>
 <p>
-    In any of our deployment projects add the <b>Send an Email</b> step. Enter your email address in the <b>To</b> field, set the <b>Subject</b> to <b>#{Octopus.Project.Name} failed to deploy</b>, and set the <b>Body</b> to <b>The #{Octopus.Project.Name} project failed to deploy. Please review the logs in the Octopus dashboard for more details.</b> Under the <b>Run Condition</b> select the <b>Failure: only run when previous steps fail</b> option.
+    In any of our deployment projects append the <b>Send an Email</b> step. Enter your email address in the <b>To</b> field, set the <b>Subject</b> to <b>#{Octopus.Project.Name} failed to deploy</b>, and set the <b>Body</b> to <b>The #{Octopus.Project.Name} project failed to deploy. Please review the logs in the Octopus dashboard for more details.</b> Under the <b>Run Condition</b> select the <b>Failure: only run when previous steps fail</b> option.
 </p>
 <p>
     Now if the project fails to deploy for any reason we'll get an email notification. This also means we are notified immediately rather than waiting for someone to log into the Octopus dashboard and notice the failure.
 </p>
 <h3>Enforcing deployment order</h3>
 <p>
-    Recall from to <a href="#chapter1">chapter 1</a> that we deployed the backend database before the frontend web application. A more resilient frontend application would gracefully handle the case where the database was not available, meaning we could deploy our applications in any order. But this sample frontend application simply exits leading Kubernetes to eventually enter a crash loop backoff, which is good default behavior from Kubernetes, but is not such a good outcome for us. This means our deployments do have an implicit deployment order.
+    Recall from <a href="#chapter1">chapter 1</a> that we deployed the backend database before the frontend web application. A more resilient frontend application would gracefully handle the absence of a database, meaning we could deploy our applications in any order. But this sample frontend application simply exits if there is no database, leading Kubernetes to eventually enter a crash loop backoff, which is good default behavior from Kubernetes, but is not such a good outcome for us. This means our deployments do have an implicit deployment order.
 </p>
 <p>
     Octopus has the ability to define this deployment order explicitly. Create a new project called <b>Deploy Full Stack</b>, and add a <b>Deploy a Release</b> step called <b>Deploy Backend</b>.
@@ -89,20 +92,21 @@
     Add another <b>Deploy a Release</b> step called <b>Deploy Frontend</b>, and select the <b>Random Quotes - Frontend</b> project.
 </p>
 <p>
-    The order of these steps explicitly defines the order in which releases are deployed. In this example we have explicitly defined that the backend database is deployed before the frontend web application.
+    The order of these steps explicitly defines the order in which releases are deployed. In this example we have explicitly defined that the backend database is deployed before the frontend web application:
+</p>
+<div><img alt="Time to recovery" src="images/octopus/parent-project.png"/></div>
+<p>
+    Be aware that the <b>Deploy a Release</b> step deploys, but does not create, a release. Before we deploy the <b>Deploy Full Stack</b> project, we must first create (but not deploy) releases in both the <b>Random Quotes - Frontend</b> and <b>Random Quotes - Backend</b> projects.
 </p>
 <p>
-    Be aware that the <b>Deploy a Release</b> step deploys a release, but does not create a release. Before we deploy the <b>Deploy Full Stack</b> project, we must first create (but not deploy) releases in both the <b>Random Quotes - Frontend</b> and <b>Random Quotes - Backend</b> projects.
-</p>
-<p>
-    With the releases in place we can then create a release of the <b>Deploy a Release</b> project, where we select the releases from the child project it references as package versions. When the <b>Deploy a Release</b> project is deployed it will proceed to deploy the child projects in the selected environment.
+    With the releases in place we can then create a release of the <b>Deploy a Release</b> project. This provides us with the ability to select the releases from the child projects as package versions. When the <b>Deploy a Release</b> project is deployed it will in turn deploy the child projects in the selected environment.
 </p>
 <p>
     As well as capturing the order in which child projects must be deployed, a release of a project like <b>Deploy a Release</b> can also be thought of as a application stack bundle. By capturing the child project release versions we essentially have a bundle of project releases that can be promoted between environments as a whole. This is useful for situations where it is important to understand the state of production at any point in the past. If child projects are deployed through higher level projects like <b>Deploy Full Stack</b>, we can inspect the releases of the <b>Deploy Full Stack</b> project to see the release versions of the child projects. Because each child project was deployed as part of the parent project, we can know the mix of release versions in an environment at a given point in time.
 </p>
 <h3>Enforcing deployment times</h3>
 <p>
-    Sadly this common use case is not exposed by Octopus as a native step or other project option. But as we have seen in <a href="#chapter2">chapter 2</a> a failing script step is an effective, if not pretty, way to block a deployment. The following PowerShell in a script step at the start of a deployment project will fail the step with an exit code of 1 if the current time is not between 9 AM and 5 PM:
+    Sadly the common use case of allowing deployments only between certain times is not exposed by Octopus as a native step or other project option. But as we have seen in <a href="#chapter2">chapter 2</a> a failing script step is an effective, if not pretty, way to block a deployment. The following PowerShell in a script step at the start of a deployment project will fail the step with an exit code of 1 if the current time is not between 9 AM and 5 PM:
 </p>
 <pre>
     if (-not [int](Get-Date -Format HH) -ge 9 -and [int](Get-Date -Format HH) -ge 17) {exit 1}
@@ -115,11 +119,11 @@
 </pre>
 <h3>Scheduling deployments</h3>
 <p>
-    When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third screen provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at a point in the future. Expanding the <b>When</b> section allows two times to be selected. The first called <b>Scheduled start time</b> sets the time when Octopus will first attempt to run the deployment. The second called <b>Expiry time</b> sets the time after which will deployment task that has not already started will be cancelled:
+    When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at future point in time. Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which will deployment task (that has not already started) will be cancelled:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/scheduled-deployment.png"/></div>
 <p>
-    Triggers provide another way to schedule repeat deployments. This may be useful as a way of updating a test environment each night with the latest releases in the development environment. Click the <b>Triggers</b> link, click the <b>ADD TRIGGER</b> drop down list, and select the <b>Scheduled trigger</b> option.
+    Triggers provide another means to schedule repeat deployments. This may be useful as a way of updating a test environment each night with the latest releases in the development environment. Click the <b>Triggers</b> link, click the <b>ADD TRIGGER</b> drop down list, and select the <b>Scheduled trigger</b> option.
 </p>
 <p>
     Scheduled triggers allow you to promote the latest release from one environment to the next or create and deploy a new release. The schedule itself is flexible allowing daily, days per month, or general cron expressions.
@@ -129,67 +133,88 @@
 </p>
 <h3>Triggering deployments</h3>
 <p>
-    A common use case for external systems triggering a deployment is CI build that deploys a project once a Docker image has been pushed to a registry.
+    A common use case for external systems triggering a deployment is a CI build that deploys a project once a Docker image has been pushed to a registry.
 </p>
 <p>
-    Octopus has many CI plugins for platforms like Jenkins, Team City, Azure Devops, and Bamboo. We've also seen in <a href="#chapter5">chapter 5</a> that the Octopus CLI plugin for GitHib actions can be used to interact with an Octopus server as part of a build.
+    Octopus has many CI plugins for platforms like Jenkins, Team City, Azure DevOps, and Bamboo. We've also seen in <a href="#chapter5">chapter 5</a> that the Octopus CLI plugin for GitHub actions can be used to interact with an Octopus server as part of a build.
 </p>
 <p>
     Behind the scenes all CI plugins execute the Octopus CLI to perform their actions, with the plugin itself usually being little more than a way to capture the inputs passed to the CLI.
 </p>
 <p>
-    We can also use the CLI directly. It is downloaded from <a href="https://octopus.com/downloads">https://octopus.com/downloads</a>, and once installed the list of available commands is show with:
+    We can also use the CLI directly. It is downloaded from <a href="https://octopus.com/downloads">https://octopus.com/downloads</a>, and once installed the list of available commands is shown with the command:
 </p>
 <pre>
 octo help
 </pre>
 <p>
-    To create a release, run a command like:
+    To create a release, run the command:
+</p>
+<pre>
+octo create-release \
+    --server https://myinstance.octopus.app \
+    --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+    --project "Random Quotes - Backend" \
+    --package postgres:13.2
+</pre>
+<p class="note">
+    The backslash at the end of each line instructs Bash to continue the command on the next line. If running the command with PowerShell, end each line with a caret (^) character instead.
 </p>
 <p>
-    octo create-release --server https://myinstance.octopus.app --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx --project "Random Quotes - Backend" --package postgres:13.2
+    To deploy a release, run the command:
 </p>
-<p>
-    To deploy a release, run:
-</p>
-<p>
-    octo deploy-release --server https://myinstance.octopus.app --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx --space "Default" --project "Random Quotes - Backend" --deployTo Development --version=0.0.22 --waitForDeployment
-</p>
+<pre>
+octo deploy-release \
+    --server https://myinstance.octopus.app \
+    --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+    --space "Default" \
+    --project "Random Quotes - Backend" \
+    --deployTo Development \
+    --version=0.0.22 \
+    --waitForDeployment
+</pre>
 <p class="note">
     The <b>--deployAt</b> and <b>--noDeployAfter</b> parameters can be used to schedule a deployment for a later time, just as we did when deploying a release through the web UI.
 </p>
 <p>
-    To run a runbook, use the command:
+    To run a runbook, run the command:
 </p>
 <pre>
-    octo run-runbook --server https://myinstance.octopus.app --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx --space "Default" --project "Kubernetes DevOps" --runbook "Get Service IP" --environment "Admin" --waitForRun
+octo run-runbook \
+    --server https://myinstance.octopus.app \
+    --apiKey API-xxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+    --space "Default" \
+    --project "Kubernetes DevOps" \
+    --runbook "Get Service IP" \
+    --environment "Admin" \
+    --waitForRun
 </pre>
 <p class="note">
-    To avoid specifying the server URL and API key with each command, set the <b>OCTOPUS_CLI_SERVER</b> environment variable to the server URL, and the <b>OCTOPUS_CLI_API_KEY</b> environment variable to the API key. The <b>--server</b> and <b>--apiKey</b> arguments override the environment variables is both are present.
+    To avoid specifying the server URL and API key with each command, set the <b>OCTOPUS_CLI_SERVER</b> environment variable to the server URL, and the <b>OCTOPUS_CLI_API_KEY</b> environment variable to the API key. The <b>--server</b> and <b>--apiKey</b> arguments override the environment variables if both are present.
 </p>
 <h3>Triggering external events</h3>
 <p>
     In <a href="#chapter7">chapter 7</a> we looked at the Octopus audit logs and explored the many categories of events that are saved there. These events can also be used to trigger emails or web hooks.
 </p>
 <p class="note">
-    A web hook is a URL that is called by an automated system to trigger an action. Because web hooks receive HTTP traffic they are can be called by almost any system, or even triggered with command line tools like <b>curl</b>.
+    A web hook is a URL that is called by an automated system to trigger an action. Because web hooks receive HTTP traffic they can be called by almost any system, or even triggered with command line tools like <b>curl</b>.
 </p>
 <p>
     Open <b>Configuration -> Subscriptions</b> and click the <b>ADD SUBSCRIPTION</b> button. The event filters match those we used to search the audit logs, described in <a href="#chapter7">chapter 7</a>. For this example we'll create a subscription responding to the <b>Deployment events</b> events group.
 </p>
 <p>
-    Next we need an external system that exposes a web hook for us to call. In a real environment this system would be a custom application or other platform with web hook support. For testing we'll use a service called Webhook.site available at <a href="https://webhook.site">https://webhook.site</a>. Opening the web page provides a unique URL that will listen to incoming requests.
+    We need an external system that exposes a web hook for us to call. In a real environment this system would be a custom application or other platform with web hook support. For testing we'll use a service called Webhook.site available at <a href="https://webhook.site">https://webhook.site</a>. Opening the web page provides a unique URL that will listen to incoming requests.
 </p>
 <p>
-    Enter this URL into the <b>Payload URL</b> field, and save the subscription. Now go back to any of your projects and perform a deployment. Once the deployment is complete, return to WebHook.site and look in the requests list. Click one of the requests to view the data that was sent by Octopus. In the screenshot below you can see the <b>DeploymentSucceeded</b> event category was posted to the web hook:
+    Enter this URL into the <b>Payload URL</b> field, and save the subscription. Now we go back to any of our projects and perform a deployment. Once the deployment is complete, return to WebHook.site and look in the requests list. Click one of the requests to view the data that was sent by Octopus. In the screenshot below you can see the <b>DeploymentSucceeded</b> event category was posted to the web hook:
 </p>
 <div><img alt="Pipedream" src="images/webhook/webhook.png"/></div>
 <p>
-    Posting events to web hooks via subscriptions allows an external system to be notified of and respond to almost any change or action in Octopus.
+    Posting events to web hooks via subscriptions allows an external system to be notified of, and respond to, almost any change or action in Octopus.
 </p>
 <h2>Conclusion</h2>
 <p>
-    The practical reality of Octopus is that it never stands alone in your DevOps workflows. At a minimum a CI server will be building packages and triggering deployments, but even deployments themselves are a small part of a bigger picture. With tooling like the CLI, notifications with emails, and integrations with web hooks, Octopus can reach out to keep everyone updated with important events. And through the <b>Manual Intervention</b> step, workflows involving authorization can be built into deployment processes.
+    The practical reality of Octopus is that it never stands alone in your DevOps workflows. At a minimum, a CI server will be building packages and triggering deployments, but even deployments themselves are a small part of a bigger picture. With tooling like the CLI, notifications with emails, and integrations with web hooks, Octopus can reach out to keep everyone updated with important events. And through the <b>Manual Intervention</b> step, workflows involving authorization can be built into deployment processes.
 </p>
 <p>
     In this chapter we:
@@ -202,5 +227,5 @@ octo help
     <li>Configured a subscription to trigger a web hook based on events raised by Octopus.</li>
 </ul>
 <p>
-    You may have noticed the feature of "high priority deployments take precedence over low priority ones" did not have an example implementation. This is because there is no solution for this in Octopus at this time. In fact there have been more than a few features and use cases that were ignored ort glossed over in this book. If you want to contribute to the discussion around the future of Octopus, join me in the epilogue.
+    You may have noticed the feature of "high priority deployments take precedence over low priority ones" did not have an example implementation. This is because there is no solution for this in Octopus at this time. In fact there have been more than a few features and use cases that were ignored or glossed over in this book. If you want to contribute to the discussion around the future of Octopus, join me in the epilogue.
 </p>
