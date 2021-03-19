@@ -13,7 +13,7 @@
 </p>
 <h2>Standardized {{ site.platform }} deployments</h2>
 <p>
-    If you recall from <a href="#chapter2">chapter 2</a> we deployed a tentacle Docker image as a worker inside our Kubernetes cluster. The configuration of the <b>Deploy Kubernetes containers</b> step will be very similar for all workers, with the only major differences being the Octopus server URL, API key, space, and machine policy that the worker is configured with. The remaining values like, the Docker image and memory limits, will be consistent for all workers.
+    If you recall from <a href="#chapter2">chapter 2</a> we deployed a tentacle Docker image as a worker inside our Kubernetes cluster. The configuration of the <b>Deploy Kubernetes containers</b> step will be very similar for all workers, with the only major differences being the Octopus server URL, API key, space, and machine policy that the worker is configured with. The remaining values, like the Docker image and memory limits, will be consistent for all workers.
 </p>
 <p>
     This is a perfect example where we want to provide a shared template that defines all the common settings, while allowing the few customizations to be supplied by those creating the deployment process. This is provided in Octopus through step templates.
@@ -22,7 +22,7 @@
     Return to the <b>Create Kubernetes Worker</b> runbook, and open the <b>Deploy Kubernetes container</b> step defined as the runbook process. In the step hamburger menu select the <b>Extract Step Template</b> option. The main contents of the step will now simply say <b>This step is based on a custom Deploy Kubernetes Worker step template</b>, with a link to the newly created step template. Save the runbook and click the step template link.
 </p>
 <p>
-    A step template contains all the fields found in the deployment process step it is based on. It also includes a <b>PARAMETERS</b> tab that exposes customizable parameters defined when the step template is included in a deployment process. The parameters are used very much like regular Octopus variables in that they can be used to populate the steps fields. In this way we can hard code common values, and expose those values that are defined on a step by step basis.
+    A step template contains all the fields found in the deployment process step it is based on. It also includes a <b>PARAMETERS</b> tab that exposes customizable parameters to be defined when the step template is included in a deployment process. The parameters are used very much like regular Octopus variables in that they are used populate the steps fields. In this way we can hard code common values, and expose those values that are defined on a step by step basis.
 </p>
 <p>
     Under the <b>PARAMETERS</b> tab, click the <b>ADD PARAMETER</b> button, and add the following parameters:
@@ -53,19 +53,19 @@
 </p>
 <div><img alt="Time to recovery" src="images/octopus/k8s-step-template.png"/></div>
 <p>
-    Notice that the <b>Usage</b> link has a orange <b>1</b> next to it. This indicates that one step references an old version of this step template, and needs to be updated. Click the <b>Usages</b> link and click the <b>UPDATE...</b> button. A dialog will be presented to let us know that the new step template has additional parameters in the new version, and provides an opportunity to populate the missing fields. We'll leave these missing fields empty for now and lick the <b>UPDATE STEPS USING DEFAULT VALUES</b> button. With the update done, we can click on the <b>Step</b> link to be taken to the step implementing the step template.
+    Notice that the <b>Usage</b> link has a orange icon with <b>1</b> next to it. This indicates that one step references an old version of this step template, and needs to be updated. Click the <b>Usages</b> link and click the <b>UPDATE...</b> button. A dialog will be presented to let us know that the new step template has additional parameters in the new version, and provides an opportunity to populate the missing fields. We'll leave these missing fields empty for now and click the <b>UPDATE STEPS USING DEFAULT VALUES</b> button. With the update done, we can click on the <b>Step</b> clink to be taken to the step implementing the step template.
 </p>
 <p>
-    Populate values for all the parameters now exposed by the step. You can find the values from <a href="#chapter2">chapter 2</a> and save the step.
+    Populate values for all the parameters now exposed by the step. You can find the values from <a href="#chapter2">chapter 2</a>. Save the changes made to the step.
 </p>
 <p>
-    Note that what was a large step with many options before is now a very simple step with only six fields to fill in. Anyone using this step template no longer has to understand about containers and environment variables, and instead only needs to know the six values to supply to the parameters.
+    Note that what was a large step with many options before is now a very simple step with only six fields to fill in. Anyone using this step template no longer has to understand containers and environment variables, and instead only needs to know the six values to supply to the parameters.
 </p>
 <p>
     By creating a standardized step template, we can reduce the amount of information process builders need to know in order to deploy a step, and ensure that shared settings are always applied.
 </p>
 <p>
-    The following permissions related to step templates:
+    The following permissions are related to step templates:
 </p>
 <ul>
     <li>ActionTemplateCreate</li>
@@ -74,11 +74,11 @@
     <li>ActionTemplateView</li>
 </ul>
 <p>
-    If the users consuming action templates do not have <b>ActionTemplateCreate</b>, <b>ActionTemplateDelete</b>, or <b>ActionTemplateEdit</b> permissions, we can be sure that they must only consume step templates as they are, and can not make any modifications beyond supplying values for parameters.
+    If the users consuming action templates do not have <b>ActionTemplateCreate</b>, <b>ActionTemplateDelete</b>, or <b>ActionTemplateEdit</b> permissions, we can be sure that they can only consume step templates as they are, and cannot make any modifications beyond supplying values for parameters.
 </p>
 <h2>Exporting and importing projects</h2>
 <p>
-    Step templates are a good solution to standardize the settings in a single step. When you need to provide a template of an entire deployment process, or an entire project, the import/export feature may provide an option.
+    Step templates are a good solution to standardize the configuration of a single step. When you need to provide a template of an entire deployment process, or an entire project, the import/export feature may provide an option.
 </p>
 <p>
     Click the <b>Projects</b> link, and in the hamburger menu click the <b>Export Projects</b> option. Select the projects to export, enter a password to secure any secret variables in the export archive, and click the <b>Export</b> button.
@@ -88,16 +88,16 @@
 </p>
 <div><img alt="Time to recovery" src="images/octopus/export.png"/></div>
 <p>
-    In a new space, click the <b>Projects</b> link, and in the hamburger menu click the <b>Import Projects</b> option. Select the ZIP file you downloaded before, and enter the password. The project, along with other entities like environments, lifecycles, and worker pools, will be imported into the space.
+    In a new space, click the <b>Projects</b> link, and in the hamburger menu click the <b>Import Projects</b> option. Select the ZIP file you downloaded previously, and enter the password. The project, along with other entities like environments, lifecycles, and worker pools, will be imported into the space.
 </p>
 <p class="note">
-    The import/export feature is designed to copy projects between spaces and instances. This means the source project needs to be imported into a new space. If it imported into the same space it was exported from, it will simply overwrite itself.
+    The import/export feature is designed to copy projects between spaces and instances. This means the source project needs to be imported into a new space. If it is imported into the same space it was exported from, it will simply overwrite itself.
 </p>
 <p>
     When exporting and importing a standardized project template there are a few things to take into account:
 </p>
 <ul>
-    <li>Previous releases are included in the export. This are not likely to be useful for someone creating a new project, so ensure the existing releases are deleted before exporting a project.</li>
+    <li>Previous releases are included in the export. These are not likely to be useful for someone creating a new project, so ensure the existing releases are deleted before exporting a project.</li>
     <li>Environments and lifecycles are included in the export. If this is not desirable, create the template project in a space with no environments, and have the project reference the default lifecycle.</li>
     <li>Worker pools are included in the export, including the default worker pools created for you on a hosted instance. Exporting a project from a hosted Octopus instance for use on a selfhosted instance, or vice versa, may lead to unnecessary worker pools being generated.</li>
     <li>Secret variables are included in the export, but these are trivial to extract by anyone with the credentials required to import the project. Don't rely on secret variables remaining a secret in an exported project.</li>
@@ -111,7 +111,7 @@
 </p>
 <h2>Conclusion</h2>
 <p>
-    Providing a standardized step or base project allows teams to reduce the time it takes to build a new deployment process and captures a lot of business knowledge that would otherwise have to be defined over and over again with each new project.
+    Providing a standardized step or base project allows teams to reduce the time it takes to build a new deployment process, and captures a lot of business knowledge that would otherwise have to be defined over and over again with each new project.
 </p>
 <p>
     In this chapter we:
@@ -119,9 +119,9 @@
 <ul>
     <li>Created a step template from an existing <b>Deploy Kubernetes containers</b> runbook step.</li>
     <li>Used parameters to make the step template customizable.</li>
-    <li>Used project import and export to create a reusable project template.</li>
+    <li>Used project import and export features to create a reusable project template.</li>
     <li>Discussed some of the things to watch for when exporting a project as a template.</li>
 </ul>
 <p>
-    In the next chapter we'll learn how to keep our deployments running after they have been deployed with the maintainable deployments pillar.
+    In the next chapter we'll learn how to keep our deployments running after they have been deployed through the maintainable deployments pillar.
 </p>

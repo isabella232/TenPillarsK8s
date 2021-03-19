@@ -16,7 +16,7 @@
     This distinction may seem a little arbitrary at this point. After all, runbooks and deployment processes run exactly the same steps, and a lifecycle like <b>Hotfix</b> allows a deployment to be made to any environment in any order. In fact, before the release of runbooks in Octopus, management tasks were frequently modeled as deployment processes with permissive lifecycles.
 </p>
 <p>
-    However, as your deployment infrastructure grows, the delineation deployment processes and management tasks become more apparent:
+    However, as your deployment infrastructure grows, the delineation between deployment processes and management tasks become more apparent:
 </p>
 <ul>
     <li>Deployments tend to be executed in response to new code or configuration being developed, while runbooks will often be run on a more ad-hoc basis to query information or respond to unexpected events.</li>
@@ -24,17 +24,25 @@
     <li>Deployments should progress a static release through environments, while the latest stable runbook should be run without concerns for environment progression.</li>
 </ul>
 <p>
-    Without calling much attention to it, we have been gradually building a library of runbooks to ensure the manageability of our deployments long after the original deployment process finished. From the very beginning we modelled the creation of our targets through runbooks like <b>Create Frontend Targets</b> and <b>Create Backend Targets</b>. We frequently referred to query runbooks like <b>Get Service IP</b>. The workers placed in the cluster we implemented in runbooks like <b>Create Kubernetes Worker</b>.
+    Without calling much attention to it, we have been gradually building a library of runbooks to ensure the manageability of our deployments long after the original deployment process finished. From the very beginning we modelled the creation of our targets through runbooks like <b>Create Frontend Targets</b> and <b>Create Backend Targets</b>. We frequently referred to query runbooks like <b>Get Service IP</b>. The workers placed in the cluster were implemented in runbooks like <b>Create Kubernetes Worker</b>.
 </p>
 <p>
-    What we never did in this book were calls to <b>kubectl</b> from a local machine. This was a very deliberate decision, and now we reap the benefits.
+    What we never did in this book was to call <b>kubectl</b> from a local machine. This was a very deliberate decision, and now we reap the benefits.
 </p>
 <p>
-    Our library of runbooks provides us with a robust selection of management scripts that can be handed over to a new team, and as a reference library for anyone looking to recreate the infrastructure we have created throughout this book. A new member of your team can begin maintaining deployments with nothing more than a web browser and a Octopus login - there is no need to hand out cluster credentials, install local tools like <b>kubectl</b>, or generate configuration files.
+    Our library of runbooks provides us with a robust selection of management scripts that can be handed over to a new team, and as a reference library for anyone looking to recreate the infrastructure we have created throughout this book. A new member of your team can begin maintaining deployments with nothing more than a web browser and an Octopus login - there is no need to hand out cluster credentials, install local tools like <b>kubectl</b>, or generate configuration files.
 </p>
 <p>
-    Just as importantly, by using runbooks we get so many of the other pillars for free: each runbook can be run repeatably across environments, the results of a runbook run is visible in the Octopus dashboard, each runbook can be tested and verified before handed to a team, Octopus will audit important runbook events, runbooks can be standardized with step templates or copied as part of an import/export process, and (as well see in the next chapter) run books can be coordinated like deployment processes can.
+    Just as importantly, by using runbooks we get many of the other pillars for free:
 </p>
+<ul>
+    <li>Each runbook can be run repeatably across environments.</li>
+    <li>The results of a runbook run is visible in the Octopus dashboard.</li>
+    <li>Each runbook can be tested and verified before handed to a team.</li>
+    <li>Octopus will audit important runbook events.</li>
+    <li>Runbooks can be standardized with step templates or copied as part of an import/export process.</li>
+    <li>Runbooks can be coordinated just as deployment processes can (as well see in the next chapter).</li>
+</ul>
 <h2>Getting the most from runbooks</h2>
 <p>
     If you know how to create a deployment process, you know almost everything you need to create a runbook. Runbooks do have some specific features that are worth calling out though.
@@ -44,38 +52,38 @@
     Until now we have simply run runbooks after we create them. Behind the scenes running a runbook in this way creates a snapshot of the variables and packages, much as we do when creating a release for deployment. This snapshot is called a draft.
 </p>
 <p>
-    Continually running runbooks in this way allows you to tweak and verify the process, eventually reaching a point where the configuration is considered stable. At this point a snapshot can be published to create a blessed snapshot intended for general use. By clicking the <b>PUBLISH</b> button in the runbook editor presents a page where the package versions and variables can be defined. Clicking the <b>PUBLISH</b> button on the results of a snapshot runbook run will capture the current packages and variables in the published snapshot.
+    Continually running runbooks in this way allows you to tweak and verify the process, eventually reaching a point where the configuration is considered stable. At this point a draft snapshot can be published to create a blessed snapshot intended for general use. By clicking the <b>PUBLISH</b> button in the runbook editor presents a page where the package versions and variables can be defined. Clicking the <b>PUBLISH</b> button on the results of a snapshot runbook run will capture the current packages and variables in the published snapshot.
 </p>
 <p>
     When a published snapshot is available we have the option to run either the published or draft snapshot when running a runbook. The published snapshot is the best choice for day to day maintenance tasks.
 </p>
 <h3>Limiting environments</h3>
 <p>
-    The default configuration presents all environments in the space to run a runbook in. However, it often only makes sense to run runbooks in a subset of the available environments.
+    The default configuration presents all environments in the space when running a runbook. However, it often only makes sense to run runbooks in a subset of the available environments.
 </p>
 <p>
     We've already created some runbooks that are limited to the <b>Admin</b> environment by clicking the <b>SETTINGS</b> tab, selecting the <b>Run only in specific environments</b> option, and defining one or more environments.
 </p>
 <p>
-    Where runbooks are collocated with deployment projects, it may make sense to limit the environments a runbook can run it to those defined in the deployment project lifecycles. This is done by selecting the <b>Environments from Project Lifecycles</b> option.
+    Where runbooks are collocated with deployment projects, it may make sense to limit the environments a runbook can run in to those defined in the deployment project lifecycles. This is done by selecting the <b>Environments from Project Lifecycles</b> option.
 </p>
 <h3>Variable prompts and scoping</h3>
 <p>
-    We've used variables previous as a way of exposing different values based on the environment being deployed to, or to hide secret values. Another use case that is especially relevant to runbooks is the ability to prompt the end user for a variable value with each deployment or runbook run.
+    We've used variables previously as a way of exposing different values based on the environment being deployed to, or to hide secret values. Another use case that is especially relevant to runbooks is the ability to prompt the end user for a variable value with each deployment or runbook run.
 </p>
 <p>
     Create a new variable in the variable editor, and when entering a value click the <b>OPEN EDITOR</b> link:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/variables.png"/></div>
 <p>
-    The variable dialog has the option <b>Prompt for value</b>, which indicates that the value for this variable can be defined, or overridden if a default value is defined, with each deployment or runbook run:
+    The variable dialog has the <b>Prompt for value</b> option, which indicates that the value for this variable can be defined, or overridden if a default value is defined, with each deployment or runbook run:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/prompted-variable.png"/></div>
 <p>
-    Commonly prompted variables only make sense for a subset of runbooks. In the example above we have a prompted variable defining the worker pool that we would place Kubernetes workers into. This value makes no sense when querying the cluster for load balancer IPs, and prompting for this variable with unrelated runbooks is confusing.
+    Commonly, prompted variables only make sense for a subset of runbooks. In the example above we have a prompted variable defining the worker pool that we would place Kubernetes workers into. This value makes no sense when querying the cluster for load balancer IPs, and prompting for this variable with unrelated runbooks is confusing.
 </p>
 <p>
-    By scoping the variable to a specific process we can ensure only the selected runbooks will prompt for the variable. In the variable editor, click in the <b>Define scope</b> area, and select the desired runbook from the <b>Select processes</b> drop down list:
+    By scoping the variable to a specific process we can ensure only the selected runbooks will prompt for the variable value. In the variable editor, click in the <b>Define scope</b> area, and select the desired runbook from the <b>Select processes</b> drop down list:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/scoped-variable.png"/></div>
 <p>
@@ -90,9 +98,9 @@
 </p>
 <ul>
     <li>Discussed the differences between deployment processes and runbooks.</li>
-    <li>Highlighted the benefits we gained through the disciplined used of runbooks over direct <b>kubectl</b> commands on a local machine.</li>
-    <li>Highlighted some options to make runbooks easier to use.</li>
+    <li>Highlighted the benefits we gained through the disciplined use of runbooks over direct <b>kubectl</b> commands on a local machine.</li>
+    <li>Highlighted options to make runbooks easier to use.</li>
 </ul>
 <p>
-    The next and final pillar we'll present is coordinated deployments where we look at how Octopus can be integrated into external tools and business processes.
+    The next and final pillar we'll present is coordinated deployments, where we look at how Octopus can be integrated into external tools and business processes.
 </p>
