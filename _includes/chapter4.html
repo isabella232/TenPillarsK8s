@@ -38,26 +38,26 @@
     Rollbacks are also an explicit feature of several seamless deployment strategies:
 </p>
 <ul>
-    <ol>Canary deployments implement rollbacks by redirecting all traffic from the new deployment to the current deployment.</ol>
-    <ol>Blue/green deployments can rollback a deployment by cutting traffic back to the blue stack.</ol>
-    <ol>Session draining deployments can redirect new sessions to the current deployment, and optionally kill any sessions in the new deployment.</ol>
+    <li>Canary deployments implement rollbacks by redirecting all traffic from the new deployment to the current deployment.</li>
+    <li>Blue/green deployments can rollback a deployment by cutting traffic back to the blue stack.</li>
+    <li>Session draining deployments can redirect new sessions to the current deployment, and optionally kill any sessions in the new deployment.</li>
 </ul>
 <p>
     Rollbacks have the following benefits:
 </p>
 <ul>
-    <ol>A deployment issue can be fixed, without writing code, by rolling back to a previous deployment.</ol>
-    <ol>A rollback leaves the system in a known, verified state.</ol>
-    <ol>The time to complete a rollback can be measured in non-production environments.</ol>
+    <li>A deployment issue can be fixed, without writing code, by rolling back to a previous deployment.</li>
+    <li>A rollback leaves the system in a known, verified state.</li>
+    <li>The time to complete a rollback can be measured in non-production environments.</li>
 </ul>
 <p>
     Rollbacks have the following disadvantages:
 </p>
 <ul>
-    <ol>Rollbacks are all or nothing operations. You can not roll back individual features, only entire deployments.</ol>
-    <ol>Rollbacks need to be tested as part of the deployment process to ensure they work as expected, which increases the complexity and time of the deployment process.</ol>
-    <ol>If a rollback fails, it is likely that you will need to resolve the issue by rolling forward.</ol>
-    <ol>Database rollbacks require special consideration to ensure data is not lost.</ol>
+    <li>Rollbacks are all or nothing operations. You can not roll back individual features, only entire deployments.</li>
+    <li>Rollbacks need to be tested as part of the deployment process to ensure they work as expected, which increases the complexity and time of the deployment process.</li>
+    <li>If a rollback fails, it is likely that you will need to resolve the issue by rolling forward.</li>
+    <li>Database rollbacks require special consideration to ensure data is not lost.</li>
 </ul>
 <h2>Rolling forward</h2>
 <p>

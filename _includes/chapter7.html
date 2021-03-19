@@ -70,7 +70,7 @@
     The list of events currently displayed on the screen can be exported to a Comma Separated Values (CSV) file by clicking the <b>EXPORT</b> button.
 </p>
 <p>
-    To consume the raw JSON data, we can query the <b>/api/events</b> API endpoint. To get the full URL to query, configure the appropriate filters in the web UI and watch the browser's network traffic through the developer console as you refresh the results. In the screenshot below you can see the URL accessed by the browser to retrieve the list of audit events, capturing the URL <b>/api/events?eventGroups=Deployment&from=2021-02-16T00:00:00+10:00&to=2021-03-18T23:59:59+10:00&spaces=Spaces-142&includeSystem=true&excludeDifference=true</b>:
+    To consume the raw JSON data, we can query the <b>/api/events</b> API endpoint. To get the full URL to query, configure the appropriate filters in the web UI and watch the browser's network traffic through the developer console as you refresh the results. In the screenshot below you can see the URL accessed by the browser to retrieve the list of audit events, capturing the URL <b>/api/events?eventGroups=Deployment&amp;from=2021-02-16T00:00:00+10:00&amp;to=2021-03-18T23:59:59+10:00&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true</b>:
 </p>
 <div><img alt="Time to recovery" src="images/browser/network-traffic.png"/></div>
 <p class="note">
@@ -90,10 +90,10 @@
 "Links": {
     "Self": "/api/events?user=",
     "Template": "/api/events{?skip,regarding,regardingAny,user,users,projects,projectGroups,environments,eventGroups,eventCategories,eventAgents,tags,tenants,from,to,internal,fromAutoId,toAutoId,documentTypes,asCsv,take,ids,spaces,includeSystem,excludeDifference}",
-    "Page.All": "/api/events?skip=0&eventGroups=Deployment&from=2021-02-16T00%3A00%3A00%2010%3A00&to=2021-03-18T23%3A59%3A59%2010%3A00&take=2147483647&spaces=Spaces-142&includeSystem=true&excludeDifference=true",
-    "Page.Next": "/api/events?skip=30&eventGroups=Deployment&from=2021-02-16T00%3A00%3A00%2010%3A00&to=2021-03-18T23%3A59%3A59%2010%3A00&take=30&spaces=Spaces-142&includeSystem=true&excludeDifference=true",
-    "Page.Current": "/api/events?skip=0&eventGroups=Deployment&from=2021-02-16T00%3A00%3A00%2010%3A00&to=2021-03-18T23%3A59%3A59%2010%3A00&take=30&spaces=Spaces-142&includeSystem=true&excludeDifference=true",
-    "Page.Last": "/api/events?skip=390&eventGroups=Deployment&from=2021-02-16T00%3A00%3A00%2010%3A00&to=2021-03-18T23%3A59%3A59%2010%3A00&take=30&spaces=Spaces-142&includeSystem=true&excludeDifference=true"
+    "Page.All": "/api/events?skip=0&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=2147483647&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",
+    "Page.Next": "/api/events?skip=30&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=30&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",
+    "Page.Current": "/api/events?skip=0&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=30&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",
+    "Page.Last": "/api/events?skip=390&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=30&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true"
 }
 </pre>
 <p class="note">
