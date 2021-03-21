@@ -217,7 +217,7 @@
 	Kubernetes deployments in Octopus are performed via a Kubernetes target. Targets capture the details of the Kubernetes cluster, the credentials, and the default namespace in which deployments are performed.
 </p>
 <p>
-	It is best to think about Kubernetes targets as security boundaries in which a deployment is performed. By creating a target configured with a Kubernetes account that only has the permissions to deploy into a single namespace, we can be sure that deployments performed via that target wil not accidentally modify resources in another namespace.
+	It is best to think about Kubernetes targets as security boundaries in which a deployment is performed. By creating a target configured with a Kubernetes account that only has the permissions to deploy into a single namespace, we can be sure that deployments performed via that target wil not accidentally modify resources in another namespace. This is especially important where a single Kubernetes cluster hosts multiple environments, and we want to guarantee that deployments to the <b>Development</b> environment can not affect the <b>Test</b> or <b>Production</b> environments.
 </p>
 <p>
 	At this point though we only have administrative access to our cluster. We could perform all deployments to our cluster with these administrative credentials, but doing so is not considered best practice. Instead, we need to use our administrative credentials to create additional accounts that only have access to a single namespace representing the application and environment being deployed. To do this we'll start by creating an administrative Kubernetes target.
@@ -422,8 +422,14 @@
 </p>
 <div><img alt="Execution settings" src="images/octopus/common-admin-settings.png"/></div>
 <p>
-	The step then prompts for two settings: the role name to assign to our new Octopus target, and the Kubernetes namespace that the target can deploy into. We'll set the role to <b>Backend</b> and set the namespace to <b>backend-#{Octopus.Environment.Name | ToLower}</b>:
+	The step then prompts for four settings:
 </p>
+<ul>
+	<li>The role name to assign to our new Octopus target, set to <b>Backend</b>.</li>
+	<li>The Kubernetes namespace that the target can deploy into, set to <b>backend-#{Octopus.Environment.Name | ToLower}</b>.</li>
+	<li>The feed that hosts the health check container image, set to <b>Docker Hub</b>.</li>
+	<li>The health check docker image, set to <b>octopusdeploy/worker-tools:windows.ltsc2019</b>.</li>
+</ul>
 <p class="note">
     The syntax starting with a hash and curly bracket and ending with a curly bracket is an Octopus variable expression. It will resolve the system variable called <b>Octopus.Environment.Name</b>, and then pass it through the <b>ToLower</b> filter to change the characters to lowercase. This way an Octopus environment with capital letters like <b>Development</b> is transformed into a lowercase string called <b>development</b> that is suitable for the name of a Kubernetes namespace.
 </p>
@@ -478,6 +484,22 @@
 	To create a new variable set, open <b>Library -> Variable Sets</b>, and click the <b>ADD NEW VARIABLE SET</b> button. Give the variable set the name of <b>Random Quotes</b>. Under the <b>Variables</b> tab, add a new variable called <b>DatabasePassword</b>, configure the value to be a secret, and enter a suitable password as the value:
 </p>
 <div><img alt="Random Quotes variable set" src="images/octopus/variable-set.png"/></div>
+<p>
+	By default this variable is unscoped, meaning each environment will share a single password. This is not ideal, as our production infrastructure should not have the same credentials as our development infrastructure.
+</p>
+<p>
+	Click the define scope field to present a drop down listing all the dimensions that a variable can be scoped against. Under the <b>Select environments</b> drop down list, select the <b>Development</b> environment.
+</p>
+<p>
+	We now need unique passwords for the <b>Test</b> and <b>Production</b> environments. Click the hamburger menu next to the variable and select the <b>Add Value</b> option. Our variable now displays two values. Enter a new password, and scope the new value to the <b>Test</b> environment.
+</p>
+<p>
+	Add a third unique password scoped to the <b>Production</b> environment. We now have unique password for each environment:
+</p>
+<div><img alt="Random Quotes variable set" src="images/octopus/scoped-db-passwords.png"/></div>
+<p>
+	Scoped variables allow us to build a deployment process referencing the single variable called <b>DatabasePassword</b>, and Octopus will take care of exposing the correct variable value at deployment time depending on where the deployment is taking place.
+</p>
 <h3>Creating the backend database deployment process</h3>
 <p>
 	Our first deployment project will deploy the backend PostgreSQL database. Click <b>Projects -> ADD PROJECT</b> to create a new project. Give the new project the name of <b>Random Quotes - Backend</b>, and click the <b>Save</b> button. Click the <b>DEFINE YOUR DEPLOYMENT PROCESS</b> button to be taken to the process editor, and then click the <b>ADD STEP</b> button to add the first step to the deployment process.
@@ -514,6 +536,16 @@
 </p>
 <p class="note">
     The value of <b>#{DatabasePassword}</b> references the variable we defined in the variable set earlier. We will link this variable set to the project once the deployment process is saved.
+</p>
+<p>
+	As we move through this book we'll be deploying more applications connecting directly to the database. To accommodate this we need to increase the number of connections Postgres will accept. This is done via a custom command argument. Under the <b>Command</b> section, expand the <b>Command arguments</b> section, and enter the following text:
+</p>
+<pre>
+-c
+max_connections=200
+</pre>
+<p class="note">
+	Normally when passing commands through a shell like Bash or PowerShell, individual arguments are separated with spaces. Or, when a space is found in an argument, the argument is wrapped in quotes. This means quotes have special meaning to Bash and PowerShell. The <b>Command arguments</b> text box treats each new line as a single argument, and quotes and spaces have no special meaning here. The arguments above are equivalent to running <b>postgres -c max_connections=200</b> from a command line.
 </p>
 <p>
 	Click the <b>OK</b> button to save the container. The top level form will display a summary of the container settings:
