@@ -76,6 +76,20 @@
 <p>
     If the users consuming action templates do not have <b>ActionTemplateCreate</b>, <b>ActionTemplateDelete</b>, or <b>ActionTemplateEdit</b> permissions, we can be sure that they can only consume step templates as they are, and cannot make any modifications beyond supplying values for parameters.
 </p>
+<h3>Docker images as parameters</h3>
+<p>
+    The step template we created above exposed a number of simple text fields as parameters. This is fine in most cases, but a special case may be where we want to allow the user of the step template to select the package/image. For example, we might want to allow the user of the step template to switch between the official Octopus Docker image or a custom one like we created to add a tentacle to the existing Cypress image.
+</p>
+<p>
+    Add a new parameter called <b>DeployKubernetesWorkerImage</b>, and set the <b>Control type</b> to Package. Then go back to the container defined in the step, expand the <b>Image Details</b> section, under the <b>Package Image</b> field select the <b>Let the project select the package</b>, and then select the <b>DeployKubernetesWorkerImage</b> parameter.
+</p>
+<p class="note">
+    Selecting a package via a parameter is called <i>deferred package selection</i>.
+</p>
+<p>
+    The package is then exposed on the step implementing the template:
+</p>
+<div><img alt="Time to recovery" src="images/octopus/deferred-package.png"/></div>
 <h2>Exporting and importing projects</h2>
 <p>
     Step templates are a good solution to standardize the configuration of a single step. When you need to provide a template of an entire deployment process, or an entire project, the import/export feature may provide an option.
