@@ -624,7 +624,7 @@ max_connections=200
 		<ul>
 			<li><b>SPRING_CONFIG_NAME</b> = <b>postgres-application</b>. This tells Spring which configuration file to use, and in our case selects a configuration file that connects the web application to a PostgreSQL database. This configuration file also references the environment variables defined below.</li>
 			<li><b>POSTGRES_USER</b> = <b>postgres</b>. This configures the database username.</li>
-			<li><b>POSTGRES_URL</b> = <b>jdbc:postgresql://postgres.backend-development:5432/postgres</b>. This configures the URL to the PostgreSQL database. Note the hostname <b>postgres.backend-development</b> is the combination of the service called <b>postgres</b>, and the namespace called <b>backend-development</b> where the service is located.</li>
+			<li><b>POSTGRES_URL</b> = <b>jdbc:postgresql://postgres.backend-#{Octopus.Environment.Name | ToLower}:5432/postgres</b>. This configures the URL to the PostgreSQL database. Note the hostname <b>postgres.backend-#{Octopus.Environment.Name | ToLower}</b> is the combination of the service called <b>postgres</b>, and the namespace called <b>backend-#{Octopus.Environment.Name | ToLower}</b> where the service is located.</li>
 			<li><b>POSTGRES_PASS</b> = <b>#{DatabasePassword}</b>. This configures the database password.</li>
 		</ul>
 	</li>

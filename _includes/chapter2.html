@@ -713,10 +713,21 @@ RUN curl -L https://download.octopusdeploy.com/linux-tentacle/tentacle-6.0.490-l
 RUN mkdir /opt/octopus
 RUN tar xvzf tentacle-linux_x64.tar.gz -C /opt/octopus
 RUN echo '#!/bin/bash' > /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle create-instance --instance "Worker" --config "/etc/octopus/Worker/tentacle-Worker.config"' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle new-certificate --instance "Worker" --if-blank' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle configure --instance "Worker" --app "/home/Octopus/Applications" --noListen "True" --reset-trust' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle register-worker --instance "Worker" --force --server "${ServerUrl}" --name `hostname` --comms-style "TentacleActive" --server-comms-port "10943" --apiKey "${ServerApiKey}" --space "${Space}" --workerpool "${TargetWorkerPool}"' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle create-instance --instance "Worker" \
+    --config "/etc/octopus/Worker/tentacle-Worker.config"' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle new-certificate --instance "Worker" \
+    --if-blank' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle configure --instance "Worker" \
+    --app "/home/Octopus/Applications" \
+    --noListen "True" --reset-trust' >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle register-worker --instance "Worker" \
+    --force --server "${ServerUrl}" \
+    --name `hostname` \
+    --comms-style "TentacleActive" \
+    --server-comms-port "10943" \
+    --apiKey "${ServerApiKey}" \
+    --space "${Space}" \
+    --workerpool "${TargetWorkerPool}"' >> /opt/configure.sh
 RUN echo '/opt/octopus/tentacle/Tentacle agent --noninteractive --instance "Worker"' >> /opt/configure.sh
 RUN chmod +x /opt/configure.sh
 ENTRYPOINT []
@@ -734,7 +745,7 @@ CMD ["/opt/configure.sh"]
 <p>
     The easiest way to get these commands is to install a tentacle on a Linux operating system and run through the configuration script at <b>/opt/octopus/tentacle/configure-tentacle.sh</b>. The final step in the configuration script presents the list of commands that will be run to configure the tentacle. An example of that output is shown below:
 </p>
-<pre>
+<pre class="wrapPre">
 tentacle$ sudo /opt/octopus/tentacle/configure-tentacle.sh
 Name of Tentacle instance (default Tentacle):Worker
 What kind of Tentacle would you like to configure: 1) Listening or 2) Polling (default 1): 2

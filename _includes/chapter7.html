@@ -86,10 +86,10 @@
 <p>
     One thing to be aware of with the Octopus REST API is that it often only returns a subset of results with each call, requiring multiple API calls to return all the available results. There is a <b>Links</b> section returned as part of the JSON response that includes links to the next set of results, or a link that returns all the results:
 </p>
-<pre>
+<pre class="wrapPre">
 "Links": {
     "Self": "/api/events?user=",
-    "Template": "/api/events{?skip,regarding,regardingAny,user,users,projects,projectGroups,environments,eventGroups,eventCategories,eventAgents,tags,tenants,from,to,internal,fromAutoId,toAutoId,documentTypes,asCsv,take,ids,spaces,includeSystem,excludeDifference}",
+    "Template": "/api/events{?skip,regarding,regardingAny,user,users,projects,projectGroups,environments,eventGroups, eventCategories,eventAgents,tags,tenants,from,to,internal,fromAutoId,toAutoId, documentTypes,asCsv,take,ids,spaces,includeSystem,excludeDifference}",
     "Page.All": "/api/events?skip=0&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=2147483647&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",
     "Page.Next": "/api/events?skip=30&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=30&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",
     "Page.Current": "/api/events?skip=0&amp;eventGroups=Deployment&amp;from=2021-02-16T00%3A00%3A00%2010%3A00&amp;to=2021-03-18T23%3A59%3A59%2010%3A00&amp;take=30&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true",

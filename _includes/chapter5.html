@@ -103,7 +103,7 @@
     The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is built with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
 </p>
 {% raw %}
-<pre>
+<pre class="wrapPre">
 name: Java CI
 
 on:
@@ -217,7 +217,7 @@ with:
     Second, we build the JSON file defining the metadata to associate with the Docker image being built by this workflow:
 </p>
 {% raw %}
-<pre>
+<pre class="wrapPre">
 - name: Build Docker Package Info
 run: >-
   echo "{
