@@ -1,11 +1,5 @@
-This book is uses Jekyll to build an epub. The steps in the GitHub workflow file at `.github/workflow/book.yaml` define the process of building the book.
+"The ten pillars of pragmatic Kubernetes deployments with Octopus" is a journey from an empty Kubernetes cluster and blank Octopus instance to a best practise DevOps pipeline ready to scale your enterprise deployments, and ongoing maintenance.
 
-## Tools
+This book is built as an epub, available from the [releases](https://github.com/OctopusDeploy/TenPillarsK8s) page.
 
-Validate the HTML at https://validator.w3.org/#validate_by_input. This is quite fast to do.
-
-Validate the resulting epub at http://validator.idpf.org/. This takes a few minutes.
-
-## Reader
-
-Calibre is a good epub reader - https://calibre-ebook.com/
+[Calibre](https://calibre-ebook.com/) is a good multiplatform epub reader.
