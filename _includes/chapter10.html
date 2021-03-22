@@ -287,7 +287,7 @@ spec:
     octopusexport: OctopusExport
 </pre>
 <p>
-    We need to define two secret variables:
+    We also need to define two secret variables:
 </p>
 <ul>
     <li><b>ApiToken</b> - set to a random password.</li>
@@ -297,13 +297,13 @@ spec:
     Run the runbook, and then query the cluster to find the public IP of the load balancer service. We'll need this IP address to configure Octopus.
 </p>
 <p>
-    Back in Octopus, create a new subscription called <b>Slack Gateway</b>. Select the events you are interested in sending to Slack. Under the <b>WebHook Notifications</b> section, set the <b>Payload URL</b> field to <b>http://[load balancer ip]]/OctopusWebHook</b>. Then under <b>Header</b> set the <b>Header Key</b> to <b>API-TOKEN</b> and the <b>Header Value</b> to the same value assigned to the <b>ApiToken</b> variable we created above:
+    Back in Octopus, create a new subscription called <b>Slack Gateway</b>. Select the events you are interested in sending to Slack. Under the <b>WebHook Notifications</b> section, set the <b>Payload URL</b> field to <b>http://[load balancer ip]/OctopusWebHook</b>. Then under <b>Header</b> set the <b>Header Key</b> to <b>API-TOKEN</b> and the <b>Header Value</b> to the same value assigned to the <b>ApiToken</b> variable we created above:
 </p>
 <div><img alt="Octopus Subscription" src="images/octopus/subscription-example.png"/></div>
 <p>
     Now each matching Octopus event is sent to the gateway, where it is transformed and sent to Slack:
 </p>
-<div><img alt="Slack messages" src="images/octopus/messages.png"/></div>
+<div><img alt="Slack messages" src="images/slack/messages.png"/></div>
 <h2>Conclusion</h2>
 <p>
     The practical reality of Octopus is that it never stands alone in your DevOps workflows. At a minimum, a CI server will be building packages and triggering deployments, but even deployments themselves are a small part of a bigger picture. With tooling like the CLI, notifications with emails, and integrations with web hooks, Octopus can reach out to keep everyone updated with important events. And through the <b>Manual Intervention</b> step, workflows involving authorization can be built into deployment processes.
@@ -317,6 +317,7 @@ spec:
     <li>Scheduled and triggered deployments.</li>
     <li>Used the Octopus CLI to create a release, deploy the release, and run a runbook.</li>
     <li>Configured a subscription to trigger a web hook based on events raised by Octopus.</li>
+    <li>Configured a gateway to send subscription events to Slack.</li>
 </ul>
 <p>
     You may have noticed the feature of "high priority deployments take precedence over low priority ones" did not have an example implementation. This is because there is no solution for this in Octopus at this time. In fact there have been more than a few features and use cases that were ignored or glossed over in this book. If you want to contribute to the discussion around the future of Octopus, join me in the epilogue.
