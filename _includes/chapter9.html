@@ -24,7 +24,7 @@
     <li>Deployments should progress a static release through environments, while the latest stable runbook should be run without concerns for environment progression.</li>
 </ul>
 <p>
-    Without calling much attention to it, we have been gradually building a library of runbooks to ensure the manageability of our deployments long after the original deployment process finished. From the very beginning we modelled the creation of our targets through runbooks like <b>Create Frontend Targets</b> and <b>Create Backend Targets</b>. We frequently referred to query runbooks like <b>Get Service IP</b>. The workers placed in the cluster were implemented in runbooks like <b>Create Kubernetes Worker</b>.
+    Without calling much attention to it, we have been gradually building a library of runbooks to ensure the manageability of our deployments long after the original deployment process finished. From the very beginning we modelled the creation of our targets through runbooks like <b>Create Frontend Targets</b> and <b>Create Backend Targets</b>. We frequently referred to query runbooks like <b>Get Admin Service IP</b>. The workers placed in the cluster were implemented in runbooks like <b>Create Kubernetes Worker</b>.
 </p>
 <p>
     What we never did in this book was to call <b>kubectl</b> from a local machine. This was a very deliberate decision, and now we reap the benefits.

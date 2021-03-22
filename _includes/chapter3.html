@@ -232,7 +232,7 @@
     The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various resources needed for that application to function. One of the resources that we are interested in is the load balancer service created to direct public network traffic into the ingress controller. This load balancer service is much the same as we created in <a href="#chapter1">chapter 1</a>, except that the traffic is now sent to an ingress controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
 </p>
 <p>
-    As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. By running this runbook in the <b>Admin</b> environment, we can get the IP address of the NGINX load balancer service. The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
+    As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. Clone this runbook into a new runbook called <b>Get Admin Service IP</b>. Configure the runbook step to run against targets with the <b>Kubernetes Admin</b> role, which will result in this runbook querying resources in the <b>default</b> namespace. Then run the runbook in the <b>Admin</b> environment, which displays the IP address of the NGINX load balancer service. The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></div>
 <p>
