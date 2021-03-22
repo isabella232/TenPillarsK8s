@@ -189,7 +189,7 @@ spec:
             - name: MachinePolicy
               value: Test Worker
             - name: Space
-              value: MySpace
+              value: '#{Octopus.Space.Name}'
             - name: ACCEPT_EULA
               value: 'Y'
             - name: TargetWorkerPool
@@ -298,7 +298,7 @@ spec:
             - name: MachinePolicy
               value: Test Worker
             - name: Space
-              value: MySpace
+              value: '#{Octopus.Space.Name}'
             - name: ACCEPT_EULA
               value: 'Y'
             - name: TargetWorkerPool
@@ -790,6 +790,9 @@ Press enter to continue...
 <p>
     To deploy the worker, configure a <b>Deploy Kubernetes containers</b> step with the YAML shown below, replacing the <b>ServerUrl</b> and <b>Space</b> environment variable to your own Octopus server and space. Note that this container does not have the <b>privileged</b> option set, and disables Docker-in-Docker by setting the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
 </p>
+<p class="note">
+    We have used the system variable <b>Octopus.Space.Name</b> in the example below assuming the workers are being deployed to the same space the runbook is run from.
+</p>
 <pre>
 apiVersion: apps/v1
 kind: Deployment
@@ -818,7 +821,7 @@ spec:
             - name: MachinePolicy
               value: Test Worker
             - name: Space
-              value: Default
+              value: '#{Octopus.Space.Name}'
             - name: ACCEPT_EULA
               value: 'Y'
             - name: TargetWorkerPool

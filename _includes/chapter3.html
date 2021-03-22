@@ -778,6 +778,9 @@ spec:
 <p>
     Click the <b>ADD VERSION RULE</b> button. Select the <b>Deploy Web App</b> step, and enter <b>.+</b> for the pre-release tag. This is a regular expression that matches any character one or more times, which means it only matches versions like <b>0.1.9-purpleheader</b>. Click <b>SAVE</b> to save the changes.
 </p>
+<p class="note">
+    Because the tag <b>latest</b> has a prerelease component (actually the entire tag is the prerelease), it will match the regex <b>.+</b>. To match all tags with a prerelease component except <b>latest</b>, use the regex <b>^(?!latest\b).+$|^$</b>.
+</p>
 <p>
     Now create a new release, select the <b>Feature Branch</b> channel, and select the image version <b>0.1.9-purpleheader</b>. Note that when you browse for image versions, mainline versions like <b>0.1.9</b> are not available. Deploy the release to the <b>Development</b> environment.
 </p>
