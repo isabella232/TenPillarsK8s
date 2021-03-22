@@ -212,6 +212,98 @@ octo run-runbook \
 <p>
     Posting events to web hooks via subscriptions allows an external system to be notified of, and respond to, almost any change or action in Octopus.
 </p>
+<h2>Subscription events to Slack</h2>
+<p>
+    An interesting use case for subscription events is to have Octopus events posted to Slack. This is much like the email notifications we added to the end of a deployment process, but captures all projects and any other event rather than just the failure of a deployment.
+</p>
+<p>
+    To post messages to slack, we need to create a Slack application. Open <a href="https://api.slack.com/apps/">https://api.slack.com/apps/</a> and click the <b>Create New App</b> button. Call the new app <b>OctopusToSlack</b>:
+</p>
+<div><img alt="Pipedream" src="images/slack/slack-app.png"/></div>
+<p>
+    Under the <b>Features</b> section, click <b>Incoming Webhooks</b>. Ensure the switch next to the <b>Activate Incoming Webhooks</b> header is set to <b>On</b>, and then click the <b>Add New Webhook to Workspace</b> button.
+</p>
+<p>
+    Select the channel that will display the Octopus events, and click the <b>Allow</b> button. Slack will generate a random URL that we will use to post messages to:
+</p>
+<div><img alt="Pipedream" src="images/slack/slack-webhook.png"/></div>
+<p class="note">
+    This URL should be treated as a secret. Anyone know knows the URL can post messages to your channel.
+</p>
+<p>
+    Octopus cannot post directly to this webhook, as the format of the messages are different. We need a gateway to translate between an Octopus event and a Slack message.
+</p>
+<p>
+    The sample application at <a href="https://github.com/OctopusSamples/OctopusToSlackDotNet">https://github.com/OctopusSamples/OctopusToSlackDotNet</a> provides just such a gateway. This application has been published as a Docker image called <b>octopussamples/octopustoslack</b>.
+</p>
+<p>
+    Open the <b>Kubernetes DevOps</b> project and add a new runbook called <b>Deploy Slack Gateway</b>. Add a <b>Deploy Kubernetes container</b> step, and import the following deployment YAML:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slackgateway
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: slackgateway
+          image: index.docker.io/octopussamples/octopustoslack
+          ports:
+            - name: web
+              containerPort: 80
+          env:
+            - name: API_TOKEN
+              value: '#{ApiToken}'
+            - name: SLACK_URI_APIKEY
+              value: '#{SlackWebHook}'
+</pre>
+<p>
+    The gateway will be exposed by a load balancer service, created by importing the following service YAML:
+</p>
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: slackgateway
+spec:
+  type: LoadBalancer
+  ports:
+    - name: web
+      port: 80
+      targetPort: web
+      protocol: TCP
+  selector:
+    octopusexport: OctopusExport
+</pre>
+<p>
+    We need to define two secret variables:
+</p>
+<ul>
+    <li><b>ApiToken</b> - set to a random password.</li>
+    <li><b>SlackWebHook</b> - set to the Slack webhook URL.</li>
+</ul>
+<p>
+    Run the runbook, and then query the cluster to find the public IP of the load balancer service. We'll need this IP address to configure Octopus.
+</p>
+<p>
+    Back in Octopus, create a new subscription called <b>Slack Gateway</b>. Select the events you are interested in sending to Slack. Under the <b>WebHook Notifications</b> section, set the <b>Payload URL</b> field to <b>http://[load balancer ip]]/OctopusWebHook</b>. Then under <b>Header</b> set the <b>Header Key</b> to <b>API-TOKEN</b> and the <b>Header Value</b> to the same value assigned to the <b>ApiToken</b> variable we created above:
+</p>
+<div><img alt="Octopus Subscription" src="images/octopus/subscription-example.png"/></div>
+<p>
+    Now each matching Octopus event is sent to the gateway, where it is transformed and sent to Slack:
+</p>
+<div><img alt="Slack messages" src="images/octopus/messages.png"/></div>
 <h2>Conclusion</h2>
 <p>
     The practical reality of Octopus is that it never stands alone in your DevOps workflows. At a minimum, a CI server will be building packages and triggering deployments, but even deployments themselves are a small part of a bigger picture. With tooling like the CLI, notifications with emails, and integrations with web hooks, Octopus can reach out to keep everyone updated with important events. And through the <b>Manual Intervention</b> step, workflows involving authorization can be built into deployment processes.
