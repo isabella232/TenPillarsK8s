@@ -269,7 +269,7 @@ docker push mcasperson/k8stentacle
 <p>
     You can now replace the <b>image</b> setting in the YAML file with <b>index.docker.io/mcasperson/k8stentacle</b> to deploy the custom Docker image with <b>kubectl</b> installed. In this case, we no longer need to use Docker-in-Docker, and the <b>privileged</b> flag can be set to <b>false</b> (or not defined at all, in which case it will default to false). To disable Docker-in-Docker on the tentacle we also need to set the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -292,7 +292,8 @@ spec:
     spec:
       containers:
         - name: worker
-          # Make sure to use your own image in production. Do not rely on external images as they are not maintained.        
+          # Make sure to use your own image in production. 
+          # Do not rely on external images as they are not maintained.        
           image: index.docker.io/mcasperson/k8stentacle
           env:
             - name: MachinePolicy
@@ -318,7 +319,7 @@ spec:
               memory: 1Gi
 </pre>
 <p class="note">
-    Don't use the image mcasperson/k8stentacle in your own cluster, as it is not maintained, and has been shown here for demonstration purposes. Replace this image with one pushed to your own repository.
+    Don't use the image <b>mcasperson/k8stentacle</b> in your own cluster, as it is not maintained, and has been shown here for demonstration purposes. Replace this image with one pushed to your own repository.
 </p>
 <p>
     Baking tools directly into a tentacle image as we just did with <b>kubectl</b> is a perfectly valid solution. Indeed it is the only solution in environments that do not support privileged containers; GKE with autopilot and Azure Kubernetes Service (AKS) with virtual nodes are two examples where privileged containers are not supported.
