@@ -147,10 +147,10 @@ Smoke tests are quick tests designed to ensure that applications and services ha
     In the <b>Kubernetes DevOps</b> project create a new runbook called <b>Create Kubernetes Workers</b>, and add the <b>Deploy Kubernetes containers</b> step to the process.
 </p>
 <p>
-    Previously to configure the <b>Deploy Kubernetes containers</b> step we entered details into the individual fields. This is a perfectly valid approach to configuring the step, but there is a faster way to populate the values.
+    Previously, to configure the <b>Deploy Kubernetes containers</b> step we entered details into the individual fields. This is a perfectly valid approach to configuring the step, but there is a faster way to populate the values.
 </p>
 <p>
-    Under the <b>Deployment</b> header you will find a section called <b>Edit YAML</b>. Clicking the <b>EDIT YAML</b> button opens a dialog that displays the YAML representation of the deployment resource. This YAML can be edited, with the changes populated back into the main form. This means we can take a YAML document describing a Kubernetes deployment resource and paste it into the step, giving us a populated form with just a few clicks.
+    Under the <b>Deployment</b> header you will find a section called <b>Edit YAML</b>. Clicking the <b>EDIT YAML</b> button displays a dialog with the YAML representation of the deployment resource. This YAML can be edited, with the changes populated back into the main form. This allows us to take a YAML document describing a Kubernetes deployment resource and paste it into the step, giving us a populated form with just a few clicks.
 </p>
 <p class="note">
     The <b>Deploy Kubernetes containers</b> step exposes many fields, but will never expose every possible setting in the underlying Kubernetes resources. If the YAML includes unrecognized fields, they will be silently ignored during the import process.
