@@ -791,6 +791,36 @@ spec:
 <p>
     We have created feature branch deployment strategy that prevents feature branches from being deployed to production. This gives developers the ability to test their changes in isolation, safe in the knowledge that their test code won't be exposed to end users.
 </p>
+<h3>Cleaning up old feature branches</h3>
+<p>
+    Feature branches tend to be short lived, so we would expect that any feature branch deployments to be cleaned up when they are no longer useful. To accommodate this we'll provide a runbook to delete feature branch resources.
+</p>
+<p>
+    Inside the deployment project, click the <b>Operations -> Runbooks</b> like, and click the <b>ADD RUNBOOK</b> button. Add a runbook called <b>Delete Feature Branch</b>.
+</p>
+<p>
+    Add a <b>Run a kubectl CLI Script</b> step to the runbook process, target the <b>Frontend</b> role, and run the step in an appropriate container image. The script step is set to the following:
+</p>
+<pre>
+kubectl delete ingress -l FeatureBranch=#{FeatureBranch}
+
+kubectl delete service -l FeatureBranch=#{FeatureBranch}
+
+kubectl delete deployment -l FeatureBranch=#{FeatureBranch}
+</pre>
+<p>
+    Save the runbook, and then in the <b>Settings</b> tab limit the runbook to the <b>Development</b> and <b>Test</b> environments, as we don't expect to be deploying feature branches to production.
+</p>
+<p>
+     In the project variables, create a new variable called <b>FeatureBranch</b>. Click the <b>Enter value</b> field, select <b>OPEN EDITOR</b>, click the <b>Prompt for value</b> and <b>Required</b> options, and click the <b>DONE</b> button. Then click the <b>Define scope</b> field and select <b>Delete Feature Branch</b> from the <b>Select processes</b> drop down list. 
+</p>
+<p>
+    This variable will now prompt for a value when the runbook is run, but because it is scoped to only the <b>Delete Feature Branch</b> process, the main deployment will not prompted for a variable:
+</p>
+<div><img alt="Octopus environments" src="images/octopus/prompted-variable-1.png"/></div>
+<p>
+    Running this runbook will remove any resources associated with a feature branch, effectively undeploying a feature branch from an environment.
+</p>
 <h2>Conclusion</h2>
 <p>
     As your deployments increase in frequency, it is desirable to perform them with little or no downtime for end users. Progressively rolling out deployments to more end users can also be used to limit the blast radius of any errors that you may have inadvertently introduced into your production environment. And running feature branches side by side with the main deployments is a convenient way for developers to test changes before they are merged into the main code base.
@@ -803,6 +833,7 @@ spec:
     <li>Provided examples implementing rolling, recreate, blue/green, canary, and feature branch deployments in Octopus.</li>
     <li>Installed the NGINX ingress controller to implement canary deployments.</li>
     <li>Use channels and lifecycles to prevent test code from being deployed to production.</li>
+    <li>Added a runbook, collocated with the deployment process, to clean up old feature branches.</li>
 </ul>
 <p>
     It can take a bit of work to build up the more complex deployment patterns like canary deployments, but as we'll see the these deployment patterns provide a nice foundation as we move into the next pillar of recoverable deployments.
