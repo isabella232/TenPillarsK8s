@@ -63,7 +63,7 @@ Smoke tests are quick tests designed to ensure that applications and services ha
     We could expose the database to public traffic, but this is an unnecessary security risk given the only clients accessing the database (i.e. the frontend web application) are also deployed in the same cluster.
 </p>
 <p>
-    It then follows that any test requiring access the database will need to be run within the cluster.
+    It then follows that any test requiring access to the database will need to be run within the cluster.
 </p>
 <p>
     Just as workers can be placed on a cloud VM with access to a private network, workers can be run as containers inside a Kubernetes cluster. While traditional tentacles and workers are installed directly on a host operating system, tentacles are also provided as Docker images called <b>octopusdeploy/tentacle</b> hosted on Docker Hub.
