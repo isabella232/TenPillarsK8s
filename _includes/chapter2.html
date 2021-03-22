@@ -338,7 +338,7 @@ spec:
 </p>
 <h3>Smoke testing the backend database</h3>
 <p>
-    Our first test will be to ensure the database is up and responding to requests. To do this we'll log into the database and query the available PostgreSQL schemas. This kind of quick, high level test is referred to as a smoke test. This check is very quick and only asserts that the database is present, has the correct credentials configured, and accepts SQL queries. However, if any of those conditions is not met, no further testing is required as we know something went wrong with our deployment.
+    Our first test will be to ensure the database is up and responding to requests. To do this we'll log into the database and query the available PostgreSQL schemas. This kind of quick, high level test is referred to as a smoke test. This check is very quick and only asserts that the database is present, has the correct credentials configured, and accepts SQL queries. However, if any of those conditions are not met, no further testing is required as we know something went wrong with our deployment.
 </p>
 <p class="note">
     The term <i>smoke test</i> has been borrowed from electrical engineering, where the first test of a circuit board was to check if any smoke was coming from it.
@@ -348,7 +348,10 @@ spec:
 </p>
 <pre>
 export PGPASSWORD=#{DatabasePassword}
-psql -U postgres -h postgres.backend-development -c "select schema_name from information_schema.schemata;"
+psql \
+    -U postgres \
+    -h postgres.backend-development \
+    -c "select schema_name from information_schema.schemata;"
 </pre>
 <p>
     This script uses the <b>psql</b> command line tool included in the <b>postgres</b> Docker image to log into the backend database and execute a simple SQL query listing the available schemas. If the command's exit code is zero, we can be sure that the command succeeded, and therefore that the database has been deployed and is available.
