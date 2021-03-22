@@ -109,13 +109,17 @@
     Sadly the common use case of allowing deployments only between certain times is not exposed by Octopus as a native step or other project option. But as we have seen in <a href="#chapter2">chapter 2</a> a failing script step is an effective, if not pretty, way to block a deployment. The following PowerShell in a script step at the start of a deployment project will fail the step with an exit code of 1 if the current time is not between 9 AM and 5 PM:
 </p>
 <pre>
-    if (-not [int](Get-Date -Format HH) -ge 9 -and [int](Get-Date -Format HH) -ge 17) {exit 1}
+$afterStart = [int](Get-Date -Format HH) -ge 9
+$beforeEnd = [int](Get-Date -Format HH) -ge 17
+if ( -not $afterStart -and $beforeEnd) {exit 1}
 </pre>
 <p>
     A similar Bash script looks like this:
 </p>
 <pre>
-    if [[ ! $(date +"%H") -ge 9 &amp;&amp; $(date +"%H") -le 17 ]]; then exit 1; fi;
+if [[ ! $(date +"%H") -ge 9 &amp;&amp; $(date +"%H") -le 17 ]]; then 
+    exit 1; 
+fi;
 </pre>
 <h3>Scheduling deployments</h3>
 <p>
