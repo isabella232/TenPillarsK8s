@@ -357,10 +357,10 @@ spec:
     While we are modifying variables, add a new variable called <b>Hostname</b>. The value of this variable will be set to the hostname of the ingress controller load balancer.
 </p>
 <p>
-    Different cloud providers expose load balancer hostnames differently. Google cloud uses the format <b>[ip address].bc.googleusercontent.com</b>. Azure allows the annotation <b>service.beta.kubernetes.io/azure-dns-label-name</b> to be defined on a load balancer service, which generates a hostname like <b>[dns label].[region].cloudapp.azure.com</b> (e.g. mydnslabel.centralus.cloudapp.azure.com). AWS Elastic Kubernetes Service (EKS) load balancers expose a hostname directly to Kubernetes, so it will appear as the external IP when the <b>kubectl get services</b> command is run.
+    Different cloud providers expose load balancer hostnames differently. Google cloud uses the format <b>[reversed ip address].bc.googleusercontent.com</b>, where a load balancer ip of <b>34.123.125.215</b> has a hostname of <b>215.125.123.34.bc.googleusercontent.com</b>. Azure allows the annotation <b>service.beta.kubernetes.io/azure-dns-label-name</b> to be defined on a load balancer service, which generates a hostname like <b>[dns label].[region].cloudapp.azure.com</b> (e.g. mydnslabel.centralus.cloudapp.azure.com). AWS Elastic Kubernetes Service (EKS) load balancers expose a hostname directly to Kubernetes, so it will appear as the external IP when the <b>kubectl get services</b> command is run.
 </p>
 <p>
-    Because we are using GKE in this book, the value of the <b>Hostname</b> variable will be set to <b>[ip address].bc.googleusercontent.com</b>.
+    Because we are using GKE in this book, the value of the <b>Hostname</b> variable will be set to <b>[reversed ip address].bc.googleusercontent.com</b>.
 </p>
 <p>
     Once the tests pass we will direct a subset of incoming traffic to the canary stack (or green stack in keeping with the terminology we have already used in blue/green deployments) via an ingress. This is done with a <b>Deploy Kubernetes ingress resource</b> step. Like all Kubernetes steps, the <b>Deploy Kubernetes ingress resource</b> step allows YAML to be directly imported. The YAML below defines the ingress required to direct 50% of traffic to the green stack:
@@ -498,7 +498,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
     The most common way to identify feature branch images is via the prerelease identifier on the image tag. This means the tag <b>0.1.9-purpleheader</b> we used earlier represents a feature branch called <b>purpleheader</b>. This works nicely because feature branches are applications under development, and are therefor prereleases.
 </p>
 <p>
-    To access a feature branch deployment, we'll expose them under a subdirectory in the URL, such as http://[ip address].bc.googleusercontent.com/purpleheader. This leaves the main deployment available at a URL like http://[ip address].bc.googleusercontent.com/.
+    To access a feature branch deployment, we'll expose them under a subdirectory in the URL, such as http://[reversed ip address].bc.googleusercontent.com/purpleheader. This leaves the main deployment available at a URL like http://[reversed ip address].bc.googleusercontent.com/.
 </p>
 <p>
     To extract the prerelease component from the image being deployed, we create a new variable called <b>PackagePreRelease</b> with the value <b>#{Octopus.Action[Deploy Web App].Package[webapp].PackageVersion | VersionPreReleasePrefix}</b>. This takes the package version from the step called <b>Deploy Web App</b> and runs it through the filter <b>VersionPreReleasePrefix</b>. This filter extracts the string <b>purpleheader</b> from a version like <b>0.1.9-purpleheader</b>.
@@ -744,10 +744,10 @@ spec:
               serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[ip address].bc.googleusercontent.com/purpleheader. 
+    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/purpleheader. 
 </p>
 <p>
-    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[ip address].bc.googleusercontent.com/.
+    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[reversed ip address].bc.googleusercontent.com/.
 </p>
 <p>
     Also note how the cleanup code doesn't cross the lines between individual feature branches and the mainline deployment. We can redeploy the feature branch image over and over, and the mainline deployment is not affected.
