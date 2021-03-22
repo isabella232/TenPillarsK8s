@@ -848,7 +848,7 @@ spec:
 </p>
 <h3>Modifying tests for other environments</h3>
 <p>
-    If you had a keen eye you may have noticed that our tests hard code a URL to the web application in the frontend namespace. If we progress the deployment to the test and production environments, our tests would still be run against the development environment. Obviously this is not going to achieve the outcome we need, so we need a way to make the tests target the environment we are currently deploying to.
+    If you had a keen eye you may have noticed that our tests hard code a URL to the web application in the frontend development namespace, or the hostname of a database in the backend development namespace. If we progress the deployment to the test and production environments, our tests would still be run against the resources deployed to the development environment. Obviously this is not going to achieve the outcome we need, so we need a way to make the tests target the environment we are currently deploying to.
 </p>
 <p>
     Modifying the front end smoke test is easy as this is an inline script. Update the script to reference the environment name as a variable, like so:
@@ -870,7 +870,10 @@ curl -sSf http://webapp.frontend-#{Octopus.Environment.Name | ToLower} > /dev/nu
 </p>
 <pre>
 export PGPASSWORD=#{DatabasePassword}
-psql -U postgres -h postgres.backend-#{Octopus.Environment.Name | ToLower} -c "select schema_name from information_schema.schemata;"
+psql \
+    -U postgres \
+    -h postgres.backend-#{Octopus.Environment.Name | ToLower} \
+    -c "select schema_name from information_schema.schemata;"
 </pre>
 <p>
     To update the frontend integration test, we'll use a feature in Octopus called <b>Structured Configuration Variables</b>, which injects values into structured data files such as YAML, JSON, XML, or Java Properties files.
