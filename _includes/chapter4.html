@@ -95,7 +95,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     Despite this built in functionality, we will not use this feature in this book, because it does not take into account the reality that a deployment resource is typically dependant on many other resources not considered by the native undo command.
 </p>
 <p>
-    Back in <a href="#chapter3">chapter 3</a> we looked at the opinions baked into the <b>Deploy Kubernetes containers</b> step, and noted how resources like configmaps and secrets create by the step have unique names generated each time the step is run.
+    Back in <a href="#chapter3">chapter 3</a> we looked at the opinions baked into the <b>Deploy Kubernetes containers</b> step, and noted how resources like configmaps and secrets created by the step have unique names generated each time the step is run.
 </p>
 <p>
     This is because a configmap or secret can contain values that are tightly coupled to an individual deployment resources. For example, a configmap or secret can contain values used as environment variables in the associated deployment, or may expose items that are mounted as files. When used this way, a configmap or secret can be thought of as children of the deployment resource rather than independent resources.
