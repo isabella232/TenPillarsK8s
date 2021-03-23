@@ -664,7 +664,7 @@ spec:
     - host: '#{Hostname}'
         http:
         paths:
-            - path: /
+            - path: '/#{ContextPath}'
             backend:
                 servicePort: web
                 serviceName: 'webapp-canary-#{Octopus.Deployment.Id | ToLower}'
@@ -711,7 +711,7 @@ spec:
     - host: '#{Hostname}'
         http:
         paths:
-            - path: /
+            - path: '/#{ContextPath}'
             backend:
                 servicePort: web
                 serviceName: 'webapp-canary-#{Octopus.Deployment.Id | ToLower}'
