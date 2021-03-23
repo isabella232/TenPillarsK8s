@@ -127,7 +127,7 @@
 <p>
     The deployment YAML to import into the step is shown below:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -174,7 +174,7 @@ spec:
 </p>
 <h2>Configuring Grafana</h2>
 <p>
-    Opening the IP address of the load balancer service displays a login page. The default username and password are <b>admin</b>, and the password will need to be changed at the first login.
+    Opening the IP address of the load balancer service displays a login page. The default username and password are both <b>admin</b>, and the password will need to be changed at the first login.
 </p>
 <p>
     We start by adding an Octopus data source. Under <b>Configuration -> Data Sources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button. Enter the Octopus server URL, and paste in the API key created for the <b>Grafana</b> user earlier. Click the <b>Save &amp; Test</b> button to save the changes.
