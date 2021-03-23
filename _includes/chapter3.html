@@ -371,7 +371,24 @@ spec:
     The next steps recreate the smoke, integration, and end-to-end tests that we introduced in <a href="#chapter2">chapter 2</a>. The steps are the same when performing a canary deployment, with the only change required being the base URL that each of the tests contacts, which has changed to <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b> due to the unique name now assigned to the service with each deployment, and the new context path.
 </p>
 <p>
-    Modifying the URL can be achieved by updating the variables used by the structured variable replacement feature. The new variables will be set to:
+    The smoke test script is modified with the new URLs:
+</p>
+<pre class="wrapPre">
+sleep 30
+
+# Contact the HTTP API
+curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}/api/quote > /dev/null
+
+# Fail if curl failed
+if [[ $? != 0 ]]; then
+	return 1
+fi;
+
+# Contact the web frontend
+curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath} > /dev/null
+</pre>
+<p>
+    The integration and end-to-end tests have their URLs updated via the variables used by the structured variable replacement feature. The new variables will be set to:
 </p>
 <ul>
     <li><b>baseUrl</b> = <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b></li>
@@ -380,7 +397,7 @@ spec:
     <li><b>item:0:request:url:raw</b> = <b>http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b></li>
 </ul>
 <p>
-    We also now need to update the path array in the Postman integration test JSON, which is set to <b>"path": ["api","quote"]</b>. This array now needs to include the context path, meaning the array needs to look like <b>["/#{Octopus.Environment.Name | ToLower}","api","quote"]</b>.
+    We also need to update the path array in the Postman integration test JSON, which is set to <b>"path": ["api","quote"]</b>. This array now needs to include the context path, meaning the array needs to look like <b>["/#{Octopus.Environment.Name | ToLower}","api","quote"]</b>.
 </p>
 <p>
     We can achieve this by using structured configuration variables to replace the entire array rather than replacing individual items inside it. Create a new variable called <b>item:0:request:url:path</b> and set the value to <b>["#{Octopus.Environment.Name | ToLower}", "api", "quote"]</b>. This builds up a JSON array, and replaces the exiting array with the new values.
@@ -389,53 +406,53 @@ spec:
     The result of these new variable values means the Postman JSON file will look like this after processing:
 </p>
 <pre>
-    {
-        "info": {
-            "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
-            "name": "RandomQuotes",
-            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-        },
-        "item": [
-            {
-                "name": "Quotes API",
-                "event": [
-                    {
-                        "listen": "test",
-                        "script": {
-                            "exec": [
-                                "pm.test(\"response must be valid and have a body\", function () {\r",
-                                "     pm.response.to.be.ok;\r",
-                                "     pm.response.to.be.withBody;\r",
-                                "     pm.response.to.be.json;\r",
-                                "\r",
-                                "     pm.expect(pm.response.json().quote != \"\").to.be.true;\r",
-                                "});"
-                            ],
-                            "type": "text/javascript"
-                        }
-                    }
-                ],
-                "request": {
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                        "raw": "http://webapp-canary-deployments-511.frontend-development/development/api/quote",
-                        "protocol": "http",
-                        "host": [
-                            "webapp-canary-deployments-511",
-                            "frontend-development"
+{
+    "info": {
+        "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
+        "name": "RandomQuotes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Quotes API",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"response must be valid and have a body\", function () {\r",
+                            "     pm.response.to.be.ok;\r",
+                            "     pm.response.to.be.withBody;\r",
+                            "     pm.response.to.be.json;\r",
+                            "\r",
+                            "     pm.expect(pm.response.json().quote != \"\").to.be.true;\r",
+                            "});"
                         ],
-                        "path": [
-                            "development",
-                            "api",
-                            "quote"
-                        ]
+                        "type": "text/javascript"
                     }
-                },
-                "response": []
-            }
-        ]
-    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://webapp-canary-deployments-511.frontend-development/development/api/quote",
+                    "protocol": "http",
+                    "host": [
+                        "webapp-canary-deployments-511",
+                        "frontend-development"
+                    ],
+                    "path": [
+                        "development",
+                        "api",
+                        "quote"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
 </pre>
 <p class="note">
     Replacing two values and regenerating an array is arguably pushing the limits of the transforms you would expect to perform as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured variables replacements. However, the more changes you make to a template, the more risk you run that your injected values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be passed in as command line arguments to <b>newman</b>, which is a more robust solution for creating environment agnostic tests.
