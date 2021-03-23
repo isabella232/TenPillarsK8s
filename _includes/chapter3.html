@@ -489,7 +489,10 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <div><img alt="Octopus environments" src="images/kubernetes/canary5.png"/></div>
 <h3>Feature branch deployments</h3>
 <p>
-    Conceptually, deploying feature branches is easy, as all it involves is deploying a new container built from a feature branch side by side with the container built from the mainline branch. In this section we will extend the canary deployment process described above to allow multiple feature branches to be deployed side by side. Although in practice feature branches would likely be recreated in test environments, given canary deployments are one of the most complex deployment strategies you can implement, if we can get feature branches working with canary deployments, we can get them working anywhere. 
+    Conceptually, deploying feature branches is easy, as all it involves is deploying a new container built from a feature branch side by side with the container built from the mainline branch. In this section we will extend the canary deployment process described above to allow multiple feature branches to be deployed side by side.
+</p>
+<p>
+    In practice feature branches would likely use the recreation strategy in test environments, because internal testers are not likely to be impacted all that much by momentary downtime of a feature branch release. However, given canary deployments are one of the most complex deployment strategies you can implement, if we can get feature branches working with canary deployments, we can get them working anywhere. 
 </p>
 <p>
     This raises two questions: How do we identify feature branch images, and how do we exposed feature branch deployments alongside the main deployment?
