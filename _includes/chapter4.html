@@ -101,7 +101,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     This is because a configmap or secret can contain values that are tightly coupled to an individual deployment resources. For example, a configmap or secret can contain values used as environment variables in the associated deployment, or may expose items that are mounted as files. When used this way, a configmap or secret can be thought of as children of the deployment resource rather than independent resources.
 </p>
 <p>
-    The native rollback functionality provided by Kubernetes does not take into account the reality that rolling back to a previous deployment will also often require that associated secrets and configmaps will also have to be rolled back.
+    The native rollback functionality provided by Kubernetes does not take into account the reality that rolling back to a previous deployment also often requires that associated secrets and configmaps have to be rolled back as well.
 </p>
 <p>
     Instead, we'll redeploy a previous release in Octopus. Because an Octopus release snapshots the variables, image versions, and deployment process, redeploying a previous release ensures that the state of the previous deployment will be recreated.
