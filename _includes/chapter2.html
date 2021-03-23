@@ -570,7 +570,7 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
     For this integration test to pass, both the frontend and backend must be working as expected. So if the test passes, we have a good degree of confidence that our application stack was deployed as expected.
 </p>
 <p>
-    Even if the API is functioning correctly, there is still the possibility that the web application that end users interact with was not deployed correctly. To verify the web interface we'll run an end-to-end test.
+    Even if the API is functioning correctly, there is still the possibility that the web application end users interact with was not deployed correctly. To verify the web interface we'll run an end-to-end test.
 </p>
 <h3>Performing an end to end test</h3>
 <p>
@@ -598,7 +598,7 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 }
 </pre>
 <p>
-    To download the dependencies listed in the <b>packaes.json</b> file run the following command. A directory called <b>node_modules</b> will be created containing all the reporting dependencies:
+    To download the dependencies listed in the <b>packages.json</b> file run the following command. A directory called <b>node_modules</b> will be created containing all the reporting dependencies:
 </p>
 <pre>
 npm install
@@ -606,7 +606,7 @@ npm install
 <p>
     The next file, also in the project root directory, is called <b>cypress.json</b>. This file defines how our test will run and what reports to generate. In this example we specify that we are generating HTML reports, and that our test should open the web application at http://webapp.frontend-development:
 </p>
-<pre>
+<pre class="wrapPre">
 {
     "baseUrl": "http://webapp.frontend-development",
     "reporter": "mochawesome",
@@ -628,7 +628,8 @@ describe('Random Quotes', () => {
         cy.visit('/')
         cy.get('#refreshQuote').click()
         cy.wait(1000)
-        cy.get('#quoteText').should('not.be.empty')
+        cy.get('#quoteText')
+            .should('not.be.empty')
     })
 })
 </pre>
@@ -639,11 +640,12 @@ describe('Random Quotes', () => {
     A copy of this sample Cypress project can be downloaded from <a href="https://github.com/OctopusSamples/RandomQuotesCypressTest">https://github.com/OctopusSamples/RandomQuotesCypressTest</a>.
 </p>
 <p>
-    We now need to build the container image required to run the Cypress tests. The official Cypress Docker images lack a library required to run calamari, so we must create our own Docker image that includes the required dependencies. We'll also install a Node.js tool called <b>inline-assets</b>. This tool allows us to merge the various files referenced by a HTML page, such as external Cascading Style Sheet (CSS) and JavaScript files, into a single, self contained HTML file. We'll take advantage of this tool later when we generate a report file from Cypress.
+    We now need to build the container image required to run the Cypress tests. The official Cypress Docker images lack a library required to run calamari, so we must create our own Docker image that includes the required dependencies. We'll also install a Node.js tool called <b>inline-assets</b>. This tool allows us to merge the various files referenced by a HTML page, such as external Cascading Style Sheet (CSS) and JavaScript files, into a single, self contained HTML file. We'll take advantage of this tool later when we generate a HTML report file from Cypress.
 </p>
 <pre>
 FROM cypress/included:6.6.0
-RUN apt-get update; apt-get install -y libicu63
+RUN apt-get update; \
+    apt-get install -y libicu63
 RUN npm install -g inline-assets
 </pre>
 <p>
@@ -672,14 +674,21 @@ cd EndToEndTest
 cypress run > output.txt
 RESULT=$?
 
-if [[ -f mochawesome.html ]]; then
-    inline-assets mochawesome.html selfcontained.html
-    new_octopusartifact "${PWD}/selfcontained.html" "selfcontained.html"
+if [[ -f mochawesome.html ]]
+then
+    inline-assets \
+        mochawesome.html selfcontained.html
+    new_octopusartifact \
+        "${PWD}/selfcontained.html" "selfcontained.html"
 fi
 
-if [[ -d cypress/screenshots/sample_spec.js ]]; then
-    zip -r screenshots.zip cypress/screenshots/sample_spec.js
-    new_octopusartifact "${PWD}/screenshots.zip" "screenshots.zip"
+if [[ -d cypress/screenshots/sample_spec.js ]]
+then
+    zip -r \
+        screenshots.zip \
+        cypress/screenshots/sample_spec.js
+    new_octopusartifact \
+        "${PWD}/screenshots.zip" "screenshots.zip"
 fi
 
 exit ${RESULT}
