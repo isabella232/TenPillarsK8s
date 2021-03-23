@@ -601,7 +601,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     Replacing two values and regenerating an array is arguably pushing the limits of the transforms you would expect to perform as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured variables replacements. However, the more changes you make to a template, the more risk you run that your injected values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be passed in as command line arguments to <b>newman</b>, which is a more robust solution for creating environment agnostic tests.
 </p>
 <p>
-    The base URL used by our Cypress test needs to be updated, so set the value of the <b>baseUrl</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b>.
+    The base URL used by our Cypress test needs to be updated, so set the value of the <b>baseUrl</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}/#{PackagePreRelease}#{/if}</b>.
 </p>
 <p>
     We now need to configure the Spring web application so it can respond to requests while being hosted under a new subdirectory. Spring (and most Java applications) refer to the base URL that they are deployed under as the context path. Spring reads the <b>SERVER_SERVLET_CONTEXT_PATH</b> environment variable to configure the context path, so open the <b>Deploy Kubernetes containers</b> step, edit the container, and add an environment variable called <b>SERVER_SERVLET_CONTEXT_PATH</b> with the value <b>/#{PackagePreRelease}</b>.
