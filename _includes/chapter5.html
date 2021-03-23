@@ -85,7 +85,7 @@
     We need a way to work backwards from the Docker image we reference in our Octopus deployment to each of the elements that resulted in the image being created. This is where build information comes in.
 </p>
 <p>
-    Build information is a specially formatted JSON file containing metadata and links about a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the metadata it contains is contributed to the variables available to the deployment release notes.
+    Build information is a specially formatted JSON file containing metadata and relating to a package. The package can be hosted by Octopus in the built-in feed, or, as is the case with Docker images, can be hosted on an external feed. At deployment time Octopus matches the packages it references as part of a deployment with any available build information, and if matching build information is found, the metadata it contains is contributed to the variables available to the deployment release notes.
 </p>
 <p>
     Build information JSON files are created by one of the many CI plugins available for Octopus. However, in this example we'll see how to create a build information JSON file manually from a project hosted in GitHub and built with GitHub Actions.
@@ -97,7 +97,7 @@
     At the time of writing there is no official Octopus GitHub Actions plugin that can be used to create a build information JSON file.
 </p>
 <p>
-    Before we start pushing build information, we need to enable Octopus to parse commit messages looking for links to work items (or, as they are know in GitHub, issues). This is done through <b>Configuration -> Settings -> GitHub Issue Tracker</b>. By enabling this setting, GIT commit messages like <b>Updated the blah class to expose x. Fixes #123</b> will be parsed and the <b>Fixes #123</b> string is converted into a link to the GitHub issue number 123.
+    Before we start pushing build information, we need to enable Octopus to parse commit messages looking for links to work items (or, as they are known in GitHub, issues). This is done through <b>Configuration -> Settings -> GitHub Issue Tracker</b>. By enabling this setting, GIT commit messages like <b>Updated the blah class to expose x. Fixes #123</b> will be parsed and the <b>Fixes #123</b> string is converted into a link to the GitHub issue number 123.
 </p>
 <p>
     The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is built with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
@@ -289,7 +289,7 @@ run: >-
 <p>
     To make use of the build information, we create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Expand the <b>Release Notes Template</b> section, and paste in the following template:
 </p>
-<pre>
+<pre class="wrapPre">
 #{each package in Octopus.Release.Package}
 #{each commit in package.Commits}
 * [#{commit.CommitId}](#{commit.LinkUrl}) - #{commit.Comment}
