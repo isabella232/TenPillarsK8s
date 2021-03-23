@@ -744,7 +744,7 @@ spec:
               serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/development-purpleheader. 
+    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/development-purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/development-purpleheader. 
 </p>
 <p>
     Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the path of http://[reversed ip address].bc.googleusercontent.com/development.
