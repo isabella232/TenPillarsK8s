@@ -520,7 +520,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <pre>
 # Contact the HTTP API
-curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-development#{ContextPath}/api/quote > /dev/null
+curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Deployment.Id | ToLower}#{ContextPath}/api/quote > /dev/null
 
 # Fail if curl failed
 if [[ $? != 0 ]]; then
@@ -528,7 +528,7 @@ if [[ $? != 0 ]]; then
 fi;
 
 # Contact the web frontend
-curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-development#{ContextPath} > /dev/null
+curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Deployment.Id | ToLower}#{ContextPath} > /dev/null
 </pre>
 <p>
     Our integration and end-to-end tests also need to be updated to reflect the new service hostnames and path.
