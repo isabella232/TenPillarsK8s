@@ -579,14 +579,14 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
                 "method": "GET",
                 "header": [],
                 "url": {
-                    "raw": "http://webapp-canary-purpleheader-deployments-511.frontend-development/purpleheader/api/quote",
+                    "raw": "http://webapp-canary-purpleheader-deployments-511.frontend-development/development-purpleheader/api/quote",
                     "protocol": "http",
                     "host": [
                         "webapp-canary-purpleheader-deployments-511",
                         "frontend-development"
                     ],
                     "path": [
-                        "purpleheader",
+                        "development-purpleheader",
                         "api",
                         "quote"
                     ]
@@ -747,8 +747,12 @@ spec:
     With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/development-purpleheader. 
 </p>
 <p>
-    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[reversed ip address].bc.googleusercontent.com/development.
+    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the path of http://[reversed ip address].bc.googleusercontent.com/development.
 </p>
+<p>
+    The diagram below shows how a shared load balancer is now distributing traffic to multiple branches:
+</p>
+<div><img alt="Octopus environments" src="images/diagrams/feature-branches-networking.png"/></div>
 <p>
     Also note how the cleanup code doesn't cross the lines between individual feature branches and the mainline deployment. We can redeploy the feature branch image over and over, and the mainline deployment is not affected.
 </p>
