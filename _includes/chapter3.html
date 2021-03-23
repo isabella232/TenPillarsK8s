@@ -323,7 +323,7 @@
 </p>
 <p>
     The easiest way to install tools like NGINX in a Kubernetes cluster is with Helm. Helm is like an operating system
-    package manager, such as Chocolatey for Windows or APT for Ubuntu, with the obvious difference being Helm is used to
+    package manager, such as Chocolatey for Windows or Advanced Package Tool (APT) for Ubuntu, with the obvious difference being Helm is used to
     deploy applications into a Kubernetes cluster.
 </p>
 <p>
@@ -370,9 +370,8 @@
 </p>
 <h3>Canary deployments</h3>
 <p>
-    While the blue/green deployment strategy was easy to implement thanks to the checkbox exposed by the <b>Deploy
-        Kubernetes containers</b> step, it has the downside that the entire process is self contained and not
-    customizable. The process it implements is very similar to what we want to achieve in a canary deployment though. So
+    While the blue/green deployment strategy was easy to implement thanks to the checkbox exposed by the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not
+    customizable. The process the blue/green deployment strategy implements is very similar to what we want to achieve in a canary deployment though. So
     we'll go ahead and recreate the blue/green deployment strategy as individual steps in a deployment process.
 </p>
 <p>
@@ -393,9 +392,9 @@
     <li>Create a Kubernetes deployment resource with a unique name in the canary, or green, stack.</li>
     <li>Wait for the new deployment to pass its health checks and be available.</li>
     <li>Create a new, unique service to direct traffic to the pods in the green stack.</li>
-    <li>Create a temporary ingress to direct traffic to the green stacks.</li>
+    <li>Create a temporary ingress to direct traffic to the green stack.</li>
     <li>Incrementally increase the traffic directed to the green stack until it reaches 100%.</li>
-    <li>Update the main ingress to point traffic to the green stack.</li>
+    <li>Update the main ingress to point all traffic to the green stack.</li>
     <li>Delete the temporary ingress.</li>
     <li>Delete the old deployment resources in the blue stack.</li>
     <li>At the end of the deployment, the green stack is considered to be the blue stack.</li>
@@ -405,7 +404,7 @@
     load balancer service.
 </p>
 <p>
-    Previously we exposed each environment though its own unique load balancer service. This meant the load balancer IP
+    Previously we exposed each environment through its own unique load balancer service. This meant the load balancer IP
     determined which environment we accessed.
 </p>
 <p>
@@ -419,11 +418,11 @@
     environment, we'll open the URL http://[ingress controller load balancer]/test. And to access the production
     environment, we'll open the URL http://[ingress controller load balancer]/production.
 </p>
-<p>
-    This top level path in this URL is called the context path.
+<p class="note">
+    This top level path in this URL is called the <i>context path</i>.
 </p>
 <p>
-    Let's create a new project called <b>Random Quotes - Frontend - Canary</b>.
+    To see how this works in practice, let's create a new project called <b>Random Quotes - Frontend - Canary</b>.
 </p>
 <p>
     We'll start by defining a variable called <b>ContextPath</b>, which will resolve to a unique path for each
@@ -436,7 +435,7 @@
 <p>
     Import the following YAML in the <b>Deployment</b> section:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -479,15 +478,13 @@ spec:
 </pre>
 <p>
     Notice the deployment name is set to <b>webapp-canary-#{Octopus.Deployment.Id | ToLower}</b>. Generating a unique
-    name with each deployment replicates the functionality that Octopus provides automatically when performing a
+    name with each deployment replicates the functionality that Octopus provided automatically when performing a
     blue/green deployment.
 </p>
 <p>
-    We also need to configure the Spring web application so it can respond to requests while being hosted under a new
+    We also need to configure the Spring web application to respond to requests while being hosted under a new
     subdirectory. Spring (and most Java applications) refer to the base URL that they are deployed under as the context
-    path. Spring reads the <b>SERVER_SERVLET_CONTEXT_PATH</b> environment variable to configure the context path, so
-    open the <b>Deploy Kubernetes containers</b> step, edit the container, and add an environment variable called
-    <b>SERVER_SERVLET_CONTEXT_PATH</b> with the value <b>#{ContextPath}</b>.
+    path. Spring reads the <b>SERVER_SERVLET_CONTEXT_PATH</b> environment variable to configure the context path, which is now set to the <b>ContextPath</b> variable we created earlier.
 </p>
 <p>
     Otherwise the configuration of this deployment is the same as we configured previously.
@@ -511,7 +508,7 @@ spec:
     octopusexport: OctopusExport
 </pre>
 <p>
-    Again we have given this service a unique name, ensuring each time we deploy this project with Octopus a new service
+    Again we have given this resource a unique name, ensuring each time we deploy this project with Octopus a new service
     will be created.
 </p>
 <p>
@@ -547,7 +544,7 @@ fi;
 curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath} > /dev/null
 </pre>
 <p>
-    The integration and end-to-end tests have their URLs updated via the variables used by the structured variable
+    The integration and end-to-end tests have their URLs modified via the variables used by the structured variable
     replacement feature. The new variables will be set to:
 </p>
 <ul>
@@ -561,16 +558,16 @@ curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Oct
 <p>
     We also need to update the path array in the Postman integration test JSON, which is set to <b>"path":
         ["api","quote"]</b>. This array now needs to include the context path, meaning the array needs to look like
-    <b>["/#{Octopus.Environment.Name | ToLower}","api","quote"]</b>.
+    <b>["#{Octopus.Environment.Name | ToLower}","api","quote"]</b>.
 </p>
 <p>
     We can achieve this by using structured configuration variables to replace the entire array rather than replacing
     individual items inside it. Create a new variable called <b>item:0:request:url:path</b> and set the value to
     <b>["#{Octopus.Environment.Name | ToLower}", "api", "quote"]</b>. This builds up a JSON array, and replaces the
-    exiting array with the new values.
+    existing array with the new values.
 </p>
 <p>
-    The result of these new variable values means the Postman JSON file will look like this after processing:
+    The result of these new variables means the Postman JSON file will look like this after processing:
 </p>
 <pre>
 {
@@ -624,7 +621,7 @@ curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Oct
 <p class="note">
     Replacing two values and regenerating an array is arguably pushing the limits of the transforms you would expect to
     perform as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured
-    variables replacements. However, the more changes you make to a template, the more risk you run that your injected
+    variable replacements. However, the more changes you make to a template, the more risk you run that your injected
     values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be
     passed in as command line arguments to <b>newman</b>, which is a more robust solution for creating environment
     agnostic tests.
