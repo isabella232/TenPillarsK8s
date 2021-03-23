@@ -47,7 +47,7 @@
     However, these metrics are quite broad and cover the spectrum of the CI/CD pipeline, as well as encompassing maintenance tasks outside of deployments. This means we'll need to apply some interpretation to the metrics to find meaningful measurements relating to the deployment process.
 </p>
 <p>
-    <i>Deployment frequency</i> is an easy win for us. Given Octopus performs the deployments, we have all the information to know how frequently our production environment is updated.
+    <i>Deployment frequency</i> is an easy win for us. Given Octopus performs the deployments, we have all the information required to know how frequently our production environment is updated.
 </p>
 <p>
     <i>Lead time for changes</i> takes into account the duration from the a commit to source control to a deployment in production. This requires visibility across the source control, CI and CD systems, which is not available in this Grafana plugin. However, from a deployment point of view we can consider the time between when a release is created, and when it is deployed into production. We've called this metric the <i>lead time for releases</i>.
@@ -56,10 +56,10 @@
     <i>Time to restore service</i> is another broad metric that spans many different systems. A service may become unavailable for any number of reasons not related to a deployment such as hardware failure, networking issues, power outages etc. A comprehensive measurement of this metric would likely be found by analyzing the data in a help desk ticketing system to track the time between a critical issue being raised and resolved, or a monitoring system that can directly track the uptime of systems. Bringing this concept back to deployments though, we can consider the time it takes to go from an unsuccessful deployment to a successful one. This measurement has more weight if our deployment processes have robust tests associated with them to ensure what was deployed represents a working system, as we described in <a href="#chapter2">chapter 2</a>. We've called this metric the <i>time to recover deployment</i>.
 </p>
 <p>
-    <i>Change failure rate</i> is also a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> as a way of determining how many deployments were performed solely for the purpose of restoring our production environment.
+    <i>Change failure rate</i> is also encompasses a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> as a way of determining how many deployments were performed solely for the purpose of restoring our production environment.
 </p>
 <p>
-    Now that we have some meaningful measurements to make on our deployments, we can configure a Grafana dashboard to present them in real time.
+    Now that we have some meaningful measurements to make against our deployments, we can configure a Grafana dashboard to present them in real time.
 </p>
 <h2>Creating a Grafana service account</h2>
 <p>
@@ -116,7 +116,7 @@
 </p>
 <h2>Deploying Grafana to Kubernetes</h2>
 <p>
-    Octopus provides a Docker image called <b>octopussamples/grafana</b> which includes the Octopus Grafana plugin configured in Grafana. We'll deploy this image into our cluster to give us a quick and easy way to access a Grafana instance.
+    Octopus provides a Docker image called <b>octopussamples/grafana</b> which includes the Octopus Grafana plugin already installed. We'll deploy this image into our cluster to give us a quick and easy way to access a Grafana instance.
 </p>
 <p class="note">
     We'll configure the bare minimum here to get a Grafana instance up and running. The result won't address any concerns around high availability or data persistence of the Grafana application.
