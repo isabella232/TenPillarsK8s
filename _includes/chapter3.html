@@ -540,10 +540,10 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     The value of the raw url is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>. So we update the <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
-    The last configuration change is to update the path array which is set to <b>"path": ["api","quote"]</b>. If we are testing a feature branch, this array will need to be <b>["#{PackagePreRelease}","api","quote"]</b>. If we are not testing a feature branch, this array should remain as it is.
+    The last configuration change is to update the path array which is set to <b>"path": ["api","quote"]</b>. If we are testing a feature branch, this array will need to be <b>["/#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}-#{PackagePreRelease}#{/if}","api","quote"]</b>.
 </p>
 <p>
-    We can achieve this by using structured configuration variables to replace the entire array rather than replacing individual items inside it. Create a new variable called <b>item:0:request:url:path</b> and set the value to <b>[#{if PackagePreRelease}"#{PackagePreRelease}", #{/if}"api", "quote"]</b>. This builds up a JSON array, where the first element is only defined if <b>PackagePreRelease</b> is not an empty string.
+    We can achieve this by using structured configuration variables to replace the entire array rather than replacing individual items inside it. Create a new variable called <b>item:0:request:url:path</b> and set the value to <b>["#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}-#{PackagePreRelease}#{/if}", "api", "quote"]</b>. This builds up a JSON array, and replaces the exiting array with the new values.
 </p>
 <p>
     The end result of these variable changes is that the Postman JSON file looks like this at deployment time:
