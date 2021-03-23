@@ -22,7 +22,7 @@
     <p>Rather than investing time and energy into rollback planning, an alternative is to follow an approach that keeps you moving forward.</p>
 </blockquote>
 <p>
-    The Octopus blog post Pitfalls with SQL rollbacks and automated database deployments has this advice:
+    The Octopus blog post "Pitfalls with SQL rollbacks and automated database deployments" has this advice:
 </p>
 <blockquote>
     <p>More often than not, the effort to successfully rollback a deployment far exceeds the effort it would take to push a fix to production.</p>
@@ -88,7 +88,7 @@
 <p>
     Kubernetes provides the ability to roll back a deployment, statefulset, and daemonset. The command below will roll back the changes of a deployment called <b>mydeployment</b> to a previous version:
 </p>
-<pre>
+<pre class="wrapPre">
 kubectl rollout undo deployment.v1.apps/mydeployment
 </pre>
 <p>
