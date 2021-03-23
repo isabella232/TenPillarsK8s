@@ -110,27 +110,27 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     Also, because opinionated steps like <b>Deploy Kubernetes containers</b> ensure coupled resources like deployments, configmaps, and secrets are recreated in a way that ensures each deployment has access to the supporting resources it needs, we know that the entire stack of Kubernetes resources have been rolled back.
 </p>
 <p>
-    Go to the <b>Random Quotes - Frontend</b> application and click the <b>Overview</b> link. Notice that the dashboard shows the current and previous deployments. Click the one of the previous deployments, open the hamburger menu, and select the <b>Re-deploy</b> option:
+    Go to the <b>Random Quotes - Frontend</b> application and click the <b>Overview</b> link. Notice that the dashboard shows the current and previous deployments. Click one of the previous deployments, open the hamburger menu, and select the <b>Re-deploy</b> option:
 </p>
 <div><img alt="Redeploy" src="images/octopus/redeploy.png"/></div>
 <p>
     You can then redeploy the old release back to the selected environment, effectively performing a deployment roll back.
 </p>
 <p>
-    Rolling back via the redeployment of an old release also work with the more advanced strategies like blue/green and canary. If you recall from <a href="#chapter3">chapter 3</a> we always left a blue/green or canary deployment in a state where the green stack was the stack that end users had access to. This means rollbacks implementing blue/green or canary deployments will continue to work as expected, only now the blue stack is deploying a previous image or associated configuration.
+    Rolling back via the redeployment of an old release also works with the more advanced strategies like blue/green and canary. If you recall from <a href="#chapter3">chapter 3</a> we always left a blue/green or canary deployment in a state where the green stack was the stack that end users had access to. This means rollbacks implementing blue/green or canary deployments will continue to work as expected, only now the green (or canary) stack is deploying a previous image or associated configuration.
 </p>
 <h2>Rolling forward with hotfixes</h2>
 <p>
-    An opinion of Octopus in general is that deployments progress through environments before reaching production. This is sensible when performing typical deployments, but when your production environment is on fire from a bad deployment and you need to roll forward quickly, it can be useful to deploy a hot fix directly to production.
+    An opinion of Octopus in general is that deployments progress through environments before reaching production. This is sensible when performing typical deployments, but when your production environment is on fire after a bad deployment and you need to roll forward quickly, it can be useful to deploy a hotfix directly to production.
 </p>
 <p>
-    A hot fix is typically a small change to code or configuration designed to address a very specific issue in a production environment. If your production environment is down and restoring it is the highest priority, deploying a hot fix directly to the <b>Production</b> environment makes sense.
+    A hotfix is typically a small change to code or configuration designed to address a very specific issue in a production environment. If your production environment is down and restoring it is the highest priority, deploying a hotfix directly to the <b>Production</b> environment makes sense.
 </p>
 <p>
     As we saw in <a href="#chapter3">chapter 3</a>, channels allow deployments to follow a custom lifecycle, and so we'll add a new channel rule to allow us to deploy directly to production if needed.
 </p>
 <p>
-    We'll start by creating a new lifecycle called <b>Hotfix</b>. Unlike our other lifecycles, this lifecycle will have one phase called <b>Any environment</b>. We then add the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments to this phase. By adding all environment to a single phase, we have created a lifecycle in which a release can be promoted to any environment without first being deployed to any previous environment.
+    We'll start by creating a new lifecycle called <b>Hotfix</b>. Unlike our other lifecycles, this lifecycle will have one phase called <b>Any environment</b>. We then add the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments to this phase. By adding all environments to a single phase, we have created a lifecycle in which a release can be promoted to any environment without first being deployed to any previous environment.
 </p>
 <p>
     Back in our deployment project, add a new channel called <b>Hotfix</b>, select the <b>Hotfix</b> lifecycle, and save the changes.
@@ -140,7 +140,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
 </p>
 <div><img alt="Hotfix" src="images/octopus/hotfixdeployment.png"/></div>
 <p>
-    A hotfix channel gives us the ability to push a release to any environment. If we still need some verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is also an option.
+    A hotfix channel gives us the ability to push a release to any environment. If we still need some verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is now an option.
 </p>
 <h2>Conclusion</h2>
 <p>
