@@ -700,7 +700,7 @@ exit ${RESULT}
     If the test succeeded and a HTML report file called <b>mochawesome.html</b> was generated, we then make use of the <b>inline-assets</b> tool to take the HTML report file and merge it, and all of its external CSS and JavaScript files, into a self contained HTML file called <b>selfcontained.html</b>. The self contained report file is then attached to the Octopus deployment as an artifact by calling <b>new_octopusartifact</b>.
 </p>
 <p class="note">
-    We build the self contained HTML report to overcome a limitation in the way Octopus saves artifacts. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content, where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
+    We build the self contained HTML report to overcome a limitation in the way Octopus saves artifacts. Each individual artifact is saved at a URL like http://octopusserver/api/Spaces-1/artifacts/Artifacts-1/content or http://octopusserver/api/Spaces-1/artifacts/Artifacts-2/content, where each artifact has its own unique path. This means if we attached the HTML file and its external data files as individual artifacts, each artifact would have a different directory, and opening the HTML file would fail as it expected to load its data files relative to its own URL. By building a self contained HTML file, we can upload it as a single artifact, and open it directly from the Octopus web console.
 </p>
 <p>
     Cypress will automatically generate screenshots to capture the browser's display in the event of a failed test. These screenshots are saved in the directory <b>cypress/screenshots/sample_spec.js</b>. If this directory exists we'll zip up the screenshots and attach the archive as an artifact. This allows us to debug the test in the event of a failure.
@@ -709,7 +709,7 @@ exit ${RESULT}
     We then exit the step using the exit code from the call to <b>cypress</b>. If the test failed, this exit code will be a non-zero value, and the Octopus step will also fail.
 </p>
 <p>
-    Deploy the <b>Deploy Random Quotes - Frontend</b> project again. If the Cypress tests were successful, an artifact called <b>selfcontained.html</b> will be shown under the deployment <b>TASK SUMMARY</b> tab. This artifact can be opened directly from the link to view the results of the test:
+    Deploy the <b>Deploy Random Quotes - Frontend</b> project again. If the Cypress tests were successful, an artifact called <b>selfcontained.html</b> is be shown under the deployment <b>TASK SUMMARY</b> tab. This artifact can be opened directly from the link to view the results of the test:
 </p>
 <div><img alt="Octopus environments" src="images/octopus/cypress-report.png"/></div>
 <p>
@@ -733,32 +733,44 @@ FROM cypress/included:6.6.0
 RUN apt-get update; apt-get install -y libicu63
 RUN npm install -g inline-assets
 # This is the start of the tentacle install
-RUN curl -L https://download.octopusdeploy.com/linux-tentacle/tentacle-6.0.490-linux_x64.tar.gz --output tentacle-linux_x64.tar.gz
+RUN curl -L \
+    https://download.octopusdeploy.com/linux-tentacle/tentacle-6.0.490-linux_x64.tar.gz \
+    --output tentacle-linux_x64.tar.gz
 RUN mkdir /opt/octopus
 RUN tar xvzf tentacle-linux_x64.tar.gz -C /opt/octopus
 RUN echo '#!/bin/bash' > /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle create-instance --instance "Worker" \
-    --config "/etc/octopus/Worker/tentacle-Worker.config"' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle new-certificate --instance "Worker" \
-    --if-blank' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle configure --instance "Worker" \
+RUN echo '/opt/octopus/tentacle/Tentacle create-instance \
+    --instance "Worker" \
+    --config "/etc/octopus/Worker/tentacle-Worker.config"' \
+    >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle new-certificate \
+    --instance "Worker" \
+    --if-blank' \
+    >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle configure \
+    --instance "Worker" \
     --app "/home/Octopus/Applications" \
-    --noListen "True" --reset-trust' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle register-worker --instance "Worker" \
+    --noListen "True" --reset-trust' \
+    >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle register-worker \
+    --instance "Worker" \
     --force --server "${ServerUrl}" \
     --name `hostname` \
     --comms-style "TentacleActive" \
     --server-comms-port "10943" \
     --apiKey "${ServerApiKey}" \
     --space "${Space}" \
-    --workerpool "${TargetWorkerPool}"' >> /opt/configure.sh
-RUN echo '/opt/octopus/tentacle/Tentacle agent --noninteractive --instance "Worker"' >> /opt/configure.sh
+    --workerpool "${TargetWorkerPool}"' \
+    >> /opt/configure.sh
+RUN echo '/opt/octopus/tentacle/Tentacle agent \
+    --noninteractive \
+    --instance "Worker"' >> /opt/configure.sh
 RUN chmod +x /opt/configure.sh
 ENTRYPOINT []
 CMD ["/opt/configure.sh"]
 </pre>
 <p>
-    The commands in this Dockerfile up to the point of the <b>curl</b> command are the same as we defined in the previous section when building a Cypress container image. Refer to the previous section for more details on these commands.
+    The commands in this Dockerfile, up to the point of the <b>curl</b> command, are the same as we defined in the previous section when building a Cypress container image. Refer to the previous section for more details on these commands.
 </p>
 <p>
     The <b>curl</b> command downloads a copy of the Linux tentacle archive. We then create a directory called <b>/opt/octopus</b> and extract the TAR file into it.
@@ -812,7 +824,7 @@ Press enter to continue...
     Finally we set the script <b>/opt/configure.sh</b> to be run when the container is started. This will configure the tentacle and run it.
 </p>
 <p>
-    To deploy the worker, configure a <b>Deploy Kubernetes containers</b> step with the YAML shown below, replacing the <b>ServerUrl</b> and <b>Space</b> environment variable to your own Octopus server and space. Note that this container does not have the <b>privileged</b> option set, and disables Docker-in-Docker by setting the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
+    To deploy the worker, configure a <b>Deploy Kubernetes containers</b> step with the YAML shown below, replacing the <b>ServerUrl</b> and <b>Space</b> environment variables with your own Octopus server and space. Note that this container does not have the <b>privileged</b> option set, and disables Docker-in-Docker by setting the <b>DISABLE_DIND</b> environment variable to <b>Y</b>:
 </p>
 <p class="note">
     We have used the system variable <b>Octopus.Space.Name</b> in the example below assuming the workers are being deployed to the same space the runbook is run from.
@@ -880,9 +892,11 @@ spec:
 <p>
     Modifying the front end smoke test is easy as this is an inline script. Update the script to reference the environment name as a variable, like so:
 </p>
-<pre>
+<pre class="wrapPre">
 # Contact the HTTP API
-curl -sSf http://webapp.frontend-#{Octopus.Environment.Name | ToLower}/api/quote > /dev/null
+curl -sSf \
+    http://webapp.frontend-#{Octopus.Environment.Name | ToLower}/api/quote \
+    > /dev/null
 
 # Fail if curl failed
 if [[ $? != 0 ]]; then
@@ -890,12 +904,14 @@ if [[ $? != 0 ]]; then
 fi;
 
 # Contact the web frontend
-curl -sSf http://webapp.frontend-#{Octopus.Environment.Name | ToLower} > /dev/null
-</pre>
+curl -sSf \
+    http://webapp.frontend-#{Octopus.Environment.Name | ToLower} \
+    > /dev/null
+</pre class="wrapPre">
 <p>
     The backend smoke test is likewise updated with the following script:
 </p>
-<pre>
+<pre class="wrapPre">
 export PGPASSWORD=#{DatabasePassword}
 psql \
     -U postgres \
@@ -966,7 +982,7 @@ psql \
     The syntax we used to create the property <b>item:0:request:url:raw</b> is unique to Octopus, so let's explain each element.
 </p>
 <p>
-    The property is broken down by colons into five items: <b>item</b>, <b>0,</b>, <b>request</b>, <b>url</b>, and <b>raw</b>.
+    The property is broken down by colons into five items: <b>item</b>, <b>0</b>, <b>request</b>, <b>url</b>, and <b>raw</b>.
 </p>
 <p>
     The first element of <b>item</b> refers to the array of the same name in the JSON file.
@@ -984,13 +1000,13 @@ psql \
     JSON objects are identified by curly brackets.
 </p>
 <p>
-    We also need to update the <b>item:0:request:url:host:1:</b> to <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+    We also need to update the <b>item:0:request:url:host:1</b> to <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
 </p>
 <p>
-    To configure Octopus to make these changes for us we need to create three variables. The first will have the name <b>item:0:request:url:raw</b> and the value <b>http://webapp.frontend-#{Octopus.Environment.Name | ToLower}</b>. The second will have the name <b>item:0:request:url:host:1</b> and the value <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
+    To configure Octopus to make these changes for us we need to create two variables. The first will have the name <b>item:0:request:url:raw</b> and the value <b>http://webapp.frontend-#{Octopus.Environment.Name | ToLower}</b>. The second will have the name <b>item:0:request:url:host:1</b> and the value <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.
 </p>
 <p>
-    Then in the script step that is running the integration test, click the <b>CONFIGURE FEATURES</b> button, select the <b>Structured Configuration Variables</b> option, and save the changes.
+    Then, in the script step that is running the integration test, click the <b>CONFIGURE FEATURES</b> button, select the <b>Structured Configuration Variables</b> option, and save the changes.
 </p>
 <p>
     This will display a new section in the step called <b>Structured Configuration Variables</b>. We then list the files that we want Octopus to process in the target files text box. We can enter <b>IntegrationTest/*.json</b> to have Octopus attempt to inject any the values of the two variables we created earlier into any JSON file found from the <b>IntegrationTest</b> additional package reference. The wildcard syntax means our file called <b>RandomQuotes.postman_collection.json</b> will be matched and processed.
