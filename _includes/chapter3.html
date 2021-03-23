@@ -650,7 +650,7 @@ curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Oct
     step allows YAML to be directly imported. The YAML below defines the ingress required to direct 50% of traffic to
     the green stack:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -691,7 +691,7 @@ spec:
 <p>
     So at this point we will pause the deployment and wait for confirmation that we can direct more traffic to the green
     stack. In Octopus this is achieved with a <b>Manual Intervention Required</b> step. Add a new <b>Manual Intervention
-        Required</b> step and set the instructions to <b>Do you wish to increase the canary traffic to 100%?</b>. When
+        Required</b> step and set the instructions to <b>Do you wish to increase the canary traffic to 100%?</b> When
     this step is reached in a deployment, Octopus will pause and wait for an operator to approve the decision to direct
     the remaining traffic to the green stack.
 </p>
@@ -700,7 +700,7 @@ spec:
     ingress resource with a second <b>Deploy Kubernetes ingress resource</b> step. The YAML for this step is shown
     below:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -720,7 +720,7 @@ spec:
     We now have two ingress rules, both directing traffic to the green stack. The temporary canary ingress is no longer
     required, so this is deleted with a <b>Run a kubectl CLI Script</b> step that has the following script:
 </p>
-<pre>
+<pre class="wrapPre">
 kubectl delete ingress webapp-canary-#{Octopus.Deployment.Id | ToLower}
 </pre>
 <p>
@@ -745,7 +745,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     <li><b>Octopus.Deployment.Tenant.Id=#{unless Octopus.Deployment.Tenant.Id}untenanted#{/unless}#{if
             Octopus.Deployment.Tenant.Id}#{Octopus.Deployment.Tenant.Id | ToLower}#{/if}</b> matches resources created
         for the same tenant.</li>
-    <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were <b>not</b> created
+    <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were <u>not</u> created
         by the current deployment, which means it only matches resources created by previous deployments.</li>
 </ul>
 <p class="note">
@@ -767,7 +767,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
 <p>
     The script is then set to:
 </p>
-<pre>
+<pre class="wrapPre">
 kubectl delete ingress -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLower}
 
 kubectl delete service -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToLower}
