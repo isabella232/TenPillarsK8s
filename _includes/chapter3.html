@@ -807,12 +807,12 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <div><img alt="Octopus environments" src="images/kubernetes/canary5.png" /></div>
 <h3>Feature branch deployments</h3>
 <p>
-    Conceptually, deploying feature branches is easy, as all it involves is deploying a new container built from a
+    Conceptually, deploying feature branches is easy to understand, as all it involves is deploying a new container built from a
     feature branch side by side with the container built from the mainline branch. In this section we will extend the
     canary deployment process described above to allow multiple feature branches to be deployed side by side.
 </p>
 <p>
-    In practice feature branches would likely use the recreation strategy in test environments, because internal testers
+    In practice feature branches would likely use the recreate strategy in test environments, because internal testers
     are not likely to be impacted all that much by momentary downtime of a feature branch release. However, given canary
     deployments are one of the most complex deployment strategies you can implement, if we can get feature branches
     working with canary deployments, we can get them working anywhere.
@@ -860,8 +860,8 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
     string.
 </p>
 <p>
-    We also want to expose the feature branch name as a URL path component. Create a variable called <b>ContextPath</b>
-    and set it to the value of <b>/#{Octopus.Environment.Name | ToLower}#{if
+    We also want to expose the feature branch name as a URL path component. Update the variable called <b>ContextPath</b>
+    and with the value of <b>/#{Octopus.Environment.Name | ToLower}#{if
         PackagePreRelease}-#{PackagePreRelease}#{/if}</b>. Here we expose the different environments though a shared
     hostname by ensuring they have unique paths based on the environment name. Then, like the <b>ServiceSuffix</b>
     variable, <b>ContextPath</b> will append empty string if <b>PackagePreRelease</b> is an empty string. Otherwise
@@ -870,7 +870,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <p>
     The smoke test needs to be updated with the new URLs for the feature branch tests. Set the script to:
 </p>
-<pre>
+<pre class="wrapPre">
 # Contact the HTTP API
 curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}/api/quote > /dev/null
 
@@ -887,28 +887,19 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
 </p>
 <p>
     The value of the host array used by Postman is set to <b>"host": ["webapp","frontend-development"]</b>. The first
-    item in this array needs to be changed to <b>"host": ["webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id |
-        ToLower}","frontend-development"]</b>. So we update the variable called <b>item:0:request:url:host:0</b> to
-    <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>.
+    item in this array needs to be changed to <b>"host": ["webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}","frontend-development"]</b>. So we update the variable called <b>item:0:request:url:host:0</b> to <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>.
 </p>
 <p>
     The value of the raw url is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be
-    changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id |
-        ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>. So we update the
-    <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id |
-        ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
+    changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>. So we update the <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
-    The path array which is set to <b>"path": ["api","quote"]</b>. If we are testing a feature branch, this array will
-    need to be <b>["/#{Octopus.Environment.Name | ToLower}#{if
-        PackagePreRelease}-#{PackagePreRelease}#{/if}","api","quote"]</b>. So update the variable
-    <b>item:0:request:url:path</b> and set the value to <b>["#{Octopus.Environment.Name | ToLower}#{if
-        PackagePreRelease}-#{PackagePreRelease}#{/if}", "api", "quote"]</b>.
+    The path array which is set to <b>"path": ["api","quote"]</b>. This array will need to be <b>["/#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}-#{PackagePreRelease}#{/if}","api","quote"]</b>. So update the variable <b>item:0:request:url:path</b> and set the value to <b>["#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}-#{PackagePreRelease}#{/if}", "api", "quote"]</b>.
 </p>
 <p>
     The end result of these variable changes is that the Postman JSON file looks like this at deployment time:
 </p>
-<pre>
+<pre class="wrapPre">
 {
     "info": {
         "_postman_id": "2c6a5ce5-e2af-4f23-ab6c-172d0dfa3797",
@@ -963,13 +954,6 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
         ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
-    We now need to configure the Spring web application so it can respond to requests while being hosted under a new
-    subdirectory. Spring (and most Java applications) refer to the base URL that they are deployed under as the context
-    path. Spring reads the <b>SERVER_SERVLET_CONTEXT_PATH</b> environment variable to configure the context path, so
-    open the <b>Deploy Kubernetes containers</b> step, edit the container, and add an environment variable called
-    <b>SERVER_SERVLET_CONTEXT_PATH</b> with the value <b>#{ContextPath}</b>.
-</p>
-<p>
     We need a new label on our Kubernetes resources to identify the feature branch they belong to. In the <b>Deploy
         Kubernetes containers</b> step, expand the <b>Deployment</b> section and add a label called <b>FeatureBranch</b>
     with the value of <b>#{PackagePreRelease}</b>. This will add that label to the deployment and service resource
@@ -984,7 +968,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     Or, if you prefer, copy and paste the deployment YAML below. Labels defined on the deployment resource will be read
     by the <b>Deploy Kubernetes containers</b> step and applied to all resources created by the step:
 </p>
-<pre>
+<pre class="wrapPre"> 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1048,10 +1032,10 @@ spec:
     octopusexport: OctopusExport
 </pre>
 <p>
-    When cleaning up old resources, we only want to delete those resources that were previous created for the feature
+    When cleaning up old resources, we only want to delete those resources that were previously created for the feature
     branch we are deploying. To delete the temporary ingress, the script changes to this:
 </p>
-<pre>
+<pre class="wrapPre">
 kubectl delete ingress webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}
 </pre>
 <p>
@@ -1074,7 +1058,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     of the service they direct traffic to, and configure the HTTP path they match. The YAML for the temporary canary
     ingress resource is:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -1099,7 +1083,7 @@ spec:
 <p>
     The YAML for the main ingress resource is:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
