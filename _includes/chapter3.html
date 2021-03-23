@@ -520,7 +520,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <pre>
 # Contact the HTTP API
-curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}/api/quote > /dev/null
+curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}/api/quote > /dev/null
 
 # Fail if curl failed
 if [[ $? != 0 ]]; then
@@ -528,7 +528,7 @@ if [[ $? != 0 ]]; then
 fi;
 
 # Contact the web frontend
-curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath} > /dev/null
+curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if} > /dev/null
 </pre>
 <p>
     Our integration and end-to-end tests also need to be updated to reflect the new service hostnames and path.
@@ -537,7 +537,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     The value of the host array used by Postman is set to <b>"host": ["webapp","frontend-development"]</b>. The first item in this array needs to be changed to <b>"host": ["webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}","frontend-development"]</b>. So we update the variable called <b>item:0:request:url:host:0</b> to <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>.
 </p>
 <p>
-    The value of the raw url is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b>. So we update the <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}</b>.
+    The value of the raw url is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>. So we update the <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
     The last configuration change is to update the path array which is set to <b>"path": ["api","quote"]</b>. If we are testing a feature branch, this array will need to be <b>["#{PackagePreRelease}","api","quote"]</b>. If we are not testing a feature branch, this array should remain as it is.
@@ -601,7 +601,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     Replacing two values and regenerating an array is arguably pushing the limits of the transforms you would expect to perform as part of a deployment. We've implemented these changes here to demonstrate the flexibility of structured variables replacements. However, the more changes you make to a template, the more risk you run that your injected values diverge from the underlying JSON file. Postman has the ability to define its own variables which can be passed in as command line arguments to <b>newman</b>, which is a more robust solution for creating environment agnostic tests.
 </p>
 <p>
-    The base URL used by our Cypress test needs to be updated, so set the value of the <b>baseUrl</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}/#{PackagePreRelease}#{/if}</b>.
+    The base URL used by our Cypress test needs to be updated, so set the value of the <b>baseUrl</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
     We now need to configure the Spring web application so it can respond to requests while being hosted under a new subdirectory. Spring (and most Java applications) refer to the base URL that they are deployed under as the context path. Spring reads the <b>SERVER_SERVLET_CONTEXT_PATH</b> environment variable to configure the context path, so open the <b>Deploy Kubernetes containers</b> step, edit the container, and add an environment variable called <b>SERVER_SERVLET_CONTEXT_PATH</b> with the value <b>/#{PackagePreRelease}</b>.
@@ -644,7 +644,7 @@ spec:
               containerPort: 5555
           env:
             - name: SERVER_SERVLET_CONTEXT_PATH
-              value: '/#{PackagePreRelease}'
+              value: '#{ContextPath}'
             - name: SPRING_CONFIG_NAME
               value: postgres-application
             - name: POSTGRES_USER
