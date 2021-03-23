@@ -513,7 +513,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
     To accommodate this we create a variable called <b>ServiceSuffix</b> set to the value of <b>#{if PackagePreRelease}-#{PackagePreRelease}#{/if}</b>. This variable syntax says that if the <b>PackagePreRelease</b> has any value, <b>ServiceSuffix</b> is set to a dash and then the value of <b>PackagePreRelease</b>. If <b>PackagePreRelease</b> is an empty string, <b>ServiceSuffix</b> is also an empty string.
 </p>
 <p>
-    We also want to expose the feature branch name as a URL path component. Create a variable called <b>ContextPath</b> and set it to the value of <b>#{if PackagePreRelease}/#{PackagePreRelease}#{/if}</b>. Like the <b>ServiceSuffix</b> variable, <b>ContextPath</b> will be an empty string if <b>PackagePreRelease</b> is an empty string. Otherwise <b>ContextPath</b> is set to a slash and then the value of <b>PackagePreRelease</b>.
+    We also want to expose the feature branch name as a URL path component. Create a variable called <b>ContextPath</b> and set it to the value of <b>/#{Octopus.Environment.Name | ToLower}#{if PackagePreRelease}-#{PackagePreRelease}#{/if}</b>. Here we expose the different environments though a shared hostname by ensuring they have unique paths based on the environment name. Then, like the <b>ServiceSuffix</b> variable, <b>ContextPath</b> will append empty string if <b>PackagePreRelease</b> is an empty string. Otherwise <b>ContextPath</b> is appended with a dash and then the value of <b>PackagePreRelease</b>.
 </p>
 <p>
     The smoke test needs to be updated with the new URLs for the feature branch tests. Set the script to:
@@ -716,7 +716,7 @@ spec:
     - host: '#{Hostname}'
         http:
         paths:
-            - path: '/#{PackagePreRelease}'
+            - path: '#{ContextPath}'
             backend:
                 servicePort: web
                 serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
@@ -738,16 +738,16 @@ spec:
     - host: '#{Hostname}'
       http:
         paths:
-          - path: '/#{PackagePreRelease}'
+          - path: '#{ContextPath}'
             backend:
               servicePort: web
               serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/purpleheader. 
+    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This will deploy the container under the subpath of <b>/purpleheader</b>, for example http://[reversed ip address].bc.googleusercontent.com/development-purpleheader. 
 </p>
 <p>
-    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[reversed ip address].bc.googleusercontent.com/.
+    Now deploy a mainline version like <b>0.1.9</b>. Because there is no prerelease component to this version, it is not considered a feature branch, and the deployment will be exposed on the root path of http://[reversed ip address].bc.googleusercontent.com/development.
 </p>
 <p>
     Also note how the cleanup code doesn't cross the lines between individual feature branches and the mainline deployment. We can redeploy the feature branch image over and over, and the mainline deployment is not affected.
