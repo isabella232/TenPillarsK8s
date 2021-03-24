@@ -22,7 +22,7 @@
     Return to the <b>Create Kubernetes Worker</b> runbook, and open the <b>Deploy Kubernetes container</b> step defined as the runbook process. In the step hamburger menu select the <b>Extract Step Template</b> option. The main contents of the step will now simply say <b>This step is based on a custom Deploy Kubernetes Worker step template</b>, with a link to the newly created step template. Save the runbook and click the step template link.
 </p>
 <p>
-    A step template contains all the fields found in the deployment process step it is based on. It also includes a <b>PARAMETERS</b> tab that exposes customizable parameters to be defined when the step template is included in a deployment process. The parameters are used very much like regular Octopus variables in that they are used populate the steps fields. In this way we can hard code common values, and expose those values that are defined on a step by step basis.
+    A step template contains all the fields found in the deployment process step it is based on. It also includes a <b>PARAMETERS</b> tab that exposes customizable parameters to be defined when the step template is included in a deployment process. The parameters are used very much like regular Octopus variables in that they are used as values in the step's fields. In this way we can hard code common values, and expose those values that are defined on a step by step basis.
 </p>
 <p>
     Under the <b>PARAMETERS</b> tab, click the <b>ADD PARAMETER</b> button, and add the following parameters:
@@ -53,7 +53,7 @@
 </p>
 <div><img alt="Time to recovery" src="images/octopus/k8s-step-template.png"/></div>
 <p>
-    Notice that the <b>Usage</b> link has a orange icon with <b>1</b> next to it. This indicates that one step references an old version of this step template, and needs to be updated. Click the <b>Usages</b> link and click the <b>UPDATE...</b> button. A dialog will be presented to let us know that the new step template has additional parameters in the new version, and provides an opportunity to populate the missing fields. We'll leave these missing fields empty for now and click the <b>UPDATE STEPS USING DEFAULT VALUES</b> button. With the update done, we can click on the <b>Step</b> clink to be taken to the step implementing the step template.
+    Notice that the <b>Usage</b> link has a orange icon with <b>1</b> next to it. This indicates that one step references an old version of this step template, and needs to be updated. Click the <b>Usages</b> link and click the <b>UPDATE...</b> button. A dialog will be presented to let us know that the new step template has additional parameters in the new version, and provides an opportunity to populate the missing fields. We'll leave these missing fields empty for now and click the <b>UPDATE STEPS USING DEFAULT VALUES</b> button. With the update done, we can click on the <b>Step</b> link to be taken to the step implementing the step template.
 </p>
 <p>
     Populate values for all the parameters now exposed by the step. You can find the values from <a href="#chapter2">chapter 2</a>. Save the changes made to the step.
@@ -81,7 +81,7 @@
     The step template we created above exposed a number of simple text fields as parameters. This is fine in most cases, but a special case may be where we want to allow the user of the step template to select the package/image. For example, we might want to allow the user of the step template to switch between the official Octopus Docker image or a custom one like we created to add a tentacle to the existing Cypress image.
 </p>
 <p>
-    Add a new parameter called <b>DeployKubernetesWorkerImage</b>, and set the <b>Control type</b> to Package. Then go back to the container defined in the step, expand the <b>Image Details</b> section, under the <b>Package Image</b> field select the <b>Let the project select the package</b>, and then select the <b>DeployKubernetesWorkerImage</b> parameter.
+    Add a new parameter called <b>DeployKubernetesWorkerImage</b>, and set the <b>Control type</b> to Package. Then go back to the container defined in the step, expand the <b>Image Details</b> section, under the <b>Package Image</b> field select the <b>Let the project select the package</b> option, and then select the <b>DeployKubernetesWorkerImage</b> parameter.
 </p>
 <p class="note">
     Selecting a package via a parameter is called <i>deferred package selection</i>.
@@ -90,6 +90,9 @@
     The package is then exposed on the step implementing the template:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/deferred-package.png"/></div>
+<p>
+    The step template consumer can now define the image as needed, making this just another configurable field to be defined as part of the deployment process.
+</p>
 <h2>Exporting and importing projects</h2>
 <p>
     Step templates are a good solution to standardize the configuration of a single step. When you need to provide a template of an entire deployment process, or an entire project, the import/export feature may provide an option.
@@ -137,5 +140,5 @@
     <li>Discussed some of the things to watch for when exporting a project as a template.</li>
 </ul>
 <p>
-    In the next chapter we'll learn how to keep our deployments running after they have been deployed through the maintainable deployments pillar.
+    In the next chapter we'll learn how to keep our infrastructure running after they have been deployed through the maintainable deployments pillar.
 </p>
