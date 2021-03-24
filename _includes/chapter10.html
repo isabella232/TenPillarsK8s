@@ -24,7 +24,7 @@
 </p>
 <h3>Manual approval to proceed</h3>
 <p>
-    There are times when a person needs to make the decision to proceed with a deployment. We've already seen this in <a href="#chapter3">chapter 3</a>, where we configure canary deployments where the decision to direct 100% of traffic to the new deployment was made via the <b>Manual Intervention</b> step.
+    There are times when a person needs to make the decision to proceed with a deployment. We've already seen this in <a href="#chapter3">chapter 3</a>, in which we configure canary deployments where the decision to direct 100% of traffic to the new deployment was made via the <b>Manual Intervention</b> step.
 </p>
 <p>
     This step also allows for members of a specific team to approve a manual intervention step with the <b>Responsible Teams</b> option. 
@@ -66,11 +66,11 @@
     <li>Enter <b>smtp.gmail.com</b> as the SMTP Host.</li>
     <li>Enter <b>587</b> as the SMTP Port.</li>
     <li>Enable the <b>Use SSL/TLS</b> option.</li>
-    <li>Enter your Gmail address as the From Address.</li>
+    <li>Enter your Gmail address as the <b>From Address</b>.</li>
     <li>Enter your Gmail address and password in the credentials.</li>
 </ul>
 <p class="note">
-    You will enable the Less secure apps option on your Google account for Octopus to send emails via the Google SMTP server. See <a href="https://g.octopushq.com/GoogleLessSecureApps">https://g.octopushq.com/GoogleLessSecureApps</a> for details.
+    You need to enable the Less secure apps option on your Google account for Octopus to send emails via the Google SMTP server. See <a href="https://g.octopushq.com/GoogleLessSecureApps">https://g.octopushq.com/GoogleLessSecureApps</a> for details.
 </p>
 <p>
     In any of our deployment projects append the <b>Send an Email</b> step. Enter your email address in the <b>To</b> field, set the <b>Subject</b> to <b>#{Octopus.Project.Name} failed to deploy</b>, and set the <b>Body</b> to <b>The #{Octopus.Project.Name} project failed to deploy. Please review the logs in the Octopus dashboard for more details.</b> Under the <b>Run Condition</b> select the <b>Failure: only run when previous steps fail</b> option.
@@ -108,22 +108,22 @@
 <p>
     Sadly the common use case of allowing deployments only between certain times is not exposed by Octopus as a native step or other project option. But as we have seen in <a href="#chapter2">chapter 2</a> a failing script step is an effective, if not pretty, way to block a deployment. The following PowerShell in a script step at the start of a deployment project will fail the step with an exit code of 1 if the current time is not between 9 AM and 5 PM:
 </p>
-<pre>
+<pre class="wrapPre">
 $afterStart = [int](Get-Date -Format HH) -ge 9
 $beforeEnd = [int](Get-Date -Format HH) -ge 17
-if ( -not $afterStart -and $beforeEnd) {exit 1}
+if (-not ($afterStart -and $beforeEnd)) {exit 1}
 </pre>
 <p>
     A similar Bash script looks like this:
 </p>
-<pre>
-if [[ ! $(date +"%H") -ge 9 &amp;&amp; $(date +"%H") -le 17 ]]; then 
+<pre class="wrapPre">
+if [[ ! ($(date +"%H") -ge 9 &amp;&amp; $(date +"%H") -le 17) ]]; then 
     exit 1; 
 fi;
 </pre>
 <h3>Scheduling deployments</h3>
 <p>
-    When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at future point in time. Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which will deployment task (that has not already started) will be cancelled:
+    When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at a future point in time. Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which will deployment task (that has not already started) will be cancelled:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/scheduled-deployment.png"/></div>
 <p>
