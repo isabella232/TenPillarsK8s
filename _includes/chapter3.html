@@ -808,7 +808,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <h3>Feature branch deployments</h3>
 <p>
     Conceptually, deploying feature branches is easy to understand, as all it involves is deploying a new container built from a
-    feature branch side by side with the container built from the mainline branch. In this section we will extend the
+    feature branch side by side with the container built from the mainline branch. This does require some reconfiguration of our deployment process though. In this section we will extend the
     canary deployment process described above to allow multiple feature branches to be deployed side by side.
 </p>
 <p>
