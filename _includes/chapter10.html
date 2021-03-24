@@ -210,7 +210,7 @@ octo run-runbook \
     We need an external system that exposes a web hook for us to call. In a real environment this system would be a custom application or other platform with web hook support. For testing we'll use a service called Webhook.site available at <a href="https://webhook.site">https://webhook.site</a>. Opening the web page provides a unique URL that will listen to incoming requests.
 </p>
 <p>
-    Enter this URL into the <b>Payload URL</b> field, and save the subscription. Now we go back to any of our projects and perform a deployment. Once the deployment is complete, return to WebHook.site and look in the requests list. Click one of the requests to view the data that was sent by Octopus. In the screenshot below you can see the <b>DeploymentSucceeded</b> event category was posted to the web hook:
+    Enter this URL into the <b>Payload URL</b> field, and save the subscription. Now go back to any of our projects and perform a deployment. Once the deployment is complete, return to WebHook.site and look in the requests list. Click one of the requests to view the data that was sent by Octopus. In the screenshot below you can see the <b>DeploymentSucceeded</b> event category was posted to the web hook:
 </p>
 <div><img alt="Pipedream" src="images/webhook/webhook.png"/></div>
 <p>
@@ -243,7 +243,7 @@ octo run-runbook \
 <p>
     Open the <b>Kubernetes DevOps</b> project and add a new runbook called <b>Deploy Slack Gateway</b>. Add a <b>Deploy Kubernetes container</b> step, and import the following deployment YAML:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: apps/v1
 kind: Deployment
 metadata:
