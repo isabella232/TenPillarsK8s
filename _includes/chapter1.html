@@ -248,6 +248,12 @@
     To establish an untrusted connection with the Kubernetes endpoint we could have checked the <b>Skip TLS verification</b> option instead of configuring the certificate. However, this option is less secure than configuring the certificate, and is not recommended in production.
 </p>
 <p>
+	The <b>Kubernetes namespace</b> field is left blank. This means the default namespace for any deployments using this target is the <b>default</b> namespace.
+</p>
+<p class="note">
+    The target namespace is only the default used by steps. Steps can override the namespace if needed, as long as the target credentials grant the necessary permissions.
+</p>
+<p>
 	The final step is to select a worker pool to perform the target health check. Worker pools have a particular significance for Kubernetes targets, but before we go into those details, we first need to understand what a worker pool is.
 </p>
 <p>
