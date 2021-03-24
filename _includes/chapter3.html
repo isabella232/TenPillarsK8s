@@ -745,7 +745,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     <li><b>Octopus.Deployment.Tenant.Id=#{unless Octopus.Deployment.Tenant.Id}untenanted#{/unless}#{if
             Octopus.Deployment.Tenant.Id}#{Octopus.Deployment.Tenant.Id | ToLower}#{/if}</b> matches resources created
         for the same tenant.</li>
-    <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were <u>not</u> created
+    <li><b>Octopus.Deployment.Id!=#{Octopus.Deployment.Id | ToLower}</b> matches resources that were not created
         by the current deployment, which means it only matches resources created by previous deployments.</li>
 </ul>
 <p class="note">
