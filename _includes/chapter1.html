@@ -146,7 +146,7 @@
 <p>
 	In addition to the environments in which we deploy our applications, we'll also create a fourth environment called <b>Admin</b>. This environment represents the space in which we will perform the kind of global administrative tasks that are not associated with a particular deployment environment:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/environments.png"/></div>
+<div><img alt="Octopus environments" src="./images/octopus/environments.png"/></div>
 <h3>Creating Octopus lifecycles</h3>
 <p>
 	A major function of environments is to enable deployments to be promoted through a predictable sequence, for example from <b>Development</b> to <b>Test</b> and then <b>Production</b>. This progression is called a lifecycle in Octopus. Lifecycles are found under <b>Library -> Lifecycles</b>.
@@ -154,7 +154,7 @@
 <p>
 	Octopus has a default lifecycle which allows deployments to progress through all the environments in the order in which they were created:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/default-lifecycle.png"/></div>
+<div><img alt="Octopus environments" src="./images/octopus/default-lifecycle.png"/></div>
 <p>
 	This is <i>almost</i> what we want. However, the <b>Admin</b> environment is not part of a deployment's progression; it sits outside of the traditional environments, and exists to perform global administrative tasks. This means that our deployments require a custom lifecycle that include the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, but excludes the <b>Admin</b> environment.
 </p>
@@ -167,7 +167,7 @@
 <p>
 	In our example, we will create three phases, with each phase hosting a single environment. For convenience we'll name the phases the same as the environment they hold. The end result is shown in the screenshot below:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/new-lifecycle.png"/></div>
+<div><img alt="Octopus environments" src="./images/octopus/new-lifecycle.png"/></div>
 <p>
 	With our environments and lifecycles created, we can now configure our Kubernetes cluster in Octopus.
 </p>
@@ -181,18 +181,18 @@
 <p>
 	Within the Google Cloud Kubernetes console, the IP address of the cluster is shown as the <b>Endpoint</b> under the <b>Cluster details</b> section. The administrator credentials are available under the <b>Show credentials</b> link:
 </p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-details.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/kubernetes/cluster-details.png"/></div>
 <p>
 	Clicking the <b>Show credentials</b> link reveals the administrator username and password. We'll use these details to create an account in Octopus:
 </p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-credentials.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/kubernetes/cluster-credentials.png"/></div>
 <p class="note">
     Kubernetes supports many different authentication methods including username and password, tokens, certificates, and cloud specific authentication processes. The particular authentication method used for your cluster may rely on one of these additional methods.
 </p>
 <p>
 	This same dialog also shows the cluster's certificate authority. We'll use these details to create a certificate in Octopus:
 </p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-certificate.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/kubernetes/cluster-certificate.png"/></div>
 <h3>Creating the Octopus Kubernetes account</h3>
 <p>
 	The GKE cluster we'll be using in this book has basic authentication enabled, which means we authenticate with the cluster via a username and password. These details are saved in Octopus as a <b>Username/Password</b> account. Accounts are found under <b>Infrastructure -> Accounts</b>. Click the <b>ADD ACCOUNT</b> drop down list and select the <b>Username/Password</b> option to create a new account.
@@ -203,7 +203,7 @@
 <p>
 	The account will set the username and password to the values we retrieved from the Google GKE console:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/admin-account.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/octopus/admin-account.png"/></div>
 <h3>Creating the Octopus Kubernetes certificate</h3>
 <p>
 	We will interact with the GKE cluster via a HTTPS endpoint. This endpoint is secured with a certificate that is not trusted by default. In order to participate in a secure connection with the Kubernetes cluster, we need to configure our Kubernetes target with the certificate provided in the <b>Cluster CA certificate</b> field from the GKE console. Doing so will trust the certificate used to establish the HTTPS connection.
@@ -211,7 +211,7 @@
 <p>
 	Certificates in Octopus are managed under <b>Library -> Certificates</b>. Click the <b>ADD CERTIFICATE</b> button to create a new certificate. We'll call the new certificate <b>Kubernetes CA</b> (CA stands for Certificate Authority), paste in the certificate contents (i.e. all the text starting with <b>-----BEGIN CERTIFICATE-----</b> and ending with <b>-----END CERTIFICATE----- </b>). Here is a screenshot of the saved certificate:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/k8s-ca.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/octopus/k8s-ca.png"/></div>
 <h3>Create the Octopus Kubernetes targets</h3>
 <p>
 	Kubernetes deployments in Octopus are performed via a Kubernetes target. Targets capture the details of the Kubernetes cluster, the credentials, and the default namespace in which deployments are performed.
@@ -259,7 +259,7 @@
 <p>
 	Before we dive into workers and worker pools, save the target with the details entered so far. If we need to, we can come back to this target and change the worker pool:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/k8s-admin-target.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/octopus/k8s-admin-target.png"/></div>
 <h3>Octopus workers and worker pools</h3>
 <p>
 	Up until this point we have been working with the Octopus server. You can think of the server as an orchestrator that ensures deployments are performed in the required environments to the appropriate targets with all the necessary settings and packages.
@@ -267,25 +267,25 @@
 <p>
 	When performing deployments to on-premises infrastructure, such as a web server hosted on a VM, the actual execution of the deployment is performed through an agent called a tentacle. In keeping with the nautical themes you'll often encounter with Octopus terminology, an Octopus server has many tentacles that reach out into your infrastructure. Where multiple VMs had to be updated with each deployment, multiple tentacles were deployed with a shared role like <b>Web Server</b>. So a deployment configured to update all targets of the role <b>Web Server</b> would reach out across all the tentacles with that role and perform the required changes:
 </p>
-<div><img alt="Google K8s cluster" src="images/diagrams/on-prem-deployment.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/diagrams/on-prem-deployment.png"/></div>
 <p>
 	However, when using cloud Platform as a Service (PaaS) offerings to host applications, it initially didn't make a lot of sense to try and physically install Tentacles alongside the PaaS infrastructure. Cloud PaaS deployments are typically designed to support API calls from a remote host, and so cloud deployments were traditionally performed by the Octopus server without a Tentacle:
 </p>
-<div><img alt="Google K8s cluster" src="images/diagrams/server-deployment.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/diagrams/server-deployment.png"/></div>
 <p>
 	As cloud deployments grew in popularity though it became clear that having the Octopus server itself perform cloud deployments would not scale. Aside from the obvious burden this strategy placed on the Octopus server, it didn't allow for networking constraints where cloud infrastructure had limited access from public networks, and made it hard to leverage the common security practice of assigning roles to cloud VMs that could be inherited by any application running on those servers.
 </p>
 <p>
 	To work around these limitations, customers would often create a VM in their cloud provider with a tentacle installed on it, grant the VM the necessary security roles and network access required to interact with their PaaS instances, and perform Octopus deployments through that single tentacle:
 </p>
-<div><img alt="Google K8s cluster" src="images/diagrams/tentacle-deployment.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/diagrams/tentacle-deployment.png"/></div>
 <p>
 	This worked to a point, but it did not respect the typical one-to-many relationship between the Octopus server and the tentacles. We now have a single tentacle performing all cloud deployments. In using a tentacle to solve the networking and security limitations incurred when performing deployments directly from the Octopus server, we have now introduced a bottleneck in the deployment pipeline with this single tentacle.
 </p>
 <p>
 	This is where workers come in. Instead of a deployment being performed to multiple tentacles at the same time based on their role, deployments configured to use a worker would each select a single worker from a shared pool to perform the deployment. By having worker pools with multiple workers, the bottleneck of a single tentacle is removed. And by performing deployments on a remote VM with any necessary security and networking configuration, Octopus can now reach into a cloud infrastructure as needed:
 </p>
-<div><img alt="Google K8s cluster" src="images/diagrams/worker-deployment.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/diagrams/worker-deployment.png"/></div>
 <p class="note">
     A tentacle and a worker are both installed via the Octopus Tentacle installer. During installation an option to configure a tentacle or worker is provided.
 </p>
@@ -304,7 +304,7 @@
 <p>
 	If you are using a hosted Octopus instance, a number of worker pools are configured for you. The screenshot below shows the worker pools configured by default:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/octopus-cloud-worker-pools.png"/></div>
+<div><img alt="Google K8s cluster" src="./images/octopus/octopus-cloud-worker-pools.png"/></div>
 <p>
 	However, the worker pools are configured with different default applications out of the box. Workers in the <b>Hosted Windows</b> worker pool <i>may</i> come with <b>kubectl</b> installed. Workers in the <b>Hosted Ubuntu</b> worker pool <i>do not</i> have <b>kubectl</b> installed.
 </p>
@@ -345,7 +345,7 @@
 <p>
 	To change the operating system of the dynamic workers, go to <b>Infrastructure -> Worker Pools</b>, click the hamburger menu next to the <b>Hosted Windows</b> worker pool, and click the <b>Edit</b> button. The <b>Worker Image</b> option will then allow you to select a newer operating system for the dynamic worker:
 </p>
-<div><img alt="Editing a dynamic worker pool" src="images/octopus/edit-worker-pool.png"/></div>
+<div><img alt="Editing a dynamic worker pool" src="./images/octopus/edit-worker-pool.png"/></div>
 <p class="note">
     The <b>Windows</b> dynamic worker pool supplies dynamic workers based on Windows 2016.
 </p>
@@ -365,7 +365,7 @@
 <p>
 	Select <b>Docker Container Registry</b> as the <b>Feed Type</b>, and enter <b>Docker Hub</b> as the feed name. Leave all other fields with their default values. Here is a screenshot of the new Docker external feed:
 </p>
-<div><img alt="Docker hub feed" src="images/octopus/docker-hub.png"/></div>
+<div><img alt="Docker hub feed" src="./images/octopus/docker-hub.png"/></div>
 <h3>Octopus workers, feeds, container images, and Kubernetes targets</h3>
 <p>
 	Let's briefly recap what workers, feeds, and container images are:
@@ -384,7 +384,7 @@
 <p>
 	With the appropriately configured workers and a Docker registry feed connecting to Docker Hub, we can now configure our Kubernetes target with a container image that will supply a copy of <b>kubectl</b>. In the screenshot below you can see the Kubernetes target is configured to use the Docker image <b>octopusdeploy/worker-tools:windows.ltsc2019</b> found through the <b>Docker Hub</b> external feed. This Docker image is the one provided by Octopus with all the tooling required to perform typical cloud deployments:
 </p>
-<div><img alt="Docker hub feed" src="images/octopus/target-with-container-image.png"/></div>
+<div><img alt="Docker hub feed" src="./images/octopus/target-with-container-image.png"/></div>
 <p class="note">
     There are many versions of the worker tools image available. The image with the tag <b>windows.ltsc2019</b> (or <b>ubuntu.18.04</b> had we been using a Linux based worker) will point to the latest available image version. The latest worker tools image is also preloaded onto dynamic workers, which improves performance. You can use images tagged with increasing levels of specificity such as <b>2-windows.ltsc2019</b>, <b>2.0-windows.ltsc2019</b>, or <b>2.0.1-windows.ltsc2019</b> to ensure the versions of the tools provided by the image remain static. However, you will likely find over time that these specific image tags are not preloaded onto the dynamic worker, meaning each deployment or health check first needs to download the Docker image, which can take a minute or so. Since we are only interested in <b>kubectl</b>, which provides a quite high level of backward compatibility, we can ensure our deployments perform as quickly as possible by using the tag <b>windows.ltsc2019</b> or <b>ubuntu.18.04</b>.
 </p>
@@ -410,7 +410,7 @@
 <p class="note">
     Dynamic infrastructure refers to targets created via a script step. You can find more information on creating Kubernetes targets dynamically at <a href="https://octopus.com/docs/infrastructure/deployment-targets/dynamic-infrastructure/kubernetes-target">https://octopus.com/docs/infrastructure/deployment-targets/dynamic-infrastructure/kubernetes-target</a>.
 </p>
-<div><img alt="Execution settings" src="images/octopus/dynamic-infrastructure.png"/></div>
+<div><img alt="Execution settings" src="./images/octopus/dynamic-infrastructure.png"/></div>
 <p>
 	We can now create a new project to hold our runbook, which is done in the <b>Projects</b> screen. Click the <b>ADD PROJECT</b> button to create a new project called <b>Kubernetes DevOps</b>.
 </p>
@@ -426,7 +426,7 @@
 <p>
 	This step will be run on behalf of our administrative Kubernetes target with the role of <b>Kubernetes Admin</b>, and run inside the container image <b>octopusdeploy/worker-tools:windows.ltsc2019</b>:
 </p>
-<div><img alt="Execution settings" src="images/octopus/common-admin-settings.png"/></div>
+<div><img alt="Execution settings" src="./images/octopus/common-admin-settings.png"/></div>
 <p>
 	The step then prompts for four settings:
 </p>
@@ -445,21 +445,21 @@
 <p class="note">
     Variable filters are used as part of an Octopus variable expression to transform the output. The complete list is found at <a href="https://octopus.com/docs/projects/variables/variable-filters">https://octopus.com/docs/projects/variables/variable-filters</a>.
 </p>
-<div><img alt="Step settings" src="images/octopus/create-target.png"/></div>
+<div><img alt="Step settings" src="./images/octopus/create-target.png"/></div>
 <p>
 	This runbook is only going to be run in the deployment environments. The <b>Admin</b> environment does not accept deployments, which is why this environment was not included in the lifecycle we created earlier.
 </p>
 <p>
 	To enforce that this runbook is only run in the deployment environments, we can open the runbook <b>SETTINGS</b> tab, select the <b>Run only in specific environments</b> option, and select the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments:
 </p>
-<div><img alt="Step settings" src="images/octopus/runbook-environments.png"/></div>
+<div><img alt="Step settings" src="./images/octopus/runbook-environments.png"/></div>
 <p>
 	Our runbook is now configured and ready to run. Click the <b>RUN</b> button, select all of the available environments, and click the <b>RUN</b> button. The runbook will launch three tasks, one in each environment.
 </p>
 <p>
 	Once complete, we'll have three new Kubernetes targets, one in each of the deployment environments:
 </p>
-<div><img alt="Execution settings" src="images/octopus/new-targets.png"/></div>
+<div><img alt="Execution settings" src="./images/octopus/new-targets.png"/></div>
 <p>
 	These new targets each use one of three new matching token accounts. The token accounts in turn hold the authentication token corresponding to a new Kubernetes service account created in the namespaces <b>backend-development</b>, <b>backend-test</b>, and <b>backend-production</b>. These service accounts have been granted access only to the resources in their namespace, and any attempt to perform a deployment with these accounts outside of their assigned namespaces will result in an error.
 </p>
@@ -489,7 +489,7 @@
 <p>
 	To create a new variable set, open <b>Library -> Variable Sets</b>, and click the <b>ADD NEW VARIABLE SET</b> button. Give the variable set the name of <b>Random Quotes</b>. Under the <b>Variables</b> tab, add a new variable called <b>DatabasePassword</b>, configure the value to be a secret, and enter a suitable password as the value:
 </p>
-<div><img alt="Random Quotes variable set" src="images/octopus/variable-set.png"/></div>
+<div><img alt="Random Quotes variable set" src="./images/octopus/variable-set.png"/></div>
 <p>
 	By default this variable is unscoped, meaning each environment will share a single password. This is not ideal, as our production infrastructure should not have the same credentials as our development infrastructure.
 </p>
@@ -502,7 +502,7 @@
 <p>
 	Add a third unique password scoped to the <b>Production</b> environment. We now have unique passwords for each environment:
 </p>
-<div><img alt="Random Quotes variable set" src="images/octopus/scoped-db-passwords.png"/></div>
+<div><img alt="Random Quotes variable set" src="./images/octopus/scoped-db-passwords.png"/></div>
 <p>
 	Scoped variables allow us to build a deployment process referencing the single variable called <b>DatabasePassword</b>, and Octopus will take care of exposing the correct variable value at deployment time depending on where the deployment is taking place.
 </p>
@@ -556,7 +556,7 @@ max_connections=200
 <p>
 	Click the <b>OK</b> button to save the container. The top level form will display a summary of the container settings:
 </p>
-<div><img alt="Random Quotes variable set" src="images/octopus/database-container.png"/></div>
+<div><img alt="Random Quotes variable set" src="./images/octopus/database-container.png"/></div>
 <p>
 	We now need to define a service to expose the database to other containers. This is done under the <b>Service</b> section of the step.
 </p>
@@ -671,7 +671,7 @@ max_connections=200
 <p>
 	This community step provides a wrapper around calls to <b>kubectl</b>, and in our case it calls <b>kubectl get services</b> in the namespace of the selected target. This will return the details of any services, and for a load balancer service, it returns the <b>EXTERNAL-IP</b>, which is the IP address we can point our browser at to access our newly deployed web application:
 </p>
-<div><img alt="Random Quotes variable set" src="images/octopus/random-quotes.png"/></div>
+<div><img alt="Random Quotes variable set" src="./images/octopus/random-quotes.png"/></div>
 <h3>Progressing deployments to the production environment</h3>
 <p>
 	Having successfully proven that a deployment to the <b>Development</b> environment works as expected, promoting the deployment to the <b>Test</b> environment takes just a few button clicks. From the <b>Random Quotes - Backend</b> project, click the <b>Overview</b> link to see the current state of deployments to the various environments.

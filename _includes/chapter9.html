@@ -74,18 +74,18 @@
 <p>
     Create a new variable in the variable editor, and when entering a value click the <b>OPEN EDITOR</b> link:
 </p>
-<div><img alt="Time to recovery" src="images/octopus/variables.png"/></div>
+<div><img alt="Time to recovery" src="./images/octopus/variables.png"/></div>
 <p>
     The variable dialog has the <b>Prompt for value</b> option, which indicates that the value for this variable can be defined, or overridden if a default value is defined, with each deployment or runbook run:
 </p>
-<div><img alt="Time to recovery" src="images/octopus/prompted-variable.png"/></div>
+<div><img alt="Time to recovery" src="./images/octopus/prompted-variable.png"/></div>
 <p>
     Commonly, prompted variables only make sense for a subset of runbooks. In the example above we have a prompted variable defining the worker pool that we would place Kubernetes workers into. This value makes no sense when querying the cluster for load balancer IPs, and prompting for this variable with unrelated runbooks is confusing.
 </p>
 <p>
     By scoping the variable to a specific process we can ensure only the selected runbooks will prompt for the variable value. In the variable editor, click in the <b>Define scope</b> area, and select the desired runbook from the <b>Select processes</b> drop down list:
 </p>
-<div><img alt="Time to recovery" src="images/octopus/scoped-variable.png"/></div>
+<div><img alt="Time to recovery" src="./images/octopus/scoped-variable.png"/></div>
 <p>
     Now the prompted variable is only presented for the runbooks it is scoped to.
 </p>
