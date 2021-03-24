@@ -437,7 +437,7 @@
 	<li>The health check docker image, set to <b>octopusdeploy/worker-tools:windows.ltsc2019</b>.</li>
 </ul>
 <p class="note">
-    The syntax starting with a hash and curly bracket and ending with a curly bracket is an Octopus variable expression. It will resolve the system variable called <b>Octopus.Environment.Name</b>, and then pass it through the <b>ToLower</b> filter to change the characters to lowercase. This way an Octopus environment with capital letters like <b>Development</b> is transformed into a lowercase string called <b>development</b> that is suitable for the name of a Kubernetes namespace.
+    The syntax starting with a hash and curly bracket and ending with a curly bracket is an <i>Octopus variable expression</i>. It will resolve the system variable called <b>Octopus.Environment.Name</b>, and then pass it through the <b>ToLower</b> filter to change the characters to lowercase. This way an Octopus environment with capital letters like <b>Development</b> is transformed into a lowercase string called <b>development</b> that is suitable for the name of a Kubernetes namespace.
 </p>
 <p class="note">
     System variables are exposed by Octopus as part of a deployment or runbook execution. The complete list is found at <a href="https://octopus.com/docs/projects/variables/system-variables">https://octopus.com/docs/projects/variables/system-variables</a>.
