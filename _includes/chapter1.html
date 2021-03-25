@@ -507,6 +507,9 @@
 	Scoped variables allow us to build a deployment process referencing the single variable called <b>DatabasePassword</b>, and Octopus will take care of exposing the correct variable value at deployment time depending on where the deployment is taking place.
 </p>
 <h3>Creating the backend database deployment process</h3>
+<p class="note">
+	An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-backend/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-backend/deployments</a>.
+</p>
 <p>
 	Our first deployment project will deploy the backend PostgreSQL database. Click <b>Projects -> ADD PROJECT</b> to create a new project. Give the new project the name of <b>Random Quotes - Backend</b>, and click the <b>Save</b> button. Click the <b>DEFINE YOUR DEPLOYMENT PROCESS</b> button to be taken to the process editor, and then click the <b>ADD STEP</b> button to add the first step to the deployment process.
 </p>
@@ -613,6 +616,9 @@ max_connections=200
 	With the backend database deployed, we can now deploy our frontend web application.
 </p>
 <h3>Deploying the frontend web application</h3>
+<p class="note">
+	An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend/deployments</a>.
+</p>
 <p>
 	The frontend web application is configured in much the same way as the backend database. The steps have been condensed down into point form here, but every step follows the same pattern we used with the backend database deployment, so you can refer to the previous instructions for more detail:
 </p>

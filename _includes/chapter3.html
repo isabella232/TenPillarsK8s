@@ -421,6 +421,9 @@
 <p class="note">
     This top level path in this URL is called the <i>context path</i>.
 </p>
+<p class="note">
+    An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary/deployments</a>.
+</p>
 <p>
     To see how this works in practice, let's create a new project called <b>Random Quotes - Frontend - Canary</b>.
 </p>
@@ -806,6 +809,9 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <div><img alt="Octopus environments" src="images/kubernetes/canary5.png" /></div>
 <h3>Feature branch deployments</h3>
+<p class="note">
+    An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments</a>.
+</p>
 <p>
     Conceptually, deploying feature branches is easy to understand, as all it involves is deploying a new container built from a
     feature branch side by side with the container built from the mainline branch. This does require some reconfiguration of our deployment process though. In this section we will extend the
