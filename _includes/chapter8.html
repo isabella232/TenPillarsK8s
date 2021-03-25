@@ -51,7 +51,7 @@
 <p>
     Here is a screenshot of the configured step template:
 </p>
-<div><img alt="Time to recovery" src="./images/octopus/k8s-step-template.png"/></div>
+<div><img alt="Time to recovery" src="images/octopus/k8s-step-template.png"/></div>
 <p>
     Notice that the <b>Usage</b> link has a orange icon with <b>1</b> next to it. This indicates that one step references an old version of this step template, and needs to be updated. Click the <b>Usages</b> link and click the <b>UPDATE...</b> button. A dialog will be presented to let us know that the new step template has additional parameters in the new version, and provides an opportunity to populate the missing fields. We'll leave these missing fields empty for now and click the <b>UPDATE STEPS USING DEFAULT VALUES</b> button. With the update done, we can click on the <b>Step</b> link to be taken to the step implementing the step template.
 </p>
@@ -89,7 +89,7 @@
 <p>
     The package is then exposed on the step implementing the template:
 </p>
-<div><img alt="Time to recovery" src="./images/octopus/deferred-package.png"/></div>
+<div><img alt="Time to recovery" src="images/octopus/deferred-package.png"/></div>
 <p>
     The step template consumer can now define the image as needed, making this just another configurable field to be defined as part of the deployment process.
 </p>
@@ -103,7 +103,7 @@
 <p>
     A task is queued to create the export archive, and after a short time a link to a ZIP file is shown in the <b>TASK SUMMARY</b> tab:
 </p>
-<div><img alt="Time to recovery" src="./images/octopus/export.png"/></div>
+<div><img alt="Time to recovery" src="images/octopus/export.png"/></div>
 <p>
     In a new space, click the <b>Projects</b> link, and in the hamburger menu click the <b>Import Projects</b> option. Select the ZIP file you downloaded previously, and enter the password. The project, along with other entities like environments, lifecycles, and worker pools, will be imported into the space.
 </p>

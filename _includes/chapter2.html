@@ -220,11 +220,11 @@ spec:
 <p>
     In polling mode, the tentacle reaches out to the Octopus server to receive any new instructions. This means the tentacle instance does not need to expose any ports, as all network traffic is initiated from the tentacle to the server:
 </p>
-<div><img alt="Octopus environments" src="./images/octopus/polling.png"/></div>
+<div><img alt="Octopus environments" src="images/octopus/polling.png"/></div>
 <p>
     In listening mode, the tentacle receives traffic directly from the Octopus server. This means the tentacle must have a fixed hostname or IP address and open port (10933 by default) that the Octopus server can connect to:
 </p>
-<div><img alt="Octopus environments" src="./images/octopus/listening.png"/></div>
+<div><img alt="Octopus environments" src="images/octopus/listening.png"/></div>
 <p>
     Polling tentacles introduce a short delay between when the Octopus server initiates a deployment and the tentacle polls the server for new instructions. Listening tentacles do not have this delay as the server will reach out directly when work needs to be performed.
 </p>
@@ -371,7 +371,7 @@ psql \
 <p>
     The diagram below shows these nested layers:
 </p>
-<div><img alt="Octopus environments" src="./images/octopus/docker-in-docker.png"/></div>
+<div><img alt="Octopus environments" src="images/octopus/docker-in-docker.png"/></div>
 <h3>Using third party container images</h3>
 <p>
     The database smoke test used a third party Docker image as a container image. As we saw, this was a convenient way to get access to the PostgreSQL command line tools. There are some limits to which Linux Docker images can be used as a container image though.
@@ -562,7 +562,7 @@ newman run IntegrationTest/RandomQuotes.postman_collection.json
 <p>
     The diagram below shows how the additional packages are exposed in a worker running a container image:
 </p>
-<div><img alt="Octopus environments" src="./images/octopus/additional-packages.png"/></div>
+<div><img alt="Octopus environments" src="images/octopus/additional-packages.png"/></div>
 <p>
     Our integration test is ready to run. Save the changes to the deployment process and deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. Once the deployment and smoke tests have passed, newman will run and query the API. The API in turn will contact the database to retrieve a quote. The tests define in the Postman collection then verify the returned data.
 </p>
@@ -711,7 +711,7 @@ exit ${RESULT}
 <p>
     Deploy the <b>Deploy Random Quotes - Frontend</b> project again. If the Cypress tests were successful, an artifact called <b>selfcontained.html</b> is be shown under the deployment <b>TASK SUMMARY</b> tab. This artifact can be opened directly from the link to view the results of the test:
 </p>
-<div><img alt="Octopus environments" src="./images/octopus/cypress-report.png"/></div>
+<div><img alt="Octopus environments" src="images/octopus/cypress-report.png"/></div>
 <p>
     By including an end-to-end test in our deployment process we can gain a high degree of confidence that the deployment succeeded. Cypress is now interacting with the deployed application in the same way we expect end users to, and verifying the web application works as expected.
 </p>

@@ -24,7 +24,7 @@
     <item id="cover_image" href="{{ site.platform }}cover.png" media-type="image/png"/>
     {% for image in site.static_files %}
         {% if image.path contains 'images' %}
-            <item id="image{{ forloop.index }}" href=".{{ image.path }}" media-type="image/png"/>
+            <item id="image{{ forloop.index }}" href="{{ image.path | replace_first: "/", "" }}" media-type="image/png"/>
         {% endif %}
     {% endfor %}
   </manifest>
