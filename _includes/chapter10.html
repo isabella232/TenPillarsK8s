@@ -85,6 +85,9 @@
 <p>
     Recall from <a href="#chapter1">chapter 1</a> that we deployed the backend database before the frontend web application. A more resilient frontend application would gracefully handle the absence of a database, meaning we could deploy our applications in any order. But this sample frontend application simply exits if there is no database, leading Kubernetes to eventually enter a crash loop backoff, which is good default behavior from Kubernetes, but is not such a good outcome for us. This means our deployments do have an implicit deployment order.
 </p>
+<p class="note">
+    An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/deploy-full-stack/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/deploy-full-stack/deployments</a>.
+</p>
 <p>
     Octopus has the ability to define this deployment order explicitly. Create a new project called <b>Deploy Full Stack</b>, and add a <b>Deploy a Release</b> step called <b>Deploy Backend</b>.
 </p>
