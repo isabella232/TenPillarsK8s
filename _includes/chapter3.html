@@ -492,7 +492,7 @@ spec:
 <p>
     Under the <b>Service</b> section import the following YAML:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: v1
 kind: Service
 metadata:
@@ -1016,7 +1016,7 @@ spec:
 <p>
     Here is the YAML for the updated service:
 </p>
-<pre>
+<pre class="wrapPre">
 apiVersion: v1
 kind: Service
 metadata:
@@ -1202,7 +1202,7 @@ spec:
     Add a <b>Run a kubectl CLI Script</b> step to the runbook process, target the <b>Frontend</b> role, and run the step
     in an appropriate container image. The script step is set to the following:
 </p>
-<pre>
+<pre class="wrapPre">
 kubectl delete ingress -l FeatureBranch=#{FeatureBranch}
 
 kubectl delete service -l FeatureBranch=#{FeatureBranch}
