@@ -583,13 +583,13 @@ max_connections=200
 	To create a new release, click the <b>CREATE RELEASE</b> button. You will be presented with a list of packages (remember Octopus uses the generic term <i>package</i> to refer to Docker images) and their available versions.
 </p>
 <p>
-	Octopus treats Docker image tags as versions. The only Docker tag to have semantic meaning is <b>latest</b>, which is used to indicate the latest image. However, Octopus will parse tags and assign them semantic meaning. You can find more information about how these tags are parsed at <a href="https://octopus.com/docs/packaging-applications/package-repositories/docker-registries/octopus-version">https://octopus.com/docs/packaging-applications/package-repositories/docker-registries/octopus-version</a>.
+	Octopus treats Docker image tags as versions. The only Docker tag to have semantic meaning is <b>latest</b>, which is used to indicate the default image. However, Octopus will parse tags and assign them semantic meaning. You can find more information about how these tags are parsed at <a href="https://octopus.com/docs/packaging-applications/package-repositories/docker-registries/octopus-version">https://octopus.com/docs/packaging-applications/package-repositories/docker-registries/octopus-version</a>.
 </p>
 <p class="note">
     Technically any Docker image can have the <b>latest</b> tag. There is no requirement that the last published image have the <b>latest</b> tag, so this is a convention rather than an enforced rule.
 </p>
 <p>
-	Here Octopus has selected the <b>latest</b> tag as the latest package version available. We could select a more specific tag if we wanted to, but the <b>latest</b> tag is fine for us. Click the <b>SAVE</b> button to create the release and continue to the deployment screen.
+	Here Octopus has selected the a version like <b>13.2</b> tag as the latest package version available. Click the <b>SAVE</b> button to create the release and continue to the deployment screen.
 </p>
 <p>
 	The next screen prompts us to deploy the release into the <b>Development</b> environment. Click the <b>DEPLOY TO DEVELOPMENT...</b> button to continue.
@@ -644,7 +644,7 @@ max_connections=200
     There are three types of Kubernetes services. The default is a <b>ClusterIP</b> service, which exposes containers internally within the cluster. Our database was exposed with a <b>ClusterIP</b> service, as only the web application needed to access it. A <b>NodePort</b> service exposes containers via a port, in the range 30000 - 32767 by default, that is accessible on every node in the cluster. Kubernetes configures its internal networking to ensure that traffic received on a node port is directed to the appropriate container, even if the node receiving the traffic does not host a destination container itself. A <b>LoadBalancer</b> service triggers the creation of a publicly accessible load balancer. The specific type of public load balancer depends on the platform hosting the Kubernetes cluster. In our case, because the cluster is hosted by Google Cloud, a Google Cloud load balancer is created to direct public traffic into the Kubernetes cluster and then to the destination containers.
 </p>
 <p>
-	As with the backend database, this project can now be deployed to the <b>Development</b> environment. We use the default <b>latest</b> tag for the <b>octopussamples/randomquotesjava</b> image for this deployment.
+	As with the backend database, this project can now be deployed to the <b>Development</b> environment. We use the default tag, which is something like <b>0.1.170</b>, for the <b>octopussamples/randomquotesjava</b> image in this release.
 </p>
 <p>
 	Once the deployment is completed, we'll have a Kubernetes deployment resource holding our web application, and a load balancer service to expose the web application on a public IP.
