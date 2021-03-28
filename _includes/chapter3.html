@@ -181,7 +181,7 @@
     The diagram below shows how a rolling update strategy progresses, with old pods progressively deleted and replaced
     with new pods:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png"/></div>
 <p>
     Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes
         containers</b> step deploying the frontend application, expand the <b>Deployment Strategy</b> section, and
@@ -197,7 +197,7 @@
     The diagram below shows how a recreate update strategy progresses, where all old pods are first deleted, and new
     pods are then deployed:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/recreate-deployment.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/recreate-deployment.png"/></div>
 <h3>Blue/green deployments</h3>
 <p>
     Unlike the rolling and recreate strategies, blue/green deployments are not natively supported by Kubernetes.
@@ -228,7 +228,7 @@
     After the first blue/green deployment, our cluster looks like this. We have a shared service pointing to a uniquely
     named deployment. The deployment was successful, so the new deployment becomes the blue stack:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/bluegreen1.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen1.png"/></div>
 <p>
     Now lets deploy the project to the <b>Development</b> environment again. Notice now the logs contain entries like
     <b>deployment.apps/webapp-deployments-102 created</b>. This is a new deployment, so the suffix appended to the
@@ -238,20 +238,20 @@
     As the new deployment resource is spun up in the cluster, the state of the cluster looks like this. The new
     deployment, considered to be the green stack, is created but not yet receiving traffic:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/bluegreen2.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen2.png"/></div>
 <p>
     Once the new deployment resource has passed all of its health checks and is considered fully available, the service
     is updated to direct traffic to it:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/bluegreen3.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen3.png"/></div>
 <p>
     The resources in the blue stack are now deleted:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/bluegreen4.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen4.png"/></div>
 <p>
     With the deployment process now done, the resources from the green stack are considered to be the blue stack:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/bluegreen5.png"/></div>
 <p>
     So, in summary, these are the steps Octopus will orchestrate for a blue/green deployment:
 </p>
@@ -363,7 +363,7 @@
     the <b>Admin</b> environment, which displays the IP address of the NGINX load balancer service. The
     <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png" /></div>
+<div><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></div>
 <p>
     We now have an ingress controller to split our canary traffic between an existing and a new deployment and its
     service. The next step is to deploy the frontend web application to support canary deployments.
@@ -790,24 +790,24 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <p>
     We start with the blue stack receiving 100% of traffic:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/canary1.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/canary1.png"/></div>
 <p>
     The green stack is created and tested:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/canary2.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/canary2.png"/></div>
 <p>
     A canary ingress is created directing 50% of traffic to the green stack:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/canary3.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/canary3.png"/></div>
 <p>
     The decision is made to direct 100% of traffic to the green stack, so the main ingress is reconfigured and the
     temporary service and ingress are deleted:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/canary4.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/canary4.png"/></div>
 <p>
     The green stack becomes the blue stack:
 </p>
-<div><img alt="Octopus environments" src="images/kubernetes/canary5.png" /></div>
+<div><img alt="Octopus environments" src="images/kubernetes/canary5.png"/></div>
 <h3>Feature branch deployments</h3>
 <p class="note">
     An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments</a>.
@@ -1120,7 +1120,7 @@ spec:
 <p>
     The diagram below shows how a shared load balancer is now distributing traffic to multiple branches:
 </p>
-<div><img alt="Octopus environments" src="images/diagrams/feature-branches-networking.png" /></div>
+<div><img alt="Octopus environments" src="images/diagrams/feature-branches-networking.png"/></div>
 <p>
     Also note how the cleanup code doesn't cross the lines between individual feature branches and the mainline
     deployment. We can redeploy the feature branch image over and over, and the mainline deployment is not affected.
@@ -1148,7 +1148,7 @@ spec:
     create a lifecycle called <b>Dev and Test</b> with two phases called <b>Development</b> and <b>Test</b> that contain
     the environment of the same name:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/feature-branch-lifecycle.png" /></div>
+<div><img alt="Octopus environments" src="images/octopus/feature-branch-lifecycle.png"/></div>
 <p>
     Back in our deployment project, click the <b>Channels</b> link. Each project has a <b>Default</b> lifecycle that
     inherits the lifecycle assigned to the deployment process. In our case this lifecycle allows deployments to be
@@ -1184,7 +1184,7 @@ spec:
     <b>Development</b> environment to the <b>Test</b> environment. There is no ability to deploy it into the
     <b>Production</b> environment:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/channel-dashboard.png" /></div>
+<div><img alt="Octopus environments" src="images/octopus/channel-dashboard.png"/></div>
 <p>
     Now go ahead and create a release in the <b>Default</b> channel. Notice that you are unable to select versions like
     <b>0.1.9-purpleheader</b>. This means only mainline versions can be deployed in the <b>Dev, Test, and Prod</b>
@@ -1229,7 +1229,7 @@ kubectl delete deployment -l FeatureBranch=#{FeatureBranch}
     This variable will now prompt for a value when the runbook is run, but because it is scoped to only the <b>Delete
         Feature Branch</b> process, the main deployment will not prompted for a variable:
 </p>
-<div><img alt="Octopus environments" src="images/octopus/prompted-variable-1.png" /></div>
+<div><img alt="Octopus environments" src="images/octopus/prompted-variable-1.png"/></div>
 <p>
     Running this runbook will remove any resources associated with a feature branch, effectively undeploying a feature
     branch from an environment.

@@ -96,9 +96,11 @@
 <p class="note">
     At the time of writing there is no official Octopus GitHub Actions plugin that can be used to create a build information JSON file.
 </p>
+<h3>Enable issue tracking message parsing</h3>
 <p>
     Before we start pushing build information, we need to enable Octopus to parse commit messages looking for links to work items (or, as they are known in GitHub, issues). This is done through <b>Configuration -> Settings -> GitHub Issue Tracker</b>. By enabling this setting, GIT commit messages like <b>Updated the blah class to expose x. Fixes #123</b> will be parsed and the <b>Fixes #123</b> string is converted into a link to the GitHub issue number 123.
 </p>
+<h3>Creating build information</h3>
 <p>
     The source code used to generate the Docker image we have been deploying as the frontend web application is found at <a href="https://github.com/OctopusSamples/RandomQuotes-Java">https://github.com/OctopusSamples/RandomQuotes-Java</a>. The code in this GIT repository is built with the workflow file at <a href="https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml">https://github.com/OctopusSamples/RandomQuotes-Java/blob/master/.github/workflows/maven.yml</a>. The complete workflow file is shown below:
 </p>
@@ -286,6 +288,7 @@ run: >-
     The build information appears under <b>Library -> Build Information</b>:
 </p>
 <div><img alt="Redeploy" src="images/octopus/build-information.png"/></div>
+<h3>Including build information in release notes</h3>
 <p>
     To make use of the build information, we create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Expand the <b>Release Notes Template</b> section, and paste in the following template:
 </p>
@@ -310,6 +313,7 @@ run: >-
 <p>
     Between the custom release notes and build information linked to packages referenced as part of a release, it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
 </p>
+<h3>Listing package dependencies</h3>
 <p>
     The list of dependencies that were included in a build was mentioned in the chapter introduction. This information is not saved as part of build information, but we have captured this information in the CI logs. Because our sample application is built with Maven, we can use the <b>mvn dependency:tree</b> command to list the dependencies that are used for a build:
 </p>
