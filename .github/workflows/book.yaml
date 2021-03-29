@@ -22,7 +22,6 @@ jobs:
         sudo gem install jekyll bundler jekyll-contentful-data-import
         cd scripts
         ./create-k8s.sh
-        ./create-k8skdp.sh
 
     - name: Install Calibre
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
@@ -52,17 +51,6 @@ jobs:
         asset_name: tenpillarsk8s.epub
         asset_content_type: application/zip
 
-    - name: Upload Printable EPUB Release Asset
-      id: upload-release-asset-printable-epub
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: _site/k8s/MyBookKDP.epub
-        asset_name: tenpillarsk8s-printable.epub
-        asset_content_type: application/zip
-
     - name: Upload PDF Release Asset
       id: upload-release-asset-pdf
       uses: actions/upload-release-asset@v1
@@ -73,3 +61,17 @@ jobs:
         asset_path: _site/k8s/MyBook.pdf
         asset_name: tenpillarsk8s.pdf
         asset_content_type: application/pdf
+
+    - name: Build printable EPUB
+      run: ./create-k8skdp.sh
+
+    - name: Upload Printable EPUB Release Asset
+      id: upload-release-asset-printable-epub
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: _site/k8s/MyBookKDP.epub
+        asset_name: tenpillarsk8s-printable.epub
+        asset_content_type: application/zip
