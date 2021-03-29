@@ -41,7 +41,7 @@ jobs:
         prerelease: false
 
     - name: Upload EPUB Release Asset
-      id: upload-release-asset
+      id: upload-release-asset-epub
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,7 +52,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload PDF Release Asset
-      id: upload-release-asset
+      id: upload-release-asset-pdf
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
