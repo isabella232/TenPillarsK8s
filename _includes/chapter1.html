@@ -331,7 +331,7 @@
 	Suddenly Octopus was in the position of having to ship CLI tooling for multiple PaaS targets across multiple operating systems. In addition, these tools were frequently updated, often much faster than new releases of Octopus were made available. It became clear that a better solution than packaging the tools with Octopus was required.
 </p>
 <p>
-	This is where container images come in. This feature runs Calamari inside a Docker container built from a custom Docker image. Octopus supplies Docker images via <a href="https://hub.docker.com/r/octopusdeploy/worker-tools">Docker Hub</a> with a number of common tools required for deployments (including <b>kubectl</b>), or end users can build their own images.
+	This is where container images come in. This feature runs Calamari inside a Docker container built from a custom Docker image. Octopus supplies Docker images via <a href="https://hub.docker.com/r/octopusdeploy/worker-tools">https://hub.docker.com/r/octopusdeploy/worker-tools</a> with a number of common tools required for deployments (including <b>kubectl</b>), or end users can build their own images.
 </p>
 <p class="note">
     Calamari is the executable run by a tentacle to perform a deployment. So where the tentacle is a relatively static agent that is responsible for networking and receiving instructions from the Octopus server, Calamari is the code that the tentacle executes to do the actual work involved in a deployment. Tentacles are required to be installed by end users, but Calamari is distributed by the server through the tentacle. This means Calamari is an implementation detail end users don't usually have to think about.
