@@ -1,12 +1,18 @@
 <h1><a id="chapter1">Repeatable deployments</a></h1>
 <p>
-    One of the primary reasons to progress a deployment through environments is to gain increasing confidence that you are providing a working solution to your end users. This confidence can be built through testing (both manual and automated), manual sign off, using your own software internally (drinking your own champagne), early releases to test users, or any number of other processes that allow issues to be identified before they impact your end users.
+    One of the primary reasons to progress a deployment through environments is to gain increasing confidence that you are providing a working solution to your end users. This confidence can be built through: 
+<ul>
+    <li>Testing (both manual and automated).</li> 
+    <li>Manual sign off.</li> 
+    <li>Using your own software internally (drinking your own champagne).</li>  
+    <li>Early releases to test users.</li>li> 
+    <li>Or any number of other processes that allow issues to be identified before they impact your end users.</li>
 </p>
 <p>
-	However, you only gain this confidence if what you are deploying to production is as close as possible to what you have been verifying in non-production.
+	However, you only gain this confidence if what you are deploying to production is as close as possible to what you've been verifying in non-production.
 </p>
 <p>
-	By embracing repeatable deployments, you can be sure that what your end users use in production is what you have been testing, verifying, and gaining confidence in through your non-production environments.
+	By embracing repeatable deployments, you can be sure that what your end users use in production is what you have been testing, verifying, and gaining confidence in, through your non-production environments.
 </p>
 <h2>General deployment concepts</h2>
 <p>
@@ -48,7 +54,7 @@
 	The configuration of all environments should be as similar as possible to ensure that an application will behave consistently regardless of which environment it exists in.
 </p>
 <p>
-	Environments typically represent a progression from an initial environment with a high frequency of deployments and low stability through to the final environment with a low frequency of deployments and high stability.
+	Environments typically represent a progression from an initial environment with a high frequency of deployments and low stability, through to the final environment with a low frequency of deployments and high stability.
 </p>
 <p>
 	Deployments are progressed through environments to gain an increasing level of confidence that a working solution can be delivered to the end user.
@@ -68,7 +74,7 @@
 	</tr>
 	<tr>
 		<td>Test</td>
-		<td>Used by developers, QA, and non-technical staff to validate changes meet requirements.</td>
+		<td>Used by developers, QA, and non-technical staff to validate that changes meet requirements.</td>
 		<td>Medium</td>
 		<td>Medium</td>
 	</tr>
@@ -98,7 +104,7 @@
 	The package versions, variable values, and scripts or configuration files are captured as a release.
 </p>
 <p>
-	The release is then deployed to an environment. In this way a consistent bundle of packages, variables, scripts and configuration files are promoted from one environment to the next. Only a small subset of environment specific settings vary from one environment to the next.
+	The release is then deployed to an environment. In this way, a consistent bundle of packages, variables, scripts and configuration files are promoted from one environment to the next. Only a small subset of environment specific settings vary from one environment to the next.
 </p>
 <h2>Repeatable {{ site.platform }} deployments</h2>
 <p>
@@ -116,22 +122,40 @@
 </p>
 <h3>Defining environments in {{ site.platform }}</h3>
 <p>
-	To implement repeatable deployments in Kubernetes we first need to decide how to represent environments in a Kubernetes cluster. There are two main approaches we can take: environments can be represented in a shared cluster with namespaces, each environment can be a separate cluster, or a mixture of both approaches.
+	To implement repeatable deployments in Kubernetes we first need to decide how to represent environments in a Kubernetes cluster. There are three main approaches we can take: 
+<ol>
+	<li>Environments can be represented in a shared cluster with namespaces.</li> 
+	<li>Each environment can be a separate cluster.</li> 
+	<li>Or a mixture of both approaches.</li>
+</ol>	
 </p>
 <p>
-	Placing multiple environments in a shared cluster removes many of the administrative burdens incurred with the maintenance of multiple clusters. By scoping environment specific resources to namespaces we can take advantage of the Kubernetes Role Based Access Control (RBAC) security layer to ensure resources are isolated, resource quotas to ensure no single environment consumes more than its share, and network policies to restrict traffic between pods.
+	Placing multiple environments in a shared cluster removes many of the administrative burdens of maintaining multiple clusters. By scoping environment specific resources to namespaces we can take advantage of: 
+<ul>
+	<li>The Kubernetes Role Based Access Control (RBAC) security layer to ensure resources are isolated.</li>
+	<li>Resource quotas to ensure no single environment consumes more than its share.</li>
+	<li>Network policies to restrict traffic between pods.</li>
+</ul>
 </p>
 <p>
-	While namespaces do a reasonable job of partitioning a cluster, there are many cluster wide settings and resources that can not be scoped to a namespace. Custom resource definitions (CRDs) are global, so if you want to incrementally role out CRDs between environments, each environment must be a separate cluster. Resources like network and disk bandwidth are impractical to limit to a single namespace. And if you are not careful with Docker image tagging, consuming a new image tagged with a floating version like <b>latest</b> in a non-production environment can mean containers referencing that tag in a production environment may be updated as pods are recreated. Finally, the Kubernetes cluster version itself is obviously not something that can differ between namespaces. 
+	While namespaces do a reasonable job of partitioning a cluster, there are many cluster-wide settings and resources that can not be scoped to a namespace. Custom resource definitions (CRDs) are global, so if you want to incrementally role out CRDs between environments, each environment must be a separate cluster. Resources like network and disk bandwidth are impractical to limit to a single namespace. And if you are not careful with Docker image tagging, consuming a new image tagged with a floating version like <b>latest</b> in a non-production environment can mean containers referencing that tag in a production environment may be updated as pods are recreated. Finally, the Kubernetes cluster version itself is obviously not something that can differ between namespaces. 
 </p>
 <p>
 	For those cases where you need a high degree of isolation between environments, using separate clusters is the best choice. Individual clusters can take advantage of hardware and physical network isolation, and allow the Kubernetes version itself to be updated in each individual environment.
 </p>
 <p>
-	Most likely though a combination of the two approaches is used, where the non-production environments share a cluster and are defined via namespaces, while the production environment is on a separate cluster taking advantage of network and hardware isolation.
+	Most likely though, a combination of the two approaches is used, where the non-production environments share a cluster and are defined via namespaces, while the production environment is on a separate cluster taking advantage of network and hardware isolation.
 </p>
 <p>
-	In practice most deployments will go one level deeper and create namespaces for each application and environment. For example, if you were deploying an application stack with a frontend and backend component, you would likely end up with six namespaces: <b>Frontend-Development</b>, <b>Frontend-Test</b>, <b>Frontend-Production</b>, <b>Backend-Development</b>, <b>Backend-Test</b>, and <b>Backend-Production</b>.
+	In practice most deployments will go one level deeper and create namespaces for each application and environment. For example, if you were deploying an application stack with a frontend and backend component, you would likely end up with six namespaces: 
+<ol>
+	<li><b>Frontend-Development</b></li>
+	<li><b>Frontend-Test</b></li>
+	<li><b>Frontend-Production</b></li>
+	<li><b>Backend-Development</b></li> 
+	<li><b>Backend-Test</b></li>
+	<li><b>Backend-Production</b></li>
+</ol>	
 </p>
 <h3>Creating Octopus environments</h3>
 <p>
@@ -156,7 +180,7 @@
 </p>
 <div><img alt="Octopus environments" src="images/octopus/default-lifecycle.png"/></div>
 <p>
-	This is <i>almost</i> what we want. However, the <b>Admin</b> environment is not part of a deployment's progression; it sits outside of the traditional environments, and exists to perform global administrative tasks. This means that our deployments require a custom lifecycle that include the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, but excludes the <b>Admin</b> environment.
+	This is <i>almost</i> what we want. However, the <b>Admin</b> environment is not part of a deployment's progression; it sits outside of the traditional environments, and exists to perform global administrative tasks. This means our deployments require a custom lifecycle that include the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, but excludes the <b>Admin</b> environment.
 </p>
 <p>
 	Clicking the <b>ADD LIFECYCLE</b> button creates a new lifecycle. We'll call this new lifecycle <b>Dev, Test, and Prod</b>.
@@ -173,7 +197,7 @@
 </p>
 <h3>Inspecting the initial cluster</h3>
 <p>
-	In this example I have created a Kubernetes cluster in Google Cloud. This platform is called Google Kubernetes Engine (GKE).
+	In this example I created a Kubernetes cluster in Google Cloud. This platform is called Google Kubernetes Engine (GKE).
 </p>
 <p class="note">
     There are many flavors of Kubernetes available today. All major cloud providers have a managed Kubernetes platform, Kubernetes can be installed on-premises, and specialized distributions like OpenShift offer compatibility with Kubernetes. This book uses a cluster hosted by Google Cloud, but, besides the authentication, all the features we'll discuss apply to any Kubernetes cluster.
@@ -195,7 +219,7 @@
 <div><img alt="Google K8s cluster" src="images/kubernetes/cluster-certificate.png"/></div>
 <h3>Creating the Octopus Kubernetes account</h3>
 <p>
-	The GKE cluster we'll be using in this book has basic authentication enabled, which means we authenticate with the cluster via a username and password. These details are saved in Octopus as a <b>Username/Password</b> account. Accounts are found under <b>Infrastructure -> Accounts</b>. Click the <b>ADD ACCOUNT</b> drop down list and select the <b>Username/Password</b> option to create a new account.
+	The GKE cluster we'll be using in this book has basic authentication enabled. This means we authenticate with the cluster via a username and password. These details are saved in Octopus as a <b>Username/Password</b> account. Accounts are found under <b>Infrastructure -> Accounts</b>. Click the <b>ADD ACCOUNT</b> drop down list and select the <b>Username/Password</b> option to create a new account.
 </p>
 <p class="note">
     Kubernetes supports many authentication types. A Kubernetes service account is authenticated with a token, which is saved in Octopus as a <b>Token</b> account. A Kubernetes client certificate is saved as an Octopus certificate. It is also possible to authenticate against AWS and Azure hosted Kubernetes instances using cloud platform credentials, in which case a Kubernetes target is configured with an <b>AWS Account</b> or <b>Azure Subscription</b> account.
@@ -217,17 +241,25 @@
 	Kubernetes deployments in Octopus are performed via a Kubernetes target. Targets capture the details of the Kubernetes cluster, the credentials, and the default namespace in which deployments are performed.
 </p>
 <p>
-	It is best to think about Kubernetes targets as security boundaries in which a deployment is performed. By creating a target configured with a Kubernetes account that only has the permissions to deploy into a single namespace, we can be sure that deployments performed via that target wil not accidentally modify resources in another namespace. This is especially important where a single Kubernetes cluster hosts multiple environments, and we want to guarantee that deployments to the <b>Development</b> environment can not affect the <b>Test</b> or <b>Production</b> environments.
+	It's best to think about Kubernetes targets as security boundaries in which a deployment is performed. By creating a target configured with a Kubernetes account that only has the permissions to deploy into a single namespace, we can be sure that deployments performed via that target will not accidentally modify resources in another namespace. This is especially important where a single Kubernetes cluster hosts multiple environments, and we want to guarantee that deployments to the <b>Development</b> environment can not affect the <b>Test</b> or <b>Production</b> environments.
 </p>
 <p>
 	At this point though we only have administrative access to our cluster. We could perform all deployments to our cluster with these administrative credentials, but doing so is not considered best practice. Instead, we need to use our administrative credentials to create additional accounts that only have access to a single namespace representing the application and environment being deployed. To do this we'll start by creating an administrative Kubernetes target.
 </p>
 <h5>Creating the administrative Kubernetes target</h5>
 <p>
-	Before we start deploying applications to our Kubernetes cluster we need to use our administrator access to create the resources, both in Octopus and in Kubernetes, that we will use to perform the deployments. To create these more targeted resources, we first create an administrative Kubernetes target. Just as you would use privileged root or administrator accounts to create regular user accounts when managing an operating system, the administrative Kubernetes target will be used to create Kubernetes accounts and Octopus targets for regular deployments.
+	Before we start deploying applications to our Kubernetes cluster we need to use our administrator access to create the resources, both in Octopus and in Kubernetes, that we will use to perform the deployments. 
 </p>
 <p>
-	Octopus targets are managed under <b>Infrastructure -> Deployment Targets</b>. Click the <b>ADD DEPLOYMENT TARGET</b> button to create a new target, select the <b>KUBERNETES CLUSTER</b> option, and then click the <b>Kubernetes Cluster</b> tile.
+	To create these more targeted resources, we first create an administrative Kubernetes target. Just as you would use privileged root or administrator accounts to create regular user accounts when managing an operating system, the administrative Kubernetes target will be used to create Kubernetes accounts and Octopus targets for regular deployments.
+</p>
+<p>
+	Octopus targets are managed under <b>Infrastructure -> Deployment Targets</b>. 
+<ol>
+	<li>Click the <b>ADD DEPLOYMENT TARGET</b> button to create a new target.</li> 
+	<li>Select the <b>KUBERNETES CLUSTER</b> option.</li>
+	<li>Then click the <b>Kubernetes Cluster</b> tile.</li>
+</ol>	
 </p>
 <p>
 	We'll call this target <b>GKE Admin</b>, and scope it to the <b>Admin</b> environment.
@@ -265,15 +297,15 @@
 	Up until this point we have been working with the Octopus server. You can think of the server as an orchestrator that ensures deployments are performed in the required environments to the appropriate targets with all the necessary settings and packages.
 </p>
 <p>
-	When performing deployments to on-premises infrastructure, such as a web server hosted on a VM, the actual execution of the deployment is performed through an agent called a tentacle. In keeping with the nautical themes you'll often encounter with Octopus terminology, an Octopus server has many tentacles that reach out into your infrastructure. Where multiple VMs had to be updated with each deployment, multiple tentacles were deployed with a shared role like <b>Web Server</b>. So a deployment configured to update all targets of the role <b>Web Server</b> would reach out across all the tentacles with that role and perform the required changes:
+	When performing deployments to on-premises infrastructure, such as a web server hosted on a VM, the actual execution of the deployment is performed through an agent called a tentacle. In keeping with the nautical themes of Octopus terminology, an Octopus server has many tentacles that reach out into your infrastructure. Where multiple VMs had to be updated with each deployment, multiple tentacles were deployed with a shared role like <b>Web Server</b>. So a deployment configured to update all targets of the role <b>Web Server</b> would reach out across all the tentacles with that role and perform the required changes:
 </p>
 <div><img alt="Google K8s cluster" src="images/diagrams/on-prem-deployment.png"/></div>
 <p>
-	However, when using cloud Platform as a Service (PaaS) offerings to host applications, it initially didn't make a lot of sense to try and physically install Tentacles alongside the PaaS infrastructure. Cloud PaaS deployments are typically designed to support API calls from a remote host, and so cloud deployments were traditionally performed by the Octopus server without a Tentacle:
+	However, when using cloud Platform as a Service (PaaS) offerings to host applications, it initially didn't make sense to physically install Tentacles alongside the PaaS infrastructure. Cloud PaaS deployments are typically designed to support API calls from a remote host, and so cloud deployments were traditionally performed by the Octopus server without a Tentacle:
 </p>
 <div><img alt="Google K8s cluster" src="images/diagrams/server-deployment.png"/></div>
 <p>
-	As cloud deployments grew in popularity though it became clear that having the Octopus server itself perform cloud deployments would not scale. Aside from the obvious burden this strategy placed on the Octopus server, it didn't allow for networking constraints where cloud infrastructure had limited access from public networks, and made it hard to leverage the common security practice of assigning roles to cloud VMs that could be inherited by any application running on those servers.
+	As cloud deployments grew in popularity though, it became clear that having the Octopus server itself perform cloud deployments would not scale. Aside from the obvious burden this strategy placed on the Octopus server, it didn't allow for networking constraints where cloud infrastructure had limited access from public networks, and made it hard to leverage the common security practice of assigning roles to cloud VMs that could be inherited by any application running on those servers.
 </p>
 <p>
 	To work around these limitations, customers would often create a VM in their cloud provider with a tentacle installed on it, grant the VM the necessary security roles and network access required to interact with their PaaS instances, and perform Octopus deployments through that single tentacle:
@@ -315,7 +347,7 @@
     A dynamic worker is an ephemeral worker provided to hosted Octopus customers. It is created when needed, and destroyed automatically when no longer needed.
 </p>
 <p>
-	To use the Ubuntu based dynamic workers, Windows 2019 or above based dynamic workers, or to use a different version of <b>kubectl</b> than was supplied on the workers from the <b>Hosted Windows</b> worker pool, we need to configure a health check container image.
+	To use the Ubuntu based dynamic workers, Windows 2019 or above based dynamic workers, or to use a different version of <b>kubectl</b> than supplied on the workers from the <b>Hosted Windows</b> worker pool, we need to configure a health check container image.
 </p>
 <h3>Octopus container images</h3>
 <p>
@@ -340,7 +372,7 @@
 	Container images essentially lift the requirement to provide tooling from the operating system hosting the tentacle or worker into a Docker image. This in turn means the operating system hosting the worker or tentacle can be rather sparse, instead relying on targets or steps to configure an appropriate container image. Or, in the case of a dynamic worker provided to a hosted instance, it means end users can make use of custom tooling on workers they otherwise have no access to.
 </p>
 <p class="note">
-    Only Linux based dynamic workers, or dynamic workers running on Windows 2019 or later, support Docker and therefor support container images. The default worker pool for a hosted instance runs Windows 2016 and does not support container images.
+    Only Linux based dynamic workers, or dynamic workers running on Windows 2019 or later, support Docker and therefore support container images. The default worker pool for a hosted instance runs Windows 2016 and does not support container images.
 </p>
 <p>
 	To change the operating system of the dynamic workers, go to <b>Infrastructure -> Worker Pools</b>, click the hamburger menu next to the <b>Hosted Windows</b> worker pool, and click the <b>Edit</b> button. The <b>Worker Image</b> option will then allow you to select a newer operating system for the dynamic worker:
@@ -386,7 +418,7 @@
 </p>
 <div><img alt="Docker hub feed" src="images/octopus/target-with-container-image.png"/></div>
 <p class="note">
-    There are many versions of the worker tools image available. The image with the tag <b>windows.ltsc2019</b> (or <b>ubuntu.18.04</b> had we been using a Linux based worker) will point to the latest available image version. The latest worker tools image is also preloaded onto dynamic workers, which improves performance. You can use images tagged with increasing levels of specificity such as <b>2-windows.ltsc2019</b>, <b>2.0-windows.ltsc2019</b>, or <b>2.0.1-windows.ltsc2019</b> to ensure the versions of the tools provided by the image remain static. However, you will likely find over time that these specific image tags are not preloaded onto the dynamic worker, meaning each deployment or health check first needs to download the Docker image, which can take a minute or so. Since we are only interested in <b>kubectl</b>, which provides a quite high level of backward compatibility, we can ensure our deployments perform as quickly as possible by using the tag <b>windows.ltsc2019</b> or <b>ubuntu.18.04</b>.
+    There are many versions of the worker tools image available. The image with the tag <b>windows.ltsc2019</b> (or <b>ubuntu.18.04</b> had we been using a Linux based worker) will point to the latest available image version. The latest worker tools image is also preloaded onto dynamic workers, which improves performance. You can use images tagged with increasing levels of specificity such as <b>2-windows.ltsc2019</b>, <b>2.0-windows.ltsc2019</b>, or <b>2.0.1-windows.ltsc2019</b> to ensure the versions of the tools provided by the image remain static. However, you will likely find over time that these specific image tags are not preloaded onto the dynamic worker, meaning each deployment or health check first needs to download the Docker image, which can take a minute or so. Since we are only interested in <b>kubectl</b>, which provides a high level of backward compatibility, we can ensure our deployments perform as quickly as possible by using the tag <b>windows.ltsc2019</b> or <b>ubuntu.18.04</b>.
 </p>
 <p>
 	We now have our administrative Kubernetes target configured and ready to use in configuring our cluster for application deployments. The next step is to create Kubernetes accounts and Octopus targets that support deployments into a single namespace.
@@ -396,7 +428,7 @@
 	With our administrative target configured, we can now begin the process of configuring our Kubernetes cluster to accept deployments into a single namespace.
 </p>
 <p>
-	Just as repeatable deployments should be automated, we also want management tasks like creating Kubernetes accounts and Octopus targets to automated and repeatable. To do this we will create a RunBook.
+	Just as repeatable deployments should be automated, we also want management tasks like creating Kubernetes accounts and Octopus targets to be automated and repeatable. To do this we will create a RunBook.
 </p>
 <p class="note">
     Octopus has the concept of a deployment process, which typically progresses the deployment of an application through multiple environments in a strict order, and Runbooks, which run management and operations tasks as needed in any environment.
@@ -431,11 +463,11 @@
 </p>
 <div><img alt="Execution settings" src="images/octopus/common-admin-settings.png"/></div>
 <p>
-	The step then prompts for four settings:
+	The step then prompts four settings:
 </p>
 <ul>
 	<li>The role name to assign to our new Octopus target, set to <b>Backend</b>.</li>
-	<li>The Kubernetes namespace that the target can deploy into, set to <b>backend-#{Octopus.Environment.Name | ToLower}</b>.</li>
+	<li>The Kubernetes namespace the target can deploy into, set to <b>backend-#{Octopus.Environment.Name | ToLower}</b>.</li>
 	<li>The feed that hosts the health check container image, set to <b>Docker Hub</b>.</li>
 	<li>The health check docker image, set to <b>octopusdeploy/worker-tools:windows.ltsc2019</b>.</li>
 </ul>
@@ -490,7 +522,13 @@
 	We will however treat the database administrator password as a secret value in our deployment process. This password needs to be shared between the two Octopus projects, one for the backend and one for the frontend, that we'll create to deploy the application stack. Shared variables like this are captured in a Variable Set.
 </p>
 <p>
-	To create a new variable set, open <b>Library -> Variable Sets</b>, and click the <b>ADD NEW VARIABLE SET</b> button. Give the variable set the name of <b>Random Quotes</b>. Under the <b>Variables</b> tab, add a new variable called <b>DatabasePassword</b>, configure the value to be a secret, and enter a suitable password as the value:
+	To create a new variable set:
+<ol>
+	<li>Open <b>Library -> Variable Sets</b> and click the <b>ADD NEW VARIABLE SET</b> button.</li> 
+	<li>Give the variable set the name of <b>Random Quotes</b>.</li> 
+	<li>Under the <b>Variables</b> tab, add a new variable called <b>DatabasePassword</b>.</li>  
+<	li>Configure the value to be a secret, and enter a suitable password as the value:</li> 
+</ol>
 </p>
 <div><img alt="Random Quotes variable set" src="images/octopus/variable-set.png"/></div>
 <p>
@@ -514,7 +552,12 @@
 	An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-backend/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-backend/deployments</a>.
 </p>
 <p>
-	Our first deployment project will deploy the backend PostgreSQL database. Click <b>Projects -> ADD PROJECT</b> to create a new project. Give the new project the name of <b>Random Quotes - Backend</b>, and click the <b>Save</b> button. Click the <b>DEFINE YOUR DEPLOYMENT PROCESS</b> button to be taken to the process editor, and then click the <b>ADD STEP</b> button to add the first step to the deployment process.
+	Our first deployment project will deploy the backend PostgreSQL database:
+<ol> 
+	<li>Click <b>Projects -> ADD PROJECT</b> to create a new project.</li> 
+	<li>Give the new project the name of <b>Random Quotes - Backend</b>, and click the <b>Save</b> button.</li>
+	<li>Click the <b>DEFINE YOUR DEPLOYMENT PROCESS</b> button to be taken to the process editor, and then click the <b>ADD STEP</b> button to add the first step to the deployment process.</li>
+</ol>
 </p>
 <p>
 	We'll use the <b>Deploy Kubernetes containers</b> step for both the backend and frontend containers. This step provides an opinionated workflow for deploying a Kubernetes deployment resource, with any associated service, secret, and configmap resources that support the container.
@@ -541,7 +584,11 @@
     The deployment process only references the image name. We do not select the version of the image as part of the deployment process. As we'll see later, the version is selected when we create a release. This means that the deployment process is largely static between releases, while new image versions can be deployed as needed.
 </p>
 <p>
-	We then need to expose a port used to access the database. Under the <b>Ports</b> section, click the <b>ADD PORT</b> button. Then enter <b>db</b> as the port name and <b>5432</b> as the port number.
+	We then need to expose a port used to access the database: 
+<ol>
+	<il>Under the <b>Ports</b> section, click the <b>ADD PORT</b> button.</il> 
+	<il>Then enter <b>db</b> as the port name and <b>5432</b> as the port number.</il>
+<ol>	
 </p>
 <p>
 	The final value to configure is the environment variable that defines the password for the database administrative user account. Under the <b>Environment Variables</b> section, expand the second nested <b>Environment Variables</b> section, and click the <b>ADD ENVIRONMENT VARIABLE</b> button. Enter <b>POSTGRES_PASSWORD</b> for the name, and <b>#{DatabasePassword}</b> for the value.
@@ -567,7 +614,11 @@ max_connections=200
 	We now need to define a service to expose the database to other containers. This is done under the <b>Service</b> section of the step.
 </p>
 <p>
-	Enter <b>postgres</b> for the service name. Then click the <b>ADD PORT</b> button. The port name is <b>db</b> and the port number is <b>5432</b>. Click the <b>OK</b> button to save the changes.
+<ol>	
+	<li>Enter <b>postgres</b> for the service name.</li> 
+	<li>Then click the <b>ADD PORT</b> button. The port name is <b>db</b> and the port number is <b>5432</b>.</li> 
+	<li>Click the <b>OK</b> button to save the changes.</li>
+</ol>	
 </p>
 <p>
 	We have now configured a Kubernetes deployment with a PostgreSQL database and exposed it via a Kubernetes service. This is everything we need to deploy the backend database, so click the <b>SAVE</b> button to save the changes.
