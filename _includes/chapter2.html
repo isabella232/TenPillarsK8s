@@ -57,7 +57,7 @@ Smoke tests are quick tests designed to ensure that applications and services ha
     The first practical consideration when testing deployments is where the tests are run.
 </p>
 <p>
-    If you recall from <a href="#chapter1">chapter one</a>, the service we created to expose the database was of type <b>ClusterIP</b>, which means that the service only exposes a private IP address that can be accessed from within the Kubernetes cluster.
+    If you recall from <a href="#chapter1">chapter 1</a>, the service we created to expose the database was of type <b>ClusterIP</b>, which means that the service only exposes a private IP address that can be accessed from within the Kubernetes cluster.
 </p>
 <p>
     We could expose the database to public traffic, but this is an unnecessary security risk given the only clients accessing the database (i.e. the frontend web application) are also deployed in the same cluster.
