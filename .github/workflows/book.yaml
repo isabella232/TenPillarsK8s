@@ -63,7 +63,9 @@ jobs:
         asset_content_type: application/pdf
 
     - name: Build printable EPUB
-      run: ./create-k8skdp.sh
+      run: |-
+        cd scripts
+        ./create-k8skdp.sh
 
     - name: Upload Printable EPUB Release Asset
       id: upload-release-asset-printable-epub
