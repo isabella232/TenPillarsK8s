@@ -6,9 +6,8 @@ jekyll build --config config-k8skdp.yml
 pushd _site/k8s || exit
 
 # Remove links in the book - this can't be printed anyway
-sed -i 's%<a%<u>%g' book.html
-sed -i 's%href="[^"]*">%%g' book.html
-sed -i 's%</a>%</u>%g' book.html
+cp book.html book2.html
+perl -0777pe 's%<a[ \r\n]+href="[^"]*">(.*?)</a>%<u>$1</u>%sg' book2.html > book.html
 
 # find . -name '*.png' -exec mogrify -resize 50% {} +
 if [ -f MyBook.epub ]; then
