@@ -195,7 +195,7 @@ jobs:
     - name: Push Build Info
       run: >-
         octo build-information
-        --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
+        "--space=${{ secrets.OCTOPUS_SERVER_SPACE }}"
         --server=${{ secrets.OCTOPUS_SERVER_URL }}
         --apiKey=${{ secrets.OCTOPUS_API_KEY }}
         --package-id=octopussamples/randomquotesjava
@@ -276,7 +276,7 @@ run: >-
 - name: Push Build Info
 run: >-
   octo build-information
-  --space=${{ secrets.OCTOPUS_SERVER_SPACE}}
+  "--space=${{ secrets.OCTOPUS_SERVER_SPACE }}"
   --server=${{ secrets.OCTOPUS_SERVER_URL }}
   --apiKey=${{ secrets.OCTOPUS_API_KEY }}
   --package-id=octopussamples/randomquotesjava
@@ -312,6 +312,201 @@ run: >-
 <div><img alt="Redeploy" src="images/octopus/package-build-info.png"/></div>
 <p>
     Between the custom release notes and build information linked to packages referenced as part of a release, it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
+</p>
+<h3>Consuming build information in the deployment</h3>
+<p>
+    Build information is also available as a variable called <b>Octopus.Deployment.Changes</b> exposed as part of a deployment. We'll print these to the screen as part of the deployment with a <b>Run a Script</b> step to demonstrate how the variable can be used.
+<p>
+    The <b>Octopus.Deployment.Changes</b> variable holds raw JSON exposing the build information. An example of the contents of this variable is shown below:
+</p>
+<pre class="wrapPre">
+[
+  {
+    "Version": "0.0.29",
+    "ReleaseNotes": null,
+    "BuildInformation": [],
+    "WorkItems": [],
+    "Commits": []
+  },
+  {
+    "Version": "0.0.30",
+    "ReleaseNotes": null,
+    "BuildInformation": [],
+    "WorkItems": [],
+    "Commits": []
+  },
+  {
+    "Version": "0.0.31",
+    "ReleaseNotes": null,
+    "BuildInformation": [
+      {
+        "PackageId": "octopussamples/randomquotesjava",
+        "Version": "0.1.173",
+        "BuildEnvironment": "",
+        "BuildNumber": "173",
+        "BuildUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/actions/runs/696489700",
+        "Branch": "refs/heads/master",
+        "VcsType": "Git",
+        "VcsRoot": "https://github.com/OctopusSamples/RandomQuotes-Java",
+        "VcsCommitNumber": "dda48c435d504d576e828194616ab69da578029d",
+        "VcsCommitUrl": null,
+        "WorkItems": [],
+        "Commits": []
+      }
+    ],
+    "WorkItems": [],
+    "Commits": [
+      {
+        "Id": "dda48c435d504d576e828194616ab69da578029d",
+        "LinkUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/commit/dda48c435d504d576e828194616ab69da578029d",
+        "Comment": "Wrapped space command in quotes"
+      }
+    ]
+  },
+  {
+    "Version": "0.0.32",
+    "ReleaseNotes": null,
+    "BuildInformation": [
+      {
+        "PackageId": "octopussamples/randomquotesjava",
+        "Version": "0.1.174",
+        "BuildEnvironment": "",
+        "BuildNumber": "174",
+        "BuildUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/actions/runs/696500835",
+        "Branch": "refs/heads/master",
+        "VcsType": "Git",
+        "VcsRoot": "https://github.com/OctopusSamples/RandomQuotes-Java",
+        "VcsCommitNumber": "3215bd7d93359096973623087dee2966804a601e",
+        "VcsCommitUrl": null,
+        "WorkItems": [],
+        "Commits": []
+      }
+    ],
+    "WorkItems": [],
+    "Commits": [
+      {
+        "Id": "3215bd7d93359096973623087dee2966804a601e",
+        "LinkUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/commit/3215bd7d93359096973623087dee2966804a601e",
+        "Comment": "Fixed some spaces"
+      }
+    ]
+  },
+  {
+    "Version": "0.0.33",
+    "ReleaseNotes": null,
+    "BuildInformation": [
+      {
+        "PackageId": "octopussamples/randomquotesjava",
+        "Version": "0.1.174",
+        "BuildEnvironment": "",
+        "BuildNumber": "174",
+        "BuildUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/actions/runs/696500835",
+        "Branch": "refs/heads/master",
+        "VcsType": "Git",
+        "VcsRoot": "https://github.com/OctopusSamples/RandomQuotes-Java",
+        "VcsCommitNumber": "3215bd7d93359096973623087dee2966804a601e",
+        "VcsCommitUrl": null,
+        "WorkItems": [],
+        "Commits": []
+      }
+    ],
+    "WorkItems": [],
+    "Commits": [
+      {
+        "Id": "3215bd7d93359096973623087dee2966804a601e",
+        "LinkUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/commit/3215bd7d93359096973623087dee2966804a601e",
+        "Comment": "Fixed some spaces"
+      }
+    ]
+  },
+  {
+    "Version": "0.0.34",
+    "ReleaseNotes": null,
+    "BuildInformation": [
+      {
+        "PackageId": "octopussamples/randomquotesjava",
+        "Version": "0.1.174",
+        "BuildEnvironment": "",
+        "BuildNumber": "174",
+        "BuildUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/actions/runs/696500835",
+        "Branch": "refs/heads/master",
+        "VcsType": "Git",
+        "VcsRoot": "https://github.com/OctopusSamples/RandomQuotes-Java",
+        "VcsCommitNumber": "3215bd7d93359096973623087dee2966804a601e",
+        "VcsCommitUrl": null,
+        "WorkItems": [],
+        "Commits": []
+      }
+    ],
+    "WorkItems": [],
+    "Commits": [
+      {
+        "Id": "3215bd7d93359096973623087dee2966804a601e",
+        "LinkUrl": "https://github.com/OctopusSamples/RandomQuotes-Java/commit/3215bd7d93359096973623087dee2966804a601e",
+        "Comment": "Fixed some spaces"
+      }
+    ]
+  }
+]
+</pre>
+<p>
+    Octopus variable expressions have native support for looping over JSON arrays and accessing the properties of JSON objects. In the PowerShell script below we loop over each of the items in the JSON array, loop over the child <b>BuildInformation</b>, <b>Commits</b>, and <b>WorkItems</b> arrays, and then print details of each object we find.
+</p>
+<pre>
+echo @"
+#{each change in Octopus.Deployment.Changes}
+- Release version #{change.Version} has the following packages:
+#{each buildInformation in change.BuildInformation}
+  - Package ID: #{buildInformation.PackageId}
+  - Package Version: #{buildInformation.Version}
+  - Build URL: #{buildInformation.BuildUrl}
+#{/each}
+The following comments were included in the packages:
+#{each commit in change.Commits}
+  - Commit ID: #{commit.Id}
+  - Commit URL #{commit.LinkUrl}
+  - Comment: #{commit.Comment}
+#{/each}
+The following work items were referenced in the commits:
+#{each workitem in change.WorkItems}
+  - Work Item ID: #{workitem.Id}
+  - Work Item URL: #{workitem.LinkUrl}
+  - Work Item Source: #{workitem.Source}
+  - Work Item Description: #{workitem.Description}
+#{/each}
+#{/each}
+"@
+</pre>
+<p>
+    Here is a similar script in Bash:
+</p>
+<pre>
+cat << EOF
+#{each change in Octopus.Deployment.Changes}
+- Release version #{change.Version} has the following packages:
+#{each buildInformation in change.BuildInformation}
+  - Package ID: #{buildInformation.PackageId}
+  - Package Version: #{buildInformation.Version}
+  - Build URL: #{buildInformation.BuildUrl}
+#{/each}
+The following comments were included in the packages:
+#{each commit in change.Commits}
+  - Commit ID: #{commit.Id}
+  - Commit URL #{commit.LinkUrl}
+  - Comment: #{commit.Comment}
+#{/each}
+The following work items were referenced in the commits:
+#{each workitem in change.WorkItems}
+  - Work Item ID: #{workitem.Id}
+  - Work Item URL: #{workitem.LinkUrl}
+  - Work Item Source: #{workitem.Source}
+  - Work Item Description: #{workitem.Description}
+#{/each}
+#{/each}
+EOF
+</pre>
+<p>
+    Building up a description of changes inside the deployment, as opposed to the release notes, could also be used when sending deployment notifications. <a href="#chapter10">Chapter 10</a> provides examples where emails and chat notifications are generated as part of a deployment.
 </p>
 <h3>Listing package dependencies</h3>
 <p>
