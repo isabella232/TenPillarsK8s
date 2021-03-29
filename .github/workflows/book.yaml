@@ -52,8 +52,8 @@ jobs:
         asset_name: tenpillarsk8s.epub
         asset_content_type: application/zip
 
-    - name: Upload Prinable EPUB Release Asset
-      id: upload-release-asset-epub
+    - name: Upload Printable EPUB Release Asset
+      id: upload-release-asset-printable-epub
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
