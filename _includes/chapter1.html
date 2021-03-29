@@ -1,13 +1,14 @@
 <h1><a id="chapter1">Repeatable deployments</a></h1>
 <p>
-    One of the primary reasons to progress a deployment through environments is to gain increasing confidence that you are providing a working solution to your end users. This confidence can be built through: 
+    One of the primary reasons to progress a deployment through environments is to gain increasing confidence that you are providing a working solution to your end users. This confidence can be built through:
+</p>
 <ul>
     <li>Testing (both manual and automated).</li> 
     <li>Manual sign off.</li> 
     <li>Using your own software internally (drinking your own champagne).</li>  
     <li>Early releases to test users.</li>
     <li>Or any number of other processes that allow issues to be identified before they impact your end users.</li>
-</p>
+</ul>
 <p>
 	However, you only gain this confidence if what you are deploying to production is as close as possible to what you've been verifying in non-production.
 </p>
@@ -122,21 +123,21 @@
 </p>
 <h3>Defining environments in {{ site.platform }}</h3>
 <p>
-	To implement repeatable deployments in Kubernetes we first need to decide how to represent environments in a Kubernetes cluster. There are three main approaches we can take: 
+	To implement repeatable deployments in Kubernetes we first need to decide how to represent environments in a Kubernetes cluster. There are three main approaches we can take: 	
+</p>
 <ol>
 	<li>Environments can be represented in a shared cluster with namespaces.</li> 
 	<li>Each environment can be a separate cluster.</li> 
 	<li>Or a mixture of both approaches.</li>
-</ol>	
-</p>
+</ol>
 <p>
 	Placing multiple environments in a shared cluster removes many of the administrative burdens of maintaining multiple clusters. By scoping environment specific resources to namespaces we can take advantage of: 
+</p>
 <ul>
 	<li>The Kubernetes Role Based Access Control (RBAC) security layer to ensure resources are isolated.</li>
 	<li>Resource quotas to ensure no single environment consumes more than its share.</li>
 	<li>Network policies to restrict traffic between pods.</li>
 </ul>
-</p>
 <p>
 	While namespaces do a reasonable job of partitioning a cluster, there are many cluster-wide settings and resources that can not be scoped to a namespace. Custom resource definitions (CRDs) are global, so if you want to incrementally role out CRDs between environments, each environment must be a separate cluster. Resources like network and disk bandwidth are impractical to limit to a single namespace. And if you are not careful with Docker image tagging, consuming a new image tagged with a floating version like <b>latest</b> in a non-production environment can mean containers referencing that tag in a production environment may be updated as pods are recreated. Finally, the Kubernetes cluster version itself is obviously not something that can differ between namespaces. 
 </p>
@@ -148,6 +149,7 @@
 </p>
 <p>
 	In practice most deployments will go one level deeper and create namespaces for each application and environment. For example, if you were deploying an application stack with a frontend and backend component, you would likely end up with six namespaces: 
+</p>
 <ol>
 	<li><b>Frontend-Development</b></li>
 	<li><b>Frontend-Test</b></li>
@@ -156,7 +158,6 @@
 	<li><b>Backend-Test</b></li>
 	<li><b>Backend-Production</b></li>
 </ol>	
-</p>
 <h3>Creating Octopus environments</h3>
 <p>
 	One of the advantages Octopus brings to deployment processes is that environments are a first class concept. This means that the Octopus security layer can scope access to environments where applicable, the dashboard displays the state of environments, and the progression of a deployment from one environment to the next can be modeled and enforced.
@@ -255,12 +256,12 @@
 </p>
 <p>
 	Octopus targets are managed under <b>Infrastructure -> Deployment Targets</b>. 
+</p>
 <ol>
 	<li>Click the <b>ADD DEPLOYMENT TARGET</b> button to create a new target.</li> 
 	<li>Select the <b>KUBERNETES CLUSTER</b> option.</li>
 	<li>Then click the <b>Kubernetes Cluster</b> tile.</li>
 </ol>	
-</p>
 <p>
 	We'll call this target <b>GKE Admin</b>, and scope it to the <b>Admin</b> environment.
 </p>
@@ -523,13 +524,13 @@
 </p>
 <p>
 	To create a new variable set:
+</p>
 <ol>
 	<li>Open <b>Library -> Variable Sets</b> and click the <b>ADD NEW VARIABLE SET</b> button.</li> 
 	<li>Give the variable set the name of <b>Random Quotes</b>.</li> 
 	<li>Under the <b>Variables</b> tab, add a new variable called <b>DatabasePassword</b>.</li>  
-<	li>Configure the value to be a secret, and enter a suitable password as the value:</li> 
+	<li>Configure the value to be a secret, and enter a suitable password as the value:</li> 
 </ol>
-</p>
 <div><img alt="Random Quotes variable set" src="images/octopus/variable-set.png"/></div>
 <p>
 	By default this variable is unscoped, meaning each environment will share a single password. This is not ideal, as our production infrastructure should not have the same credentials as our development infrastructure.
@@ -553,12 +554,12 @@
 </p>
 <p>
 	Our first deployment project will deploy the backend PostgreSQL database:
+</p>
 <ol> 
 	<li>Click <b>Projects -> ADD PROJECT</b> to create a new project.</li> 
 	<li>Give the new project the name of <b>Random Quotes - Backend</b>, and click the <b>Save</b> button.</li>
 	<li>Click the <b>DEFINE YOUR DEPLOYMENT PROCESS</b> button to be taken to the process editor, and then click the <b>ADD STEP</b> button to add the first step to the deployment process.</li>
 </ol>
-</p>
 <p>
 	We'll use the <b>Deploy Kubernetes containers</b> step for both the backend and frontend containers. This step provides an opinionated workflow for deploying a Kubernetes deployment resource, with any associated service, secret, and configmap resources that support the container.
 </p>
@@ -584,12 +585,12 @@
     The deployment process only references the image name. We do not select the version of the image as part of the deployment process. As we'll see later, the version is selected when we create a release. This means that the deployment process is largely static between releases, while new image versions can be deployed as needed.
 </p>
 <p>
-	We then need to expose a port used to access the database: 
-<ol>
-	<il>Under the <b>Ports</b> section, click the <b>ADD PORT</b> button.</il> 
-	<il>Then enter <b>db</b> as the port name and <b>5432</b> as the port number.</il>
-<ol>	
+	We then need to expose a port used to access the database: 	
 </p>
+<ol>
+	<li>Under the <b>Ports</b> section, click the <b>ADD PORT</b> button.</li> 
+	<li>Then enter <b>db</b> as the port name and <b>5432</b> as the port number.</li>
+</ol>
 <p>
 	The final value to configure is the environment variable that defines the password for the database administrative user account. Under the <b>Environment Variables</b> section, expand the second nested <b>Environment Variables</b> section, and click the <b>ADD ENVIRONMENT VARIABLE</b> button. Enter <b>POSTGRES_PASSWORD</b> for the name, and <b>#{DatabasePassword}</b> for the value.
 </p>
@@ -613,13 +614,11 @@ max_connections=200
 <p>
 	We now need to define a service to expose the database to other containers. This is done under the <b>Service</b> section of the step.
 </p>
-<p>
 <ol>	
 	<li>Enter <b>postgres</b> for the service name.</li> 
 	<li>Then click the <b>ADD PORT</b> button. The port name is <b>db</b> and the port number is <b>5432</b>.</li> 
 	<li>Click the <b>OK</b> button to save the changes.</li>
 </ol>	
-</p>
 <p>
 	We have now configured a Kubernetes deployment with a PostgreSQL database and exposed it via a Kubernetes service. This is everything we need to deploy the backend database, so click the <b>SAVE</b> button to save the changes.
 </p>

@@ -316,6 +316,7 @@ run: >-
 <h3>Consuming build information in the deployment</h3>
 <p>
     Build information is also available as a variable called <b>Octopus.Deployment.Changes</b> exposed as part of a deployment. We'll print these to the screen as part of the deployment with a <b>Run a Script</b> step to demonstrate how the variable can be used.
+</p>
 <p>
     The <b>Octopus.Deployment.Changes</b> variable holds raw JSON exposing the build information. An example of the contents of this variable is shown below:
 </p>
@@ -481,7 +482,7 @@ The following work items were referenced in the commits:
     Here is a similar script in Bash:
 </p>
 <pre>
-cat << EOF
+cat &lt;&lt; EOF
 #{each change in Octopus.Deployment.Changes}
 - Release version #{change.Version} has the following packages:
 #{each buildInformation in change.BuildInformation}
