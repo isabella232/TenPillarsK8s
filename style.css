@@ -8,7 +8,8 @@ img {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: {{ site.imageWidth }};
+    object-fit: contain;
+    width: {{ site.imageWidth }};    
 }
 
 div {
