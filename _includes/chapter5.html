@@ -51,7 +51,7 @@
 <p>
     The official Kubernetes Web UI provides a user interface that allows you to view, create, delete, and modify Kubernetes resources. The navigation structure starts with a list of resource types, such as the deployment resources we've been creating, and then allows you to drill further down into the associated pods and containers:
 </p>
-<div><img alt="Redeploy" src="images/kubernetes/k8s-web-ui.png"/></div>
+<p><figure><img alt="Redeploy" src="images/kubernetes/k8s-web-ui.png"/></figure></p>
 <p>
     This "resource view" is how most Kubernetes administrators think about a cluster, and it is a very effective way of presenting the cluster's current resources and configuration. However, it is difficult to understand the state of your deployments through a traditional resource management console like the Kubernetes Web UI. 
 </p>
@@ -287,7 +287,7 @@ run: >-
 <p>
     The build information appears under <b>Library -> Build Information</b>:
 </p>
-<div><img alt="Redeploy" src="images/octopus/build-information.png"/></div>
+<p><figure><img alt="Redeploy" src="images/octopus/build-information.png"/></figure></p>
 <h3>Including build information in release notes</h3>
 <p>
     To make use of the build information, we create a release notes template in the Octopus project to display the project metadata. Under the Octopus project, click <b>Settings</b>. Expand the <b>Release Notes Template</b> section, and paste in the following template:
@@ -305,11 +305,11 @@ run: >-
 <p>
     This template loops over the packages referenced in a release, and creates a link for each commit and work item associated with the package version:
 </p>
-<div><img alt="Redeploy" src="images/octopus/release-notes.png"/></div>
+<p><figure><img alt="Redeploy" src="images/octopus/release-notes.png"/></figure></p>
 <p>
     Links to the CI build and commit are available in the list of packages for a release:
 </p>
-<div><img alt="Redeploy" src="images/octopus/package-build-info.png"/></div>
+<p><figure><img alt="Redeploy" src="images/octopus/package-build-info.png"/></figure></p>
 <p>
     Between the custom release notes and build information linked to packages referenced as part of a release, it is possible to retrace the GIT commit that triggered a build and the CI logs that generated the Docker image.
 </p>

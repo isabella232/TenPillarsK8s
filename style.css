@@ -1,10 +1,13 @@
-p {color:black;}
+p {
+    color:black;
+}
 
-img {
+
+
+img { 
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 95%;
+    width: 100%;
+    object-fit: contain;
 }
 
 .note {
@@ -20,7 +23,7 @@ img {
 
 table, th, td {
     border: 1px solid black;
-  }
+}
 
 .wrapPre {
     white-space: pre-wrap;

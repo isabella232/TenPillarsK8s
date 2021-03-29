@@ -112,7 +112,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
 <p>
     Go to the <b>Random Quotes - Frontend</b> application and click the <b>Overview</b> link. Notice that the dashboard shows the current and previous deployments. Click one of the previous deployments, open the hamburger menu, and select the <b>Re-deploy</b> option:
 </p>
-<div><img alt="Redeploy" src="images/octopus/redeploy.png"/></div>
+<p><figure><img alt="Redeploy" src="images/octopus/redeploy.png"/></figure></p>
 <p>
     You can then redeploy the old release back to the selected environment, effectively performing a deployment roll back.
 </p>
@@ -138,7 +138,7 @@ kubectl rollout undo deployment.v1.apps/mydeployment
 <p>
     Now create a new release using the <b>Hotfix</b> channel. Notice that we can now select the environment that we deploy the release to:
 </p>
-<div><img alt="Hotfix" src="images/octopus/hotfixdeployment.png"/></div>
+<p><figure><img alt="Hotfix" src="images/octopus/hotfixdeployment.png"/></figure></p>
 <p>
     A hotfix channel gives us the ability to push a release to any environment. If we still need some verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is now an option.
 </p>

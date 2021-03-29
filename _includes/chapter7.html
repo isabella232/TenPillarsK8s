@@ -21,7 +21,7 @@
 <p>
     Let's take a look at a common audit entry. In this example we have a change made to a runbook:
 </p>
-<div><img alt="Time to recovery" src="images/octopus/audit-entry.png"/></div>
+<p><figure><img alt="Time to recovery" src="images/octopus/audit-entry.png"/></figure></p>
 <p>
     The audit entry has a date and time, the details of the user who made the changes, and a description of the change that was made. Often these descriptions have links back to the entity they refer to.
 </p>
@@ -72,7 +72,7 @@
 <p>
     To consume the raw JSON data, we can query the <b>/api/events</b> API endpoint. To get the full URL to query, configure the appropriate filters in the web UI and watch the browser's network traffic through the developer console as you refresh the results. In the screenshot below you can see the URL accessed by the browser to retrieve the list of audit events, capturing the URL <b>/api/events?eventGroups=Deployment&amp;from=2021-02-16T00:00:00+10:00&amp;to=2021-03-18T23:59:59+10:00&amp;spaces=Spaces-142&amp;includeSystem=true&amp;excludeDifference=true</b>:
 </p>
-<div><img alt="Time to recovery" src="images/browser/network-traffic.png"/></div>
+<p><figure><img alt="Time to recovery" src="images/browser/network-traffic.png"/></figure></p>
 <p class="note">
     Most browsers use the F12 key to open the developer console or tools.
 </p>
@@ -82,7 +82,7 @@
 <p>
     The API key must be passed in the <b>X-Octopus-ApiKey</b> HTTP header as you make a GET request to the <b>/api/events</b> endpoint. In the screenshot below I have used Postman to make the request to the events endpoint:
 </p>
-<div><img alt="Time to recovery" src="images/postman/events-query.png"/></div>
+<p><figure><img alt="Time to recovery" src="images/postman/events-query.png"/></figure></p>
 <p>
     One thing to be aware of with the Octopus REST API is that it often only returns a subset of results with each call, requiring multiple API calls to return all the available results. There is a <b>Links</b> section returned as part of the JSON response that includes links to the next set of results, or a link that returns all the results:
 </p>
