@@ -50,11 +50,11 @@
 <p>
     Finally, in the <b>Increase canary traffic to 100% - Release Managers</b> step, expand the <b>Start Trigger</b> section and select the <b>Run in parallel with the previous step</b> option. Note that the two manual approval steps are shown with an icon with two parallel lines between them. This indicates that the steps are run in parallel:
 </p>
-<p><figure><img alt="Time to recovery" src="images/octopus/multiple-approvals.png"/></figure></p>
+<div><img alt="Time to recovery" src="images/octopus/multiple-approvals.png"/></div>
 <p>
     When we reach these steps during the deployment, both the approvals are displayed in the <b>TASK SUMMARY</b>:
 </p>
-<p><figure><img alt="Time to recovery" src="images/octopus/multiple-approval-prompt.png"/></figure></p>
+<div><img alt="Time to recovery" src="images/octopus/multiple-approval-prompt.png"/></div>
 <h3>Notifications during deployments</h3>
 <p>
     The Octopus dashboard provides a useful overview of the state of deployments, but we very much have to "pull" this information by opening Octopus and reviewing the state of various deployments. By including notifications in our deployment processes and runbooks we can implement a "push" model that sends details about important events to external systems, like email and chat platforms.
@@ -100,7 +100,7 @@
 <p>
     The order of these steps explicitly defines the order in which releases are deployed. In this example we have explicitly defined that the backend database is deployed before the frontend web application:
 </p>
-<p><figure><img alt="Time to recovery" src="images/octopus/parent-project.png"/></figure></p>
+<div><img alt="Time to recovery" src="images/octopus/parent-project.png"/></div>
 <p>
     Be aware that the <b>Deploy a Release</b> step deploys, but does not create, a release. Before we deploy the <b>Deploy Full Stack</b> project, we must first create (but not deploy) releases in both the <b>Random Quotes - Frontend</b> and <b>Random Quotes - Backend</b> projects.
 </p>
@@ -131,7 +131,7 @@ fi;
 <p>
     When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at a future point in time. Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which will deployment task (that has not already started) will be cancelled:
 </p>
-<p><figure><img alt="Time to recovery" src="images/octopus/scheduled-deployment.png"/></figure></p>
+<div><img alt="Time to recovery" src="images/octopus/scheduled-deployment.png"/></div>
 <p>
     Triggers provide another means to schedule repeat deployments. This may be useful as a way of updating a test environment each night with the latest releases in the development environment. Click the <b>Triggers</b> link, click the <b>ADD TRIGGER</b> drop down list, and select the <b>Scheduled trigger</b> option.
 </p>
@@ -218,7 +218,7 @@ octo run-runbook \
 <p>
     Enter this URL into the <b>Payload URL</b> field, and save the subscription. Now go back to any of our projects and perform a deployment. Once the deployment is complete, return to WebHook.site and look in the requests list. Click one of the requests to view the data that was sent by Octopus. In the screenshot below you can see the <b>DeploymentSucceeded</b> event category was posted to the web hook:
 </p>
-<p><figure><img alt="Pipedream" src="images/webhook/webhook.png"/></figure></p>
+<div><img alt="Pipedream" src="images/webhook/webhook.png"/></div>
 <p>
     Posting events to web hooks via subscriptions allows an external system to be notified of, and respond to, almost any change or action in Octopus.
 </p>
@@ -229,14 +229,14 @@ octo run-runbook \
 <p>
     To post messages to slack, we need to create a Slack application. Open <a href="https://api.slack.com/apps/">https://api.slack.com/apps/</a> and click the <b>Create New App</b> button. Call the new app <b>OctopusToSlack</b>:
 </p>
-<p><figure><img alt="Pipedream" src="images/slack/slack-app.png"/></figure></p>
+<div><img alt="Pipedream" src="images/slack/slack-app.png"/></div>
 <p>
     Under the <b>Features</b> section, click <b>Incoming Webhooks</b>. Ensure the switch next to the <b>Activate Incoming Webhooks</b> header is set to <b>On</b>, and then click the <b>Add New Webhook to Workspace</b> button.
 </p>
 <p>
     Select the channel that will display the Octopus events, and click the <b>Allow</b> button. Slack will generate a random URL that we will use to post messages to:
 </p>
-<p><figure><img alt="Pipedream" src="images/slack/slack-webhook.png"/></figure></p>
+<div><img alt="Pipedream" src="images/slack/slack-webhook.png"/></div>
 <p class="note">
     This URL should be treated as a secret. Anyone who knows the URL can post messages to your channel.
 </p>
@@ -309,11 +309,11 @@ spec:
 <p>
     Back in Octopus, create a new subscription called <b>Slack Gateway</b>. Select the events you are interested in sending to Slack. Under the <b>WebHook Notifications</b> section, set the <b>Payload URL</b> field to <b>http://[load balancer ip]/OctopusWebHook</b>. Then under <b>Header</b> set the <b>Header Key</b> to <b>API-TOKEN</b> and the <b>Header Value</b> to the same value assigned to the <b>ApiToken</b> variable we created above:
 </p>
-<p><figure><img alt="Octopus Subscription" src="images/octopus/subscription-example.png"/></figure></p>
+<div><img alt="Octopus Subscription" src="images/octopus/subscription-example.png"/></div>
 <p>
     Now each matching Octopus event is sent to the gateway, where it is transformed and sent to Slack:
 </p>
-<p><figure><img alt="Slack messages" src="images/slack/messages.png"/></figure></p>
+<div><img alt="Slack messages" src="images/slack/messages.png"/></div>
 <h2>Conclusion</h2>
 <p>
     The practical reality of Octopus is that it never stands alone in your DevOps workflows. At a minimum, a CI server will be building packages and triggering deployments, but even deployments themselves are a small part of a bigger picture. With tooling like the CLI, notifications with emails, and integrations with web hooks, Octopus can reach out to keep everyone updated with important events. And through the <b>Manual Intervention</b> step, workflows involving authorization can be built into deployment processes.
