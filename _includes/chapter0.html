@@ -3,7 +3,7 @@
 	As you might imagine, at Octopus, we spend a great deal of time thinking about deployments. Octopus was born to manage real world deployment processes and continues to be shaped through conversations with customers, support requests, our own internal deployment requirements, and many other discussions about what we think good deployments look like.
 </p>
 <p>
-	This knowledge has been distilled into the 10 pillars of pragmatic deployments.
+	This knowledge has been distilled into the 10 pillars of pragmatic Kubernetes deployments.
 </p>	
 <p>
 	We use the phrase "pragmatic" quite deliberately. This list is not a score card, a pyramid, a checklist, or a fixed list of requirements. In many cases Octopus, both as a product and as a company, has not achieved these pillars. One of the primary goals of developing these pillars is to find the gaps in our own processes in order to shape the features and philosophy of our product, and to continue the ongoing discussion about what it means to deploy software.
@@ -12,15 +12,21 @@
 	With that in mind, pillar number zero, and the prerequisite for all other pillars in this list, is do what works for you.
 </p>
 <p>	
-	We hope you enjoy this discussion, and look forward to shaping the future of pragmatic deployments with your feedback.
+	We hope you enjoy this discussion, and look forward to shaping the future of pragmatic Kubernetes deployments with your feedback.
 </p>
 <h2>Viewing the results of this book</h2>
 <p>
-	An hosted Octopus instance with guest access has been created at <a href="https://tenpillars.octopus.app/app#/Spaces-2">https://tenpillars.octopus.app/app#/Spaces-2</a>. You can browse this instance to see the projects, runbooks, and other configuration discussed in this book.
+	A hosted Octopus instance with guest access has been created at <a href="https://tenpillars.octopus.app/app#/Spaces-2">https://tenpillars.octopus.app/app#/Spaces-2</a>. You can browse this instance to see the projects, runbooks, and other configurations discussed in this book.
 </p>
 <h2>The intended audience for this book</h2>
 <p>
-	This book is aimed at those looking to build deployment pipelines that scale as the number of teams involved in deployments, the number of applications being deployed, the frequency of deployments, and the expectation that code reaches customers faster all increase. 
+	This book is aimed at people looking to build deployment pipelines that scale as the following increases:
+<ul>
+    <li> The number of teams involved in deployments.</li>
+    <li> The number of applications being deployed.</li>
+    <li> The frequency of deployments.</li>
+    <li> The expectation that code reaches customers faster.</li>
+</ul>
 </p>
 <p>
 	The ten pillars presented in this book speak to the needs of modern DevOps teams, who are always being asked to deliver more in less time. By understanding the value of each pillar, and learning how to provide a practical implementation, DevOps teams can meet these challenges head on.
@@ -30,11 +36,11 @@
     This book is all about deploying to Kubernetes. To follow along with the exercises, you will need a Kubernetes cluster and access to administrative credentials. This book uses a Kubernetes cluster hosted in Google Cloud, but beyond initial administration tasks which rely on the administrative credentials exposed by a Google Cloud Kubernetes cluster, any Kubernetes cluster can be used.
 </p>
 <p>
-    You'll also need an instance of Octopus. The easiest way to get an instance of Octopus is to sign up for a hosted instance at <a href="https://octopus.com">https://octopus.com</a>. The free tier gives you up to 10 targets, which is enough to follow almost all of the examples in this book.
+    You'll also need an instance of Octopus. The easiest way to get one is to sign up for a hosted instance at <a href="https://octopus.com">https://octopus.com</a>. The free tier gives you up to 10 targets, which is enough to follow almost all of the examples in this book.
 </p>
 <p>
-    This book doesn't explain Kubernetes in great detail, and assumes a reasonable level of familiarity with concepts like pods, deployments, services, service accounts, secrets, configmaps etc. If those terms are unfamiliar to you, I would recommend first becoming familiar with the basics of Kubernetes.
+    This book doesn't explain Kubernetes in great detail. It assumes a reasonable level of familiarity with concepts like pods, deployments, services, service accounts, secrets, configmaps etc. If those terms are unfamiliar to you, I would recommend first becoming familiar with the basics of Kubernetes.
 </p>
 <p>
-    Having said that, all the Kubernetes resources created as part of this book provide detailed instructions on the values to enter into Octopus, so it is possible to get a sense of the deployment processes explained in each chapter without a deep understanding of every setting. Links to external Kubernetes documentation has also been provided for additional information on specific resources and settings.
+    Having said that, all the Kubernetes resources created as part of this book provide detailed instructions on the values to enter into Octopus, so it is possible to get a sense of the deployment processes explained in each chapter without a deep understanding of every setting. Links to external Kubernetes documentation have also been provided, for additional information on specific resources and settings.
 </p>
