@@ -24,7 +24,7 @@ jobs:
         ./create-k8s.sh
 
     - name: Validate HTML
-      run: python html5check.py -h ./_site/k8s/book.html
+      run: python ./scripts/html5check.py -h ./_site/k8s/book.html
 
     - name: Install Calibre
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
