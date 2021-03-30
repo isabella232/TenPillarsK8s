@@ -846,7 +846,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <p class="note">
     Octopus contributes a lot of variables that can be consumed during a deployment process. These variables are not
-    typically documented, but by setting the <b>OctopusPrintVariables</b> variable to true, all of the available
+    typically documented, but by setting the <b>OctopusPrintVariables</b> variable to <b>True</b>, all of the available
     variables are printed to the deployment logs. A second variable called <b>OctopusPrintEvaluatedVariables</b> can be
     set to <b>True</b> to print the final evaluated value of each variable (i.e. the values of variables once any nested
     variable expressions have been resolved) to the logs. It is then possible to scan the logs for any interesting
