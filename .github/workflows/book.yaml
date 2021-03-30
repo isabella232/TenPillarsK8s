@@ -10,6 +10,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - uses: nelonoel/branch-name@v1.0.1
+
     - name: Build book
       env:
         VERSION: 0.0.${{ github.run_number }}
@@ -27,12 +29,15 @@ jobs:
       run: python ./scripts/html5check.py -h ./_site/k8s/book.html
 
     - name: Install Calibre
+      if: github.ref == 'refs/heads/main'
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
     
     - name: Convert to PDF
+      if: github.ref == 'refs/heads/main'
       run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf
 
     - name: Create Release
+      if: github.ref == 'refs/heads/main'
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -44,6 +49,7 @@ jobs:
         prerelease: false
 
     - name: Upload EPUB Release Asset
+      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-epub
       uses: actions/upload-release-asset@v1
       env:
@@ -55,6 +61,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload PDF Release Asset
+      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-pdf
       uses: actions/upload-release-asset@v1
       env:
@@ -66,6 +73,7 @@ jobs:
         asset_content_type: application/pdf
 
     - name: Build printable EPUB
+      if: github.ref == 'refs/heads/main'
       env:
         VERSION: 0.0.${{ github.run_number }}
       run: |-
@@ -73,6 +81,7 @@ jobs:
         ./create-k8skdp.sh
 
     - name: Upload Printable EPUB Release Asset
+      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-printable-epub
       uses: actions/upload-release-asset@v1
       env:
