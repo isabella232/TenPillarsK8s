@@ -204,7 +204,7 @@ spec:
             requests:
               memory: 256Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
           securityContext:
             privileged: true
 </pre>
@@ -316,7 +316,7 @@ spec:
             requests:
               memory: 256Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
 </pre>
 <p class="note">
     Don't use the image <b>mcasperson/k8stentacle</b> in your own cluster, as it is not maintained, and has been shown here for demonstration purposes. Replace this image with one pushed to your own repository.
@@ -877,7 +877,7 @@ spec:
             requests:
               memory: 256Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
 </pre>
 <p>
     Any workers created in this method will support a limited use case. In this example, workers created with the Docker image above are only useful for running Cypress tests. This is the downside to building such specialized images.
