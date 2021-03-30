@@ -382,6 +382,9 @@ psql \
 <p>
     Linux distributions built on <b>muscl</b>, most notably Alpine, do not support calamari, and cannot be used as a container image.
 </p>
+<p class="note">
+    You can usually find the base operating system of a Linux Docker image by running <b>docker run --entrypoint='' [image name] /bin/cat /etc/os-release</b>, for example <b>docker run --entrypoint='' octopusdeploy/worker-tools:2.0.1-ubuntu.18.04 /bin/cat /etc/os-release</b>.
+</p>
 <p>
     The operating system must also include a number of dependencies required to support .NET Core applications. The documentation at <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux">https://docs.microsoft.com/en-us/dotnet/core/install/linux</a> lists the dependencies required for a .NET Core application with popular Linux distributions.
 </p>
