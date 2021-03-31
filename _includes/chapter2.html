@@ -396,7 +396,7 @@ psql \
 </p>
 <h3>Removing the workers automatically</h3>
 <p>
-    Although our machine policy will eventually find and clean up removed workers, there is a period of time where removed workers appear healthy.
+    Although our machine policy will eventually find and clean up deleted workers, there is a period of time where deleted workers appear healthy.
 </p>
 <p>
     We can take advantage of hooks in container lifecycles to remove workers from Octopus as pods are destroyed. In the YAML below we have defined a script command to be run on the <b>preStop</b> hook. This hook is called by Kubernetes before the pod is destroyed.
