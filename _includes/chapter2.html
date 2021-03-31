@@ -465,6 +465,9 @@ spec:
             privileged: true
             runAsGroup: ''
 </pre>
+<p class="note">
+    To view the details of the Octopus API, open the swagger documentation at https://myinstance.octopus.app/swaggerui/index.html.
+</p>
 <h3>Smoke testing the frontend API</h3>
 <p>
     Our frontend web application exposes a HTTP API that queries the backend database and provides quotes in a JSON response. Also, as we have already seen, the frontend application provides a web page that displays the quotes. Both the API and the web application would be expected to return a HTTP 200 response code after they are deployed. We'll confirm this with another smoke test.
