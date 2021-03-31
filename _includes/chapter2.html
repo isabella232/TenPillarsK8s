@@ -394,6 +394,77 @@ psql \
 <p>
     If your chosen Docker image does not have these prerequisites, the easiest solution is to create a custom Docker image based on the image you wish to use, install the required libraries, push the image to a repository like Docker Hub, and select your custom image as the container image. We'll see this when building container images for the integration and end-to-end tests below.
 </p>
+<h3>Removing the workers automatically</h3>
+<p>
+    Although our machine policy will eventually find and clean up removed workers, there is a period of time where removed workers appear healthy.
+</p>
+<p>
+    We can take advantage of hooks in container lifecycles to remove workers from Octopus as pods are destroyed. In the YAML below we have defined a script command to be run on the <b>preStop</b> hook. This hook is called by Kubernetes before the pod is destroyed.
+</p>
+<p>
+    The script calls the Octopus REST API to find the worker ID from its name (the name is the container hostname). Once we have the ID, we delete the worker from Octopus with a second API call. The end result is that the worker cleans itself up as it is deleted, removing the time between the pod being deleted and Octopus running a health check:
+</p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octopus-worker
+  labels:
+    app: tentacle
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  revisionHistoryLimit: 1
+  replicas: '3'
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tentacle
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: worker
+          image: index.docker.io/octopus/tentacle
+          env:
+            - name: MachinePolicy
+              value: Test Worker
+            - name: Space
+              value: '#{Octopus.Space.Name}'
+            - name: ACCEPT_EULA
+              value: 'Y'
+            - name: TargetWorkerPool
+              value: Testing
+            - name: ServerUrl
+              value: 'https://myinstance.octopus.app'
+            - name: ServerApiKey
+              value: '#{ApiKey}'
+            - name: ServerPort
+              value: '10943'
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 2Gi
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - '-c'
+                  - >-
+                    export ID=$(curl -s -H "X-Octopus-ApiKey: #{ApiKey}"
+                    ${ServerUrl}/api/#{Octopus.Space.Id}/workers
+                    | jq -r -c ".Items[] | select(.Name |
+                    contains(\"${HOSTNAME}\")) | .Id"); curl -X DELETE -s -H
+                    "X-Octopus-ApiKey: #{ApiKey}"
+                    ${ServerUrl}/api/#{Octopus.Space.Id}/workers/${ID}
+          securityContext:
+            privileged: true
+            runAsGroup: ''
+</pre>
 <h3>Smoke testing the frontend API</h3>
 <p>
     Our frontend web application exposes a HTTP API that queries the backend database and provides quotes in a JSON response. Also, as we have already seen, the frontend application provides a web page that displays the quotes. Both the API and the web application would be expected to return a HTTP 200 response code after they are deployed. We'll confirm this with another smoke test.
