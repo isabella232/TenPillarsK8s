@@ -399,10 +399,7 @@ psql \
     Although our machine policy will eventually find and clean up deleted workers, there is a period of time where deleted workers appear healthy.
 </p>
 <p>
-    We can take advantage of hooks in container lifecycles to remove workers from Octopus as pods are destroyed. In the YAML below we have defined a script command to be run on the <b>preStop</b> hook. This hook is called by Kubernetes before the pod is destroyed.
-</p>
-<p>
-    The script calls the Octopus REST API to find the worker ID from its name (the name is the container hostname). Once we have the ID, we delete the worker from Octopus with a second API call. The end result is that the worker cleans itself up as it is deleted, removing the time between the pod being deleted and Octopus running a health check:
+    We can take advantage of hooks in container lifecycles to remove workers from Octopus as pods are destroyed. In the YAML below we have defined a script command to be run on the <b>preStop</b> hook. This hook is called by Kubernetes before the pod is destroyed:
 </p>
 <pre>
 apiVersion: apps/v1
@@ -457,7 +454,7 @@ spec:
                   - >-
                     export ID=$(curl -s -H "X-Octopus-ApiKey: #{ApiKey}"
                     ${ServerUrl}/api/#{Octopus.Space.Id}/workers
-                    | jq -r -c ".Items[] | select(.Name |
+                    | jq -r ".Items[] | select(.Name |
                     contains(\"${HOSTNAME}\")) | .Id"); curl -X DELETE -s -H
                     "X-Octopus-ApiKey: #{ApiKey}"
                     ${ServerUrl}/api/#{Octopus.Space.Id}/workers/${ID}
@@ -467,6 +464,33 @@ spec:
 </pre>
 <p class="note">
     To view the details of the Octopus API, open the swagger documentation at https://myinstance.octopus.app/swaggerui/index.html.
+</p>
+<p>
+    The Bash command includes two distinct components, so let's break it down. We start with a call to the Octopus REST API to return a list of workers via <b>curl</b>. Calling the API requires setting the <b>X-Octopus-ApiKey</b> header with an API key, which we do via the <b>-H</b> argument. The <b>-s</b> argument makes the command silent:
+</p>
+<pre>
+curl -s -H "X-Octopus-ApiKey: #{ApiKey}" ${ServerUrl}/api/#{Octopus.Space.Id}/workers
+</pre>
+<p>
+    The output of this call is JSON containing the details of the workers configured in Octopus. The JSON document is piped to <b>jq</b>, which is a tool for parsing and inspecting JSON. The We enter the <b>Items</b> array, select the object with the <b>Name</b> property set to the hostname of the container (because the worker name is set to the hostname), and then return the <b>Id</b> property. The <b>-r</b> argument returns the raw string value, effectively stripping the quotes that would normally surround the returned string:
+</p>
+<pre>
+jq -r ".Items[] | select(.Name | contains(\"${HOSTNAME}\")) | .Id")
+</pre>
+<p>
+    The <b>curl</b> and <b>jq</b> commands are run in a subshell, with the result captured in the variable <b>ID</b>:
+</p>
+<pre>
+export ID=$([curl and jq command])
+</pre>
+<p>
+    We then run a second <b>curl</b> command to delete the worker based on its ID. This <b>curl</b> command requires a HTTP delete, which we define through the <b>-X</b> argument:
+</p>
+<pre>
+curl -X DELETE -s -H "X-Octopus-ApiKey: #{ApiKey}" ${ServerUrl}/api/#{Octopus.Space.Id}/workers/${ID}
+</pre>
+<p>
+    The end result is that the worker cleans itself up as it is deleted, removing the time between the pod being deleted and Octopus running a health check.
 </p>
 <h3>Smoke testing the frontend API</h3>
 <p>
