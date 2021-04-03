@@ -466,13 +466,13 @@ spec:
     To view the details of the Octopus API, open the swagger documentation at https://myinstance.octopus.app/swaggerui/index.html.
 </p>
 <p>
-    The Bash command includes two distinct components, so let's break it down. We start with a call to the Octopus REST API to return a list of workers via <b>curl</b>. Calling the API requires setting the <b>X-Octopus-ApiKey</b> header with an API key, which we do via the <b>-H</b> argument. The <b>-s</b> argument makes the command silent:
+    The Bash command includes a number of distinct components, so let's break it down. We start with a call to the Octopus REST API to return a list of workers via <b>curl</b>. Calling the API requires setting the <b>X-Octopus-ApiKey</b> header with an API key, which we pass via the <b>-H</b> argument. The <b>-s</b> argument makes the command silent:
 </p>
 <pre>
 curl -s -H "X-Octopus-ApiKey: #{ApiKey}" ${ServerUrl}/api/#{Octopus.Space.Id}/workers
 </pre>
 <p>
-    The output of this call is JSON containing the details of the workers configured in Octopus. The JSON document is piped to <b>jq</b>, which is a tool for parsing and inspecting JSON. The We enter the <b>Items</b> array, select the object with the <b>Name</b> property set to the hostname of the container (because the worker name is set to the hostname), and then return the <b>Id</b> property. The <b>-r</b> argument returns the raw string value, effectively stripping the quotes that would normally surround the returned string:
+    The output of this call is a JSON array containing the details of the workers configured in Octopus. The JSON document is piped to <b>jq</b>, which is a tool for parsing and inspecting JSON. We enter the <b>Items</b> array, select the object with the <b>Name</b> property set to the hostname of the container (because the worker name is set to the hostname), and then return the <b>Id</b> property. The <b>-r</b> argument returns the raw string value, effectively stripping the quotes that would normally surround the returned string. The resulting value is the ID of the worker:
 </p>
 <pre>
 jq -r ".Items[] | select(.Name | contains(\"${HOSTNAME}\")) | .Id")
@@ -484,13 +484,13 @@ jq -r ".Items[] | select(.Name | contains(\"${HOSTNAME}\")) | .Id")
 export ID=$([curl and jq command])
 </pre>
 <p>
-    We then run a second <b>curl</b> command to delete the worker based on its ID. This <b>curl</b> command requires a HTTP delete, which we define through the <b>-X</b> argument:
+    We then run a second <b>curl</b> command to delete the worker based on its ID. This <b>curl</b> command requires a HTTP delete call, which we specify through the <b>-X</b> argument:
 </p>
 <pre>
 curl -X DELETE -s -H "X-Octopus-ApiKey: #{ApiKey}" ${ServerUrl}/api/#{Octopus.Space.Id}/workers/${ID}
 </pre>
 <p>
-    The end result is that the worker cleans itself up as it is deleted, removing the time between the pod being deleted and Octopus running a health check.
+    The end result is that the worker cleans itself up as the pod is deleted, removing the time between the pod being deleted and Octopus running a health check where the worker would have appeared to be present and healthy.
 </p>
 <h3>Smoke testing the frontend API</h3>
 <p>
