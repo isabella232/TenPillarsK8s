@@ -1234,6 +1234,41 @@ kubectl delete deployment -l FeatureBranch=#{FeatureBranch}
     Running this runbook will remove any resources associated with a feature branch, effectively undeploying a feature
     branch from an environment.
 </p>
+<h3>Revisiting Worker Deployments</h3>
+<p>
+    We saw in this chapter how resources like config maps and secrets created as part of the <b>Deploy Kubernetes containers</b> step are given a unique name each time they are created to ensure they are tightly coupled to the main deployment resource.
+</p>
+<p>
+    Now recall from <a href="#chapter2">chapter 2</a> that when we created workers in the Kubernetes cluster, we added sensitive information like the Octopus API key as environment variables.
+</p>
+<p>
+    One downside to embedding sensitive information in environment variables is that the data is available to anyone with the ability to query the pods.
+</p>
+<p>
+    To address this we'll first save the API key in a Kubernetes secret, and then expose the data in the secret as an environment variable. This reduces the possibility that the API key will be leaked into logs while debugging pods, and also allows administrators to lock down sensitive information by restricting access to Kubernetes secret resources.
+</p>
+<p>
+    In the <b>Create Kubernetes Worker</b> runbook, edit the <b>Deploy Kubernetes containers</b> step, and enable the <b>Secret</b> feature. Set the secret name to <b>octopus-worker</b>, and add a item with the name of <b>ApiKey</b> and value of <b>#{ApiKey}</b>.
+</p>
+<p>
+    In the container configuration, click the <b>ADD INDIVIDUAL ENVIRONMENT VARIABLE FROM A SECRET</b> button, set the item name to <b>ServerApiKey</b>, set the secret name to <b>octopus-worker-#{Octopus.RunbookRun.Id | ToLower}</b>, and set the key to <b>ApiKey</b>. Then remove the previous <b>ServerApiKey</b> environment variable.
+</p>
+<p class="note">
+    Because the secret is being created inside a runbook, the name of the secret has the ID of the runbook run ID appended to its name to make it unique. This means we use the name <b>octopus-worker-#{Octopus.RunbookRun.Id | ToLower}</b> to reference the unique secret created alongside the deployment.
+</p>
+<p>
+    Redeploy the workers, and open the verbose logs. You'll see the YAML for the deployment includes something like this:
+</p>
+<pre>
+- valueFrom: 
+    secretKeyRef: 
+        name: octopus-worker-runbookruns-91 
+        key: ApiKey 
+    name: "ServerApiKey" 
+</pre>
+<p>
+    We have now configured the pods to consume the API key value from a secret, meaning the value will not be easily accessed or inadvertently exposed in logs.
+</p>
 <h2>Conclusion</h2>
 <p>
     As your deployments increase in frequency, it is desirable to perform them with little or no downtime for end users.
