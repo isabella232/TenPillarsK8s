@@ -270,7 +270,7 @@
 </p>
 <p>
     Any secrets, configmaps, or custom resources defined in the <b>Deploy Kubernetes containers</b> step also have their
-    names altered to ensure they are unique, regardless of the deployment strategy.
+    names altered to ensure they are unique, regardless of the deployment strategy. The name for these resources defined in the step will be have <b>-#{Octopus.Deployment.Id | ToLower}</b> appended to them when deployed from a deployment project, or <b>-#{Octopus.RunbookRun.Id | ToLower}</b> appended to them when deployed from a runbook.
 </p>
 <p class="note">
     A custom resource is any Kubernetes resource that can be defined in YAML. The ability to define a custom resource is
