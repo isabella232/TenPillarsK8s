@@ -9,7 +9,8 @@ img {
     margin-left: auto;
     margin-right: auto;
     object-fit: contain;
-    width: {{ site.imageWidth }};    
+    height: auto;
+    width: {{ site.imageWidth }};        
 }
 
 div {
