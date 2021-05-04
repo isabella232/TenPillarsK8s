@@ -9,7 +9,7 @@ img {
     margin-left: auto;
     margin-right: auto;
     object-fit: contain;
-    height: auto;
+    height: {{ site.imageHeight }};
     width: {{ site.imageWidth }};        
 }
 

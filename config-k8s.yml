@@ -3,3 +3,4 @@ destination: _site/k8s
 exclude:
   - "*.yml"
 imageWidth: 95%
+imageHeight: auto;
