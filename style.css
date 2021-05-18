@@ -35,3 +35,7 @@ table, th, td {
 .wrapPre {
     white-space: pre-wrap;
 }
+
+h1 {
+    color: #0d80d8;
+}
