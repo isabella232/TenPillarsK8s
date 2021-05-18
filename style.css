@@ -28,8 +28,17 @@ div {
     display: inline;
 }
 
-table, th, td {
-    border: 1px solid black;
+table {
+    border-collapse: collapse;
+}
+
+tr {
+    border-bottom: 1px solid #ccc;
+}
+
+th, td {
+    text-align: left;
+    padding: 4px;
 }
 
 .wrapPre {
