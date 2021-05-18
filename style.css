@@ -38,4 +38,10 @@ table, th, td {
 
 h1 {
     color: #0d80d8;
+    page-break-before: always;
 }
+
+h1 a {
+    color: inherit;
+}
+
