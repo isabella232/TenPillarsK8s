@@ -37,19 +37,17 @@ jobs:
       run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf
 
     - name: Create Release
-      if: github.ref == 'refs/heads/main'
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 0.0.${{ github.run_number }}
-        release_name: Release 0.0.${{ github.run_number }}
-        draft: false
-        prerelease: false
+        tag_name: 0.0.${{ github.run_number }}-${{ env.BRANCH_NAME }}
+        release_name: Release 0.0.${{ github.run_number }}-${{ env.BRANCH_NAME }}
+        draft: github.ref != 'refs/heads/main'
+        prerelease: github.ref != 'refs/heads/main'
 
     - name: Upload EPUB Release Asset
-      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-epub
       uses: actions/upload-release-asset@v1
       env:
@@ -61,7 +59,6 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload PDF Release Asset
-      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-pdf
       uses: actions/upload-release-asset@v1
       env:
@@ -73,7 +70,6 @@ jobs:
         asset_content_type: application/pdf
 
     - name: Build printable EPUB
-      if: github.ref == 'refs/heads/main'
       env:
         VERSION: 0.0.${{ github.run_number }}
       run: |-
@@ -81,7 +77,6 @@ jobs:
         ./create-k8skdp.sh
 
     - name: Upload Printable EPUB Release Asset
-      if: github.ref == 'refs/heads/main'
       id: upload-release-asset-printable-epub
       uses: actions/upload-release-asset@v1
       env:
