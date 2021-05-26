@@ -4,3 +4,4 @@ exclude:
   - "*.yml"
 imageWidth: 95%
 imageHeight: auto;
+coverImage: '<meta content="cover_image" name="cover" />'
