@@ -12,7 +12,7 @@
     <dc:subject>Reference</dc:subject>
     <dc:date>2020-02-01</dc:date>
     <dc:description>The ten pillars of pragmatic {{ site.platform }} deployments with Octopus Deploy</dc:description>
-    <!--<meta content="cover_image" name="cover" />-->
+    {{ site.coverImage }}  
   </metadata>
  
   <manifest>
