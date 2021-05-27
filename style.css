@@ -64,6 +64,10 @@ h1 a {
     color: inherit;
 }
 
+h2 {
+    margin-top: 2rem;
+}
+
 h2, h3 {
     page-break-after: avoid;
 }
