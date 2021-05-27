@@ -31,15 +31,8 @@ jobs:
     - name: Install Calibre
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
     
-    - name: Build PDF epub base
-      env:
-        VERSION: 0.0.${{ github.run_number }}
-      run: |-
-        cd scripts
-        ./create-k8spdf.sh
-
     - name: Convert to PDF
-      run: ebook-convert _site/k8s/MyBookPDF.epub _site/k8s/MyBook.pdf
+      run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf
 
     - name: Create Release
       id: create_release
