@@ -16,7 +16,7 @@ jobs:
       env:
         VERSION: 0.0.${{ github.run_number }}
       run: |-
-        sudo apt-get install -y ruby-full build-essential zlib1g-dev python fonts-roboto
+        sudo apt-get install -y ruby-full build-essential zlib1g-dev python
         echo '# Install Ruby Gems to ~/gems' >> ~/.bashrc
         echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc
         echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc
@@ -32,7 +32,7 @@ jobs:
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
     
     - name: Convert to PDF
-      run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf --cover 'KubernetesPDFcover.png'
+      run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf --pdf-sans-family 'Helvetica' --pdf-serif-family 'Helvetica' --pdf-default-font-size 12 --pdf-mono-font-size 12 --cover 'KubernetesPDFcover.png'
 
     - name: Create Release
       id: create_release
