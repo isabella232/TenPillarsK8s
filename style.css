@@ -10,6 +10,10 @@ p {
     color:black;
 }
 
+a {
+    color: #0d80d8;
+}
+
 img {
     display: block;
     margin-left: auto;
