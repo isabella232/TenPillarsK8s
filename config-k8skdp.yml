@@ -6,3 +6,4 @@ exclude:
 imageWidth: 1600px
 imageHeight: 900px;
 coverImage:
+coverImagePrefix: Kubernetes
