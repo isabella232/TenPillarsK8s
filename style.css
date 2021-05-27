@@ -64,3 +64,10 @@ h1 a {
     color: inherit;
 }
 
+.table-of-contents li {
+    margin-bottom: 0.5rem;
+}
+
+.table-of-contents li a {
+    color: #0d80d8;
+}
