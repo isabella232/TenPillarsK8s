@@ -57,7 +57,7 @@ th, td {
 
 h1 {
     color: #0d80d8;
-    page-break-before: always;
+    break-before: always;
 }
 
 h1 a {
@@ -69,7 +69,7 @@ h2 {
 }
 
 h2, h3 {
-    page-break-after: avoid;
+    break-after: avoid;
 }
 
 .table-of-contents li {
