@@ -57,7 +57,7 @@ th, td {
 
 h1 {
     color: #0d80d8;
-    break-before: always;
+    page-break-before: always;
 }
 
 h1 a {
