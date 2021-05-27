@@ -1,9 +1,0 @@
-platform: Kubernetes
-destination: _site/k8s
-exclude:
-  - "*.yml"
-imageWidth: 95%
-imageHeight: auto;
-coverImage: '<meta content="cover_image" name="cover" />'
-# We use a special image for the PDF cover
-coverImagePrefix: KubernetesPDF

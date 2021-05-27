@@ -32,7 +32,7 @@ jobs:
       run: sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
     
     - name: Convert to PDF
-      run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf
+      run: ebook-convert _site/k8s/MyBook.epub _site/k8s/MyBook.pdf --cover 'KubernetesPDFcover.png'
 
     - name: Create Release
       id: create_release
