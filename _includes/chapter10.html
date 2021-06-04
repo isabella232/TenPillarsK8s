@@ -36,7 +36,7 @@
     An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-multiple-approval/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-multiple-approval/deployments</a>.
 </p>
 <p>
-    To see this in action we will create two new teams called <b>Product Owners</b> and <b>Release Managers</b>. Then clone the <b>Random Quotes - Frontend - Canary</b> project into a new project called <b>Random Quotes - Frontend - Canary - Multiple Approval</b>. Inside the deployment process in the new project, clone the <b>Increase canary traffic to 100%</b> step by clicking the hamburger menu next to the step in the process list and selecting the <b>Clone</b> option. Accept the default options and click the <b>OK</b> button. The new step will be placed after the original step.
+    To see this in action we will create two new teams called <b>Product Owners</b> and <b>Release Managers</b>. We then clone the <b>Random Quotes - Frontend - Canary</b> project into a new project called <b>Random Quotes - Frontend - Canary - Multiple Approval</b>. Inside the deployment process in the new project, clone the <b>Increase canary traffic to 100%</b> step by clicking the hamburger menu next to the step in the process list and selecting the <b>Clone</b> option. Accept the default options and click the <b>OK</b> button. The new step will be placed after the original step.
 </p>
 <p class="note">
     Refer to <a href="#chapter2">chapter 2</a> for instructions on creating new teams.
@@ -129,7 +129,15 @@ fi;
 </pre>
 <h3>Scheduling deployments</h3>
 <p>
-    When we create and deploy releases through the Octopus web UI we are presented with three screens. The first selects the packages and defines any prompted variables. The second reviews the release details and allows an environment to be selected. The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at a future point in time. Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which will deployment task (that has not already started) will be cancelled:
+    When we create and deploy releases through the Octopus web UI we are presented with three screens: 
+</p>
+<ul>
+    <li>The first selects the packages and defines any prompted variables.</li> 
+    <li>The second reviews the release details and allows an environment to be selected.</li>
+    <li>The third provides advanced options about how to download packages, what to do on failure, excluding certain steps. It also allows the deployment of the release to be scheduled at a future point in time.</li> 
+</ul>
+<p>
+    Expanding the <b>When</b> section allows two times to be selected. The first, called <b>Scheduled start time</b>, sets the time when Octopus will first attempt to run the deployment. The second, called <b>Expiry time</b>, sets the time after which the deployment task (that has not already started) will be cancelled:
 </p>
 <div><img alt="Time to recovery" src="images/octopus/scheduled-deployment.png"/></div>
 <p>
@@ -244,7 +252,7 @@ octo run-runbook \
     Octopus cannot post directly to this webhook, as the format of the messages are different. We need a gateway to translate between an Octopus event and a Slack message.
 </p>
 <p>
-    The sample application at <a href="https://github.com/OctopusSamples/OctopusToSlackDotNet">https://github.com/OctopusSamples/OctopusToSlackDotNet</a> provides just such a gateway. This application has been published as a Docker image called <b>octopussamples/octopustoslack</b>.
+    The sample application at <a href="https://github.com/OctopusSamples/OctopusToSlackDotNet">https://github.com/OctopusSamples/OctopusToSlackDotNet</a> provides such a gateway. This application has been published as a Docker image called <b>octopussamples/octopustoslack</b>.
 </p>
 <p>
     Open the <b>Kubernetes DevOps</b> project and add a new runbook called <b>Deploy Slack Gateway</b>. Add a <b>Deploy Kubernetes container</b> step, and import the following deployment YAML:

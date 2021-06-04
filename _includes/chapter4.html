@@ -4,7 +4,11 @@
 </p>
 <h2>Rolling back or forward</h2>
 <p>
-    Recovering from an undesirable deployment means rolling back to a previous good deployment, or rolling forward to a new version that returns the environment to a desirable state.
+    Recovering from an undesirable deployment means either: 
+<ul>
+    <li>Rolling back to a previous good deployment.</li>
+    <li>Rolling forward to a new version that returns the environment to a desirable state.</li>
+</ul>
 </p>
 <p>
     Either solution is suitable for stateless applications, but when a database is involved, rollbacks must be treated with care.
@@ -22,7 +26,7 @@
     <p>Rather than investing time and energy into rollback planning, an alternative is to follow an approach that keeps you moving forward.</p>
 </blockquote>
 <p>
-    The Octopus blog post "Pitfalls with SQL rollbacks and automated database deployments" has this advice:
+    The Octopus blog post <a href="https://octopus.com/blog/database-rollbacks-pitfalls">Pitfalls with SQL rollbacks and automated database deployments</a> has this advice:
 </p>
 <blockquote>
     <p>More often than not, the effort to successfully rollback a deployment far exceeds the effort it would take to push a fix to production.</p>
@@ -56,7 +60,7 @@
 <ul>
     <li>Rollbacks are all or nothing operations. You can not roll back individual features, only entire deployments.</li>
     <li>Rollbacks need to be tested as part of the deployment process to ensure they work as expected, which increases the complexity and time of the deployment process.</li>
-    <li>If a rollback fails, it is likely that you will need to resolve the issue by rolling forward.</li>
+    <li>If a rollback fails, it is likely you'll need to resolve the issue by rolling forward.</li>
     <li>Database rollbacks require special consideration to ensure data is not lost.</li>
 </ul>
 <h2>Rolling forward</h2>
@@ -98,10 +102,10 @@ kubectl rollout undo deployment.v1.apps/mydeployment
     Back in <a href="#chapter3">chapter 3</a> we looked at the opinions baked into the <b>Deploy Kubernetes containers</b> step, and noted how resources like configmaps and secrets created by the step have unique names generated each time the step is run.
 </p>
 <p>
-    This is because a configmap or secret can contain values that are tightly coupled to an individual deployment resources. For example, a configmap or secret can contain values used as environment variables in the associated deployment, or may expose items that are mounted as files. When used this way, a configmap or secret can be thought of as children of the deployment resource rather than independent resource.
+    This is because a configmap or secret can contain values that are tightly coupled to an individual deployment resource. For example, a configmap or secret can contain values used as environment variables in the associated deployment, or may expose items that are mounted as files. When used this way, a configmap or secret can be thought of as children of the deployment resource rather than an independent resource.
 </p>
 <p>
-    The native rollback functionality provided by Kubernetes does not take into account the fact that rolling back to a previous deployment also often requires that associated secrets and configmaps must also be rolled back.
+    The native rollback functionality provided by Kubernetes does not take into account that rolling back to a previous deployment also often requires that associated secrets and configmaps be rolled back too.
 </p>
 <p>
     Instead, we'll redeploy a previous release in Octopus. Because an Octopus release snapshots the variables, image versions, and deployment process, redeploying a previous release ensures that the state of the previous deployment will be recreated.
@@ -140,17 +144,17 @@ kubectl rollout undo deployment.v1.apps/mydeployment
 </p>
 <div><img alt="Hotfix" src="images/octopus/hotfixdeployment.png"/></div>
 <p>
-    A hotfix channel gives us the ability to push a release to any environment. If we still need some verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is now an option.
+    A hotfix channel gives us the ability to push a release to any environment. If we still need verification of the release in a non-production environment, we can deploy to <b>Development</b> or <b>Test</b>. But if we really need to promote a deployment straight to <b>Production</b>, this is now an option.
 </p>
 <h2>Conclusion</h2>
 <p>
-    There are two main ways to recover from undesirable deployments: rolling forwards or back. Rolling forwards is just another name for performing a new deployment, while rolling back involves redeploying a previous release.
+    There are two main ways to recover from undesirable deployments: rolling forward or back. Rolling forward is just another name for performing a new deployment, while rolling back involves redeploying a previous release.
 </p>
 <p>
     In this chapter we:
 </p>
 <ul>
-    <li>Covered the pros and cons of rolling back or forwards.</li>
+    <li>Covered the pros and cons of rolling back or forward.</li>
     <li>Discussed the limitations of the native rollback functionality in Kubernetes.</li>
     <li>Demonstrated a rollback by redeploying a previous release in Octopus.</li>
     <li>Introduced a hotfix channel and lifecycle to allow rolling forward directly to the production environment in an emergency.</li>

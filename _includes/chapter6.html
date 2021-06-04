@@ -25,7 +25,7 @@
     The Octopus dashboard presents a view of the current state of our infrastructure, and, as we saw in <a href="#chapter5">chapter 5</a>, also allows us to inspect the changes that went into the packages for each release. However, to understand the state of deployments over time, we need some new tools.
 </p>
 <p>
-    The Octopus REST API exposes a feed of data relating to deployments via the <b>/api/reporting/deployments/xml</b> endpoint. In its raw XML form this feed is not something we inspect and interpret directly, so to make sense of this firehose of information we need a reporting and graphing tool to consume it.
+    The Octopus REST API exposes a feed of data relating to deployments via the <b>/api/reporting/deployments/xml</b> endpoint. In its raw XML form this feed is not something we inspect and interpret directly, so to make sense of this firehose of information, we need a reporting and graphing tool to consume it.
 </p>
 <p>
     Octopus provides a plugin for Grafana, available at <a href="https://github.com/OctopusDeploy/OctopusGrafanaDataSource">https://github.com/OctopusDeploy/OctopusGrafanaDataSource</a>, which is an open source tool for presenting charts and performing data queries and filtering. In this chapter we'll focus on creating a Grafana dashboard to surface interesting metrics regarding our Octopus deployments.
@@ -50,13 +50,13 @@
     <i>Deployment frequency</i> is an easy win for us. Given Octopus performs the deployments, we have all the information required to know how frequently our production environment is updated.
 </p>
 <p>
-    <i>Lead time for changes</i> takes into account the duration from the a commit to source control to a deployment in production. This requires visibility across the source control, CI and CD systems, which is not available in this Grafana plugin. However, from a deployment point of view we can consider the time between when a release is created, and when it is deployed into production. We've called this metric the <i>lead time for releases</i>.
+    <i>Lead time for changes</i> takes into account the duration from a commit to source control to a deployment in production. This requires visibility across the source control, CI and CD systems, which is not available in this Grafana plugin. However, from a deployment point of view we can consider the time between when a release is created, and when it is deployed into production. We've called this metric the <i>lead time for releases</i>.
 </p>
 <p>
-    <i>Time to restore service</i> is another broad metric that spans many different systems. A service may become unavailable for any number of reasons not related to a deployment such as hardware failure, networking issues, power outages etc. A comprehensive measurement of this metric would likely be found by analyzing the data in a help desk ticketing system to track the time between a critical issue being raised and resolved, or a monitoring system that can directly track the uptime of systems. Bringing this concept back to deployments though, we can consider the time it takes to go from an unsuccessful deployment to a successful one. This measurement has more weight if our deployment processes have robust tests associated with them to ensure what was deployed represents a working system, as we described in <a href="#chapter2">chapter 2</a>. We've called this metric the <i>time to recover deployment</i>.
+    <i>Time to restore service</i> is another broad metric that spans many systems. A service may become unavailable for reasons not related to a deployment such as hardware failure, networking issues, power outages etc. A comprehensive measurement of this metric would likely be found by analyzing the data in a help desk ticketing system to track the time between a critical issue being raised and resolved, or a monitoring system that can directly track the uptime of systems. Bringing this concept back to deployments though, we can consider the time it takes to go from an unsuccessful deployment to a successful one. This measurement has more weight if our deployment processes have robust tests associated with them to ensure what was deployed represents a working system, as we described in <a href="#chapter2">chapter 2</a>. We've called this metric the <i>time to recover deployment</i>.
 </p>
 <p>
-    <i>Change failure rate</i> is also encompasses a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> as a way of determining how many deployments were performed solely for the purpose of restoring our production environment.
+    <i>Change failure rate</i> also encompasses a broader scope than just deployments. It could measure instances where infrastructure changes result in downtime and require a fix to be applied. From a deployment point of view though we can calculate the percentage of deployments through the <b>Hotfix</b> channel created in <a href="#chapter5">chapter 5</a> to determine how many deployments were performed solely for the purpose of restoring our production environment.
 </p>
 <p>
     Now that we have some meaningful measurements to make against our deployments, we can configure a Grafana dashboard to present them in real time.
@@ -177,10 +177,20 @@ spec:
     Opening the IP address of the load balancer service displays a login page. The default username and password are both <b>admin</b>, and the password will need to be changed at the first login.
 </p>
 <p>
-    We start by adding an Octopus data source. Under <b>Configuration -> Data Sources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button. Enter the Octopus server URL, and paste in the API key created for the <b>Grafana</b> user earlier. Click the <b>Save &amp; Test</b> button to save the changes.
+    We start by adding an Octopus data source: 
+<ol>
+ <li>Under <b>Configuration -> Data Sources</b> (the configuration link is the gear icon), click <b>Add data source</b>, hover over the <b>Octopus Deploy</b> data source, and click the <b>Select</b> button.</li>
+ <li>Enter the Octopus server URL, and paste in the API key created for the <b>Grafana</b> user earlier.</li>
+ <li> Click the <b>Save &amp; Test</b> button to save the changes.</li>
+</ol>  
 </p>
 <p>
-    We can now add a dashboard. Click <b>Dashboards -> Manage</b> (the dashboards link is the four tiles icon), click <b>Import</b>, enter <b>https://grafana.com/grafana/dashboards/13413</b> as the dashboard URL, and click the <b>Load</b> button. On the next screen select the data source created above and click the <b>Import</b> button.
+    We can now add a dashboard:
+<ol>
+<li>Click <b>Dashboards -> Manage</b> (the dashboards link is the four tiles icon).</li> 
+<li>Click <b>Import</b>, enter <b>https://grafana.com/grafana/dashboards/13413</b> as the dashboard URL, and click the <b>Load</b> button. </li>
+<li>On the next screen select the data source created above and click the <b>Import</b> button.</li>
+</ol>  
 </p>
 <p>
     This process imports a preconfigured dashboard that has been shared on the Grafana web site. It includes a number of charts and tiles to provide insight into the performance and health of our deployment processes.
