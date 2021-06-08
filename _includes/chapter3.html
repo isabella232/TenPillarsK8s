@@ -48,11 +48,11 @@
 <p>
     The recreate strategy does not provide a seamless deployment, but it's included here because it's the default option for
     most deployment processes. This strategy involves either: 
+</p>
 <ol>
     <li>Removing the existing deployment and deploying the new version.</li>
     <li>Deploying the new version over the top of the existing deployment.</li>
 </ol>
-</p>
 <p>
     Both options result in downtime during the period between the existing version being stopped or removed and the new
     version being started. However, because the existing and new versions are not run concurrently, database upgrades
@@ -168,8 +168,7 @@
     <b>octopussamples/randomquotesjava</b> package.</li>
     <li>Tick the <b>Pre-release packages</b> option, and select the <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed by the web application. </li>
     <li>Click the <b>OK</b> button to select the new version.</li>
- </ol>   
-<p>  
+</ol>    
 <p class="note">
     Although Docker tags have no concept of a pre-release, Octopus treats tags like <b>0.1.9-purpleheader</b> as a
     prerelease version, with the identifier <b>purpleheader</b> indicating this is a pre-release.
