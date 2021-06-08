@@ -35,3 +35,7 @@ table, th, td {
 .wrapPre {
     white-space: pre-wrap;
 }
+
+.underline {
+    text-decoration: underline;
+}

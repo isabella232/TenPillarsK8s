@@ -7,7 +7,7 @@ pushd _site/k8s || exit
 
 # Remove links in the book - this can't be printed anyway
 cp book.html book2.html
-perl -0777pe 's%<a[ \r\n]+href="[^"]*">(.*?)</a>%<u>$1</u>%sg' book2.html > book.html
+perl -0777pe 's%<a[ \r\n]+href="[^"]*">(.*?)</a>%<span class="underline">$1</span>%sg' book2.html > book.html
 
 # find . -name '*.png' -exec mogrify -resize 50% {} +
 if [ -f MyBook.epub ]; then
