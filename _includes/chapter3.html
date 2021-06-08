@@ -185,14 +185,12 @@
     with new pods:
 </p>
 <p><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png"/></p>
-<p>
 <ol>
     <li>Go back to the deployment process for the <b>Random Quotes - Frontend</b> project.</li>
     <li>Select the <b>Deploy Kubernetes containers</b> step deploying the frontend application.</li>
     <li>Expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option.</li>
     <li>Save the changes and redeploy the project to the <b>Development</b> environment.</li>
 </ol>
-</p>
 <p>
     Notice the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of
         5 new replicas have been updated...</b>, with the replica count increasing until all pods have been deployed.
@@ -337,13 +335,13 @@
 </p>
 <p>
     To consume Helm packages, called charts, we need to add a Helm external feed. 
+</p>
 <ol>
     <li>Open <b>Library -> External Feeds</b>, and click the <b>ADD FEED</b> button.</li>
     <li>Select <b>Helm Feed</b> as the feed type.</li>
     <li>Give the feed the name of <b>Helm</b>.</li>
     <li>The default URL of https://charts.helm.sh/stable is fine, so click the <b>SAVE</b> button.</li>
 </ol>
-</p>
 <p>
     We'll then deploy the NGINX ingress controller through a new runbook in the <b>Kubernetes DevOps</b> project called
     <b>Deploy NGINX Ingress Controller</b>. Add the <b>Upgrade a Helm Chart</b> step to the runbook.
@@ -373,11 +371,13 @@
 <p>
     As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the
     <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. 
+</p>
 <ol>
     <li>Clone this runbook into a new runbook called <b>Get Admin Service IP</b>.</li>
     <li>Configure the runbook step to run against targets with the <b>Kubernetes Admin</b> role, which will result in this runbook querying resources in the <b>default</b> namespace.</li>
     <li>Then run the runbook in the <b>Admin</b> environment, which displays the IP address of the NGINX load balancer service. </li>
 </ol>
+<p>
     The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
 </p>
 <p><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></p>
@@ -840,11 +840,11 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <p>
     This raises two questions: 
+</p>
 <ol>
     <li>How do we identify feature branch images?</li> 
     <li>How do we expose feature branch deployments alongside the main deployment?</li> 
 </ol>
-</p>
 <p>
     The most common way to identify feature branch images is via the prerelease identifier on the image tag. This means
     the tag <b>0.1.9-purpleheader</b> we used earlier represents a feature branch called <b>purpleheader</b>. This works
