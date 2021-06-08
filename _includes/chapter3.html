@@ -12,7 +12,7 @@
 </p>
 <h2>Dealing with databases during deployments</h2>
 <p>
-    No discussion on seamless deployments can begin without first addressing the issue of database updates.
+    Before we discuss seamless deployments, we should address the issue of database updates.
 </p>
 <p>
     A fundamental aspect of most seamless deployment strategies involves running two versions of your application side
@@ -30,14 +30,14 @@
     updates to the database and application code, and all six versions to be deployed sequentially.
 </p>
 <p>
-    Needless to say, seamless deployments involving databases require a great deal of planning, many small steps to roll
+    Needless to say, seamless deployments involving databases require extensive planning, many small steps to roll
     out the changes, and tight coordination between the database and application code.
 </p>
 <p>
     We won't dive into the specifics of how to engineer an application with forward and backward database compatibility
     in this book. This is an application design concern, and whether or not an application supports forward and backward
-    database compatibility is already determined when it is to be deployed. The deployment strategy does need to take
-    into account whether an application supports running two versions side by side, but can not add this functionality
+    database compatibility is already determined when it is to be deployed. The deployment strategy needs to take
+    into account whether an application supports running two versions side by side, but can't add this functionality
     if it isn't already built into the application.
 </p>
 <h2>Common deployment strategies</h2>
@@ -46,9 +46,12 @@
 </p>
 <h3>Recreate</h3>
 <p>
-    The recreate strategy does not provide a seamless deployment, but is included here as it is the default option for
-    most deployment processes. This strategy involves either removing the existing deployment and deploying the new
-    version, or deploying the new version over the top of the existing deployment.
+    The recreate strategy does not provide a seamless deployment, but it's included here because it's the default option for
+    most deployment processes. This strategy involves either: 
+<ol>
+    <li>Removing the existing deployment and deploying the new version.</li>
+    <li>Deploying the new version over the top of the existing deployment.</li>
+</ol>
 </p>
 <p>
     Both options result in downtime during the period between the existing version being stopped or removed and the new
@@ -89,9 +92,9 @@
 </p>
 <p>
     This strategy is similar to the blue/green strategy in that both will deploy the new version alongside the current
-    version, and run both side by side. Unlike the blue/green strategy, which will cut all traffic over to the new
-    deployment in a single step, the session draining strategy will direct new sessions to the new deployment, while the
-    existing deployment serves traffic to existing sessions.
+    version, and run both side by side. 
+
+    Unlike the blue/green strategy, which will cut all traffic over to the new deployment in a single step, the session draining strategy will direct new sessions to the new deployment, while the existing deployment serves traffic to existing sessions.
 </p>
 <p>
     After the old sessions have expired, the existing deployment can be deleted.
@@ -101,8 +104,8 @@
     compatibility.
 </p>
 <p>
-    Session draining was particularly important for older server side stateful web applications. This style of
-    application has largely gone out of style, in large part because it made it difficult to manage with PaaS offerings
+    Session draining was particularly important for older, server-side stateful web applications. This style of
+    application has largely gone out of style, mostly because it was difficult to manage with PaaS offerings
     that often treated any individual application instance as ephemeral. This book won't cover session draining in
     Kubernetes clusters.
 </p>
@@ -141,7 +144,7 @@
     rely on third party networking tools to provide fine grained control over which services respond to a request.
 </p>
 <p>
-    Kubernetes has no concept of feature branch deployments. However, with some sensible naming conventions it is
+    Kubernetes has no concept of feature branch deployments. However, with some sensible naming conventions, it is
     possible to implement feature branch deployments in a relatively straightforward manner.
 </p>
 <h3>Rolling and recreate deployments</h3>
@@ -151,22 +154,22 @@
     or recreate strategy, and the rolling update strategy was selected for us by default.
 </p>
 <p>
-    To make either strategy meaningful we need to deploy more than one pod, so open the <b>Random Quotes - Frontend</b>
-    project, select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change
+    To make either strategy meaningful we need to deploy more than one pod:
+</p>
+<ol>
+    <li>Open the <b>Random Quotes - Frontend</b> project.</li>
+    <li> Select the <b>Deploy Kubernetes containers</b> step that deploys the frontend application, and then change
     the replicas count to 5. This will result in 5 pods being created hosting the frontend web application, with traffic
-    distributed between them by the service.
-</p>
-<p>
-    Deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment with the new replica count
-    to populate the cluster with the new pods.
-</p>
-<p>
-    Now redeploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment. When Octopus
-    presents the package versions, expand the packages section, click the <b>SELECT VERSION</b> button next to the
-    <b>octopussamples/randomquotesjava</b> package, tick the <b>Pre-release packages</b> option, and select the
-    <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed
-    by the web application. Click the <b>OK</b> button to select the new version.
-</p>
+    distributed between them by the service.</li>
+    <li>Deploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment with the new replica count
+    to populate the cluster with the new pods.</li>
+    <li>Now redeploy the <b>Random Quotes - Frontend</b> project to the <b>Development</b> environment.</li>
+    <li>When Octopus presents the package versions, expand the packages section, and click the <b>SELECT VERSION</b> button next to the
+    <b>octopussamples/randomquotesjava</b> package.</li>
+    <li>Tick the <b>Pre-release packages</b> option, and select the <b>0.1.9-purpleheader</b> version. This version of the image replaces the background color of the header displayed by the web application. </li>
+    <li>Click the <b>OK</b> button to select the new version.</li>
+ </ol>   
+<p>  
 <p class="note">
     Although Docker tags have no concept of a pre-release, Octopus treats tags like <b>0.1.9-purpleheader</b> as a
     prerelease version, with the identifier <b>purpleheader</b> indicating this is a pre-release.
@@ -183,13 +186,15 @@
 </p>
 <p><img alt="Octopus environments" src="images/kubernetes/rolling-deployment.png"/></p>
 <p>
-    Go back to the deployment process for the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes
-        containers</b> step deploying the frontend application, expand the <b>Deployment Strategy</b> section, and
-    select the <b>Recreate deployments</b> option. Save the changes and redeploy the project to the <b>Development</b>
-    environment.
+<ol>
+    <li>Go back to the deployment process for the <b>Random Quotes - Frontend</b> project.</li>
+    <li>Select the <b>Deploy Kubernetes containers</b> step deploying the frontend application.</li>
+    <li>Expand the <b>Deployment Strategy</b> section, and select the <b>Recreate deployments</b> option.</li>
+    <li>Save the changes and redeploy the project to the <b>Development</b> environment.</li>
+</ol>
 </p>
 <p>
-    Notice now the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of
+    Notice the log files now only have messages like <b>Waiting for deployment "webapp" rollout to finish: 0 out of
         5 new replicas have been updated...</b>, with the replica count increasing until all pods have been deployed.
     This indicates that the old pods were removed before any new pods were deployed.
 </p>
@@ -205,9 +210,13 @@
     resources for you.
 </p>
 <p>
-    Open the <b>Random Quotes - Frontend</b> project, select the <b>Deploy Kubernetes containers</b> step deploying the
-    frontend application, expand the <b>Deployment Strategy</b> section, and select the <b>Blue/Green deployments</b>
-    option. Save the changes and deploy the project to the <b>Development</b> environment.
+<ol>
+    <li>Open the <b>Random Quotes - Frontend</b> project.</li>
+    <li>Select the <b>Deploy Kubernetes containers</b> step deploying the frontend application.</li>
+    <li>Expand the <b>Deployment Strategy</b> section, and select the <b>Blue/Green deployments</b>
+    option.</li>
+    <li>Save the changes and deploy the project to the <b>Development</b> environment.</li>
+</ol>  
 </p>
 <p>
     Notice that the logs contains entries like <b>deployment.apps/webapp-deployments-101 created</b>. Of particular note
@@ -293,7 +302,7 @@
     data in the shared configmap would break the old pods in unexpected ways.
 </p>
 <p>
-    Resources created by all other Kubernetes steps in Octopus do not alter the resource's names. So if, for example,
+    Resources created by all other Kubernetes steps in Octopus do not alter the resources' names. So if, for example,
     you need to create a configmap that is shared between all pods at all times, you can use the <b>Deploy Kubernetes
         config map resource</b> step, which will create a configmap with the name supplied in the step with no
     modification.
@@ -327,9 +336,13 @@
     deploy applications into a Kubernetes cluster.
 </p>
 <p>
-    To consume Helm packages, called charts, we need to add a Helm external feed. Open <b>Library -> External Feeds</b>,
-    and click the <b>ADD FEED</b> button. Select <b>Helm Feed</b> as the feed type, and give the feed the name of
-    <b>Helm</b>. The default URL of https://charts.helm.sh/stable is fine, so click the <b>SAVE</b> button.
+    To consume Helm packages, called charts, we need to add a Helm external feed. 
+<ol>
+    <li>Open <b>Library -> External Feeds</b>, and click the <b>ADD FEED</b> button.</li>
+    <li>Select <b>Helm Feed</b> as the feed type.</li>
+    <li>Give the feed the name of <b>Helm</b>.</li>
+    <li>The default URL of https://charts.helm.sh/stable is fine, so click the <b>SAVE</b> button.</li>
+</ol>
 </p>
 <p>
     We'll then deploy the NGINX ingress controller through a new runbook in the <b>Kubernetes DevOps</b> project called
@@ -341,27 +354,31 @@
     <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container images.
 </p>
 <p>
-    Select the <b>Helm</b> feed in the chart section, and enter <b>nginx-ingress</b> as the package id. Finally enter
-    <b>nginx-ingress</b> as the Kubernetes release name.
+<ol>
+    <li>Select the <b>Helm</b> feed in the chart section, and enter <b>nginx-ingress</b> as the package id.</li>
+    <li>Finally enter <b>nginx-ingress</b> as the Kubernetes release name.</li>
+    <li> All other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b>
+    environment.</li>
+</ol>
 </p>
 <p>
-    All other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b>
-    environment.
 </p>
 <p>
     The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various
     resources needed for that application to function. One of the resources that we are interested in is the load
     balancer service created to direct public network traffic into the ingress controller. This load balancer service is
-    much the same as we created in <a href="#chapter1">chapter 1</a>, except that the traffic is now sent to an ingress
+    much the same as we created in <a href="#chapter1">chapter 1</a>, except the traffic is now sent to an ingress
     controller that can be configured with fine grained rules to route HTTP traffic amongst many internal services.
 </p>
 <p>
     As before, we need a way to get the public IP address of this load balancer service. Luckily we already have the
-    <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. Clone this runbook into a new runbook called
-    <b>Get Admin Service IP</b>. Configure the runbook step to run against targets with the <b>Kubernetes Admin</b>
-    role, which will result in this runbook querying resources in the <b>default</b> namespace. Then run the runbook in
-    the <b>Admin</b> environment, which displays the IP address of the NGINX load balancer service. The
-    <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
+    <b>Get Service IP</b> runbook from <a href="#chapter1">chapter 1</a>. 
+<ol>
+    <li>Clone this runbook into a new runbook called <b>Get Admin Service IP</b>.</li>
+    <li>Configure the runbook step to run against targets with the <b>Kubernetes Admin</b> role, which will result in this runbook querying resources in the <b>default</b> namespace.</li>
+    <li>Then run the runbook in the <b>Admin</b> environment, which displays the IP address of the NGINX load balancer service. </li>
+</ol>
+    The <b>EXTERNAL-IP</b> assigned to the <b>nginx-ingress-controller</b> service provides the value we need:
 </p>
 <p><img alt="Octopus environments" src="images/octopus/nginx-loadbalancer.png"/></p>
 <p>
@@ -370,9 +387,7 @@
 </p>
 <h3>Canary deployments</h3>
 <p>
-    While the blue/green deployment strategy was easy to implement thanks to the checkbox exposed by the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not
-    customizable. The process the blue/green deployment strategy implements is very similar to what we want to achieve in a canary deployment though. So
-    we'll go ahead and recreate the blue/green deployment strategy as individual steps in a deployment process.
+    While the blue/green deployment strategy was easy to implement thanks to the checkbox exposed by the <b>Deploy Kubernetes containers</b> step, it has the downside that the entire process is self contained and not customizable. The process the blue/green deployment strategy implements is very similar to what we want to achieve in a canary deployment though. So we'll go ahead and recreate the blue/green deployment strategy as individual steps in a deployment process.
 </p>
 <p>
     If you recall from the previous section, a blue/green deployment performs the following steps:
@@ -400,8 +415,7 @@
     <li>At the end of the deployment, the green stack is considered to be the blue stack.</li>
 </ol>
 <p>
-    A new consideration to take into account is how we will access our environments using ingress rules instead of a
-    load balancer service.
+    A new consideration is how we will access our environments using ingress rules instead of a load balancer service.
 </p>
 <p>
     Previously we exposed each environment through its own unique load balancer service. This meant the load balancer IP
@@ -413,10 +427,12 @@
     address or hostname of the single ingress controller load balancer.
 </p>
 <p>
-    To accommodate this, we'll expose each environment under a top level path in our URLs. So to access the development
-    environment, we'll open the URL http://[ingress controller load balancer]/deployment. To access the test
-    environment, we'll open the URL http://[ingress controller load balancer]/test. And to access the production
-    environment, we'll open the URL http://[ingress controller load balancer]/production.
+    To accommodate this, we'll expose each environment under a top level path in our URLs:
+<ul>
+<li>To access the development environment, we'll open the URL http://[ingress controller load balancer]/deployment.</li>
+<li>To access the test environment, we'll open the URL http://[ingress controller load balancer]/test.</li>
+<li>To access the production environment, we'll open the URL http://[ingress controller load balancer]/production.</li>  
+</ul>
 </p>
 <p class="note">
     This top level path in this URL is called the <i>context path</i>.
@@ -647,7 +663,7 @@ curl -sSf http://webapp-canary-#{Octopus.Deployment.Id | ToLower}.frontend-#{Oct
         address].bc.googleusercontent.com</b>.
 </p>
 <p>
-    Once the tests pass we will direct a subset of incoming traffic to the canary stack (or green stack in keeping with
+    Once the tests pass, we will direct a subset of incoming traffic to the canary stack (or green stack in keeping with
     the terminology we have already used in blue/green deployments) via an ingress. This is done with a <b>Deploy
         Kubernetes ingress resource</b> step. Like all Kubernetes steps, the <b>Deploy Kubernetes ingress resource</b>
     step allows YAML to be directly imported. The YAML below defines the ingress required to direct 50% of traffic to
@@ -692,14 +708,14 @@ spec:
     traffic to the green stack.
 </p>
 <p>
-    So at this point we will pause the deployment and wait for confirmation that we can direct more traffic to the green
+    We now pause the deployment and wait for confirmation that we can direct more traffic to the green
     stack. In Octopus this is achieved with a <b>Manual Intervention Required</b> step. Add a new <b>Manual Intervention
         Required</b> step and set the instructions to <b>Do you wish to increase the canary traffic to 100%?</b> When
     this step is reached in a deployment, Octopus will pause and wait for an operator to approve the decision to direct
     the remaining traffic to the green stack.
 </p>
 <p>
-    The next step then is to direct all traffic to the green stack. We do this by creating a regular (i.e. unannotated)
+    The next step is to direct all traffic to the green stack. We do this by creating a regular (i.e. unannotated)
     ingress resource with a second <b>Deploy Kubernetes ingress resource</b> step. The YAML for this step is shown
     below:
 </p>
@@ -762,7 +778,7 @@ kubectl delete deployment -l Octopus.Project.Id=#{Octopus.Project.Id | ToLower},
     project in the same environment for the same tenant. Or, in other words, deleting the blue stack.
 </p>
 <p>
-    If any of the tests failed or we decided not to proceed with the complete rollout, we will clean up the green stack.
+    If any of the tests failed or we decided not to proceed with the complete rollout, we clean up the green stack.
     This is done with another <b>Run a kubectl CLI Script</b> step. However, this step will only run when the deployment
     process fails. This is done by setting the <b>Run Condition</b> to <b>Failure: only run when the previous steps
         fail</b>.
@@ -796,7 +812,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 </p>
 <p><img alt="Octopus environments" src="images/kubernetes/canary2.png"/></p>
 <p>
-    A canary ingress is created directing 50% of traffic to the green stack:
+    A canary ingress is created, directing 50% of traffic to the green stack:
 </p>
 <p><img alt="Octopus environments" src="images/kubernetes/canary3.png"/></p>
 <p>
@@ -813,24 +829,26 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
     An example of the resulting project can be found at <a href="https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments">https://tenpillars.octopus.app/app#/Spaces-2/projects/random-quotes-frontend-canary-and-feature-branch/deployments</a>.
 </p>
 <p>
-    Conceptually, deploying feature branches is easy to understand, as all it involves is deploying a new container built from a
-    feature branch side by side with the container built from the mainline branch. This does require some reconfiguration of our deployment process though. In this section we will extend the
-    canary deployment process described above to allow multiple feature branches to be deployed side by side.
+    Conceptually, deploying feature branches is easy to understand. All it involves is deploying a new container built from a
+    feature branch side by side with the container built from the mainline branch. This does require some reconfiguration of our deployment process though. In this section we will extend the canary deployment process described above to allow multiple feature branches to be deployed side by side.
 </p>
 <p>
-    In practice feature branches would likely use the recreate strategy in test environments, because internal testers
+    In practice, feature branches would likely use the recreate strategy in test environments, because internal testers
     are not likely to be impacted all that much by momentary downtime of a feature branch release. However, given canary
     deployments are one of the most complex deployment strategies you can implement, if we can get feature branches
     working with canary deployments, we can get them working anywhere.
 </p>
 <p>
-    This raises two questions: How do we identify feature branch images, and how do we exposed feature branch
-    deployments alongside the main deployment?
+    This raises two questions: 
+<ol>
+    <li>How do we identify feature branch images?</li> 
+    <li>How do we expose feature branch deployments alongside the main deployment?</li> 
+</ol>
 </p>
 <p>
     The most common way to identify feature branch images is via the prerelease identifier on the image tag. This means
     the tag <b>0.1.9-purpleheader</b> we used earlier represents a feature branch called <b>purpleheader</b>. This works
-    nicely because feature branches are applications under development, and are therefor prereleases.
+    nicely because feature branches are applications under development, and are therefore prereleases.
 </p>
 <p>
     To access a feature branch deployment, we'll expose them under a subdirectory in the URL, such as http://[reversed
@@ -855,7 +873,7 @@ kubectl delete deployment -l Octopus.Deployment.Id=#{Octopus.Deployment.Id | ToL
 <p>
     The feature branch name (i.e. the package prerelease) will be used in two different ways in our deployment. First,
     the feature branch name with a dash prepended will be included in the names of Kubernetes resources. However,
-    because the mainline containers have no prerelease component, and therefor have no feature branch name, we only want
+    because the mainline containers have no prerelease component, and therefore have no feature branch name, we only want
     to include the feature branch name in the resource names when there is a feature branch name to include.
 </p>
 <p>
@@ -896,7 +914,7 @@ curl -sSf http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower
     item in this array needs to be changed to <b>"host": ["webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}","frontend-development"]</b>. So we update the variable called <b>item:0:request:url:host:0</b> to <b>webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}</b>.
 </p>
 <p>
-    The value of the raw url is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be
+    The value of the raw URL is set to <b>"raw": "http://webapp.frontend-development/api/quote"</b>. This needs to be
     changed to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>. So we update the <b>item:0:request:url:raw</b> variable to <b>http://webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}.frontend-#{Octopus.Environment.Name | ToLower}#{ContextPath}#{/if}</b>.
 </p>
 <p>
@@ -1108,7 +1126,7 @@ spec:
               serviceName: 'webapp-canary#{ServiceSuffix}-#{Octopus.Deployment.Id | ToLower}'
 </pre>
 <p>
-    With these changes in place go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This
+    With these changes in place, go ahead and deploy the <b>0.1.9-purpleheader</b> version of the web application. This
     will deploy the container under the subpath of <b>/development-purpleheader</b>, for example http://[reversed ip
     address].bc.googleusercontent.com/development-purpleheader.
 </p>
@@ -1151,7 +1169,7 @@ spec:
 <p><img alt="Octopus environments" src="images/octopus/feature-branch-lifecycle.png"/></p>
 <p>
     Back in our deployment project, click the <b>Channels</b> link. Each project has a <b>Default</b> lifecycle that
-    inherits the lifecycle assigned to the deployment process. In our case this lifecycle allows deployments to be
+    inherits the lifecycle assigned to the deployment process. In our case, this lifecycle allows deployments to be
     progressed all the way to production. We want to ensure that only images without a prerelease version component, for
     example versions like <b>0.1.9</b>, can be deployed through this lifecycle.
 </p>
@@ -1197,7 +1215,7 @@ spec:
 </p>
 <h3>Cleaning up old feature branches</h3>
 <p>
-    Feature branches tend to be short lived, so we would expect that any feature branch deployments to be cleaned up
+    Feature branches tend to be short lived, so we would expect any feature branch deployments to be cleaned up
     when they are no longer useful. To accommodate this we'll provide a runbook to delete feature branch resources.
 </p>
 <p>
@@ -1293,10 +1311,10 @@ kubectl delete deployment -l FeatureBranch=#{FeatureBranch}
     <li>Provided examples implementing rolling, recreate, blue/green, canary, and feature branch deployments in Octopus.
     </li>
     <li>Installed the NGINX ingress controller to implement canary deployments.</li>
-    <li>Use channels and lifecycles to prevent test code from being deployed to production.</li>
+    <li>Used channels and lifecycles to prevent test code from being deployed to production.</li>
     <li>Added a runbook, collocated with the deployment process, to clean up old feature branches.</li>
 </ul>
 <p>
     It can take a bit of work to build up the more complex deployment patterns like canary deployments, but as we'll see
-    the these deployment patterns provide a nice foundation as we move into the next pillar of recoverable deployments.
+    these deployment patterns provide a nice foundation as we move into the next pillar of recoverable deployments.
 </p>

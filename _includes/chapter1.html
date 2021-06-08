@@ -298,7 +298,7 @@
 	Up until this point we have been working with the Octopus server. You can think of the server as an orchestrator that ensures deployments are performed in the required environments to the appropriate targets with all the necessary settings and packages.
 </p>
 <p>
-	When performing deployments to on-premises infrastructure, such as a web server hosted on a VM, the actual execution of the deployment is performed through an agent called a tentacle. In keeping with the nautical themes of Octopus terminology, an Octopus server has many tentacles that reach out into your infrastructure. Where multiple VMs had to be updated with each deployment, multiple tentacles were deployed with a shared role like <b>Web Server</b>. So a deployment configured to update all targets of the role <b>Web Server</b> would reach out across all the tentacles with that role and perform the required changes:
+	When performing deployments to on-premises infrastructure, such as a web server hosted on a VM, the actual execution of the deployment is performed through an agent called a Tentacle. In keeping with the nautical themes of Octopus terminology, an Octopus server has many Tentacles that reach out into your infrastructure. Where multiple VMs had to be updated with each deployment, multiple Tentacles were deployed with a shared role like <b>Web Server</b>. So a deployment configured to update all targets of the role <b>Web Server</b> would reach out across all the Tentacles with that role and perform the required changes:
 </p>
 <div><img alt="Google K8s cluster" src="images/diagrams/on-prem-deployment.png"/></div>
 <p>
@@ -309,18 +309,18 @@
 	As cloud deployments grew in popularity though, it became clear that having the Octopus server itself perform cloud deployments would not scale. Aside from the obvious burden this strategy placed on the Octopus server, it didn't allow for networking constraints where cloud infrastructure had limited access from public networks, and made it hard to leverage the common security practice of assigning roles to cloud VMs that could be inherited by any application running on those servers.
 </p>
 <p>
-	To work around these limitations, customers would often create a VM in their cloud provider with a tentacle installed on it, grant the VM the necessary security roles and network access required to interact with their PaaS instances, and perform Octopus deployments through that single tentacle:
+	To work around these limitations, customers would often create a VM in their cloud provider with a Tentacle installed on it, grant the VM the necessary security roles and network access required to interact with their PaaS instances, and perform Octopus deployments through that single Tentacle:
 </p>
 <div><img alt="Google K8s cluster" src="images/diagrams/tentacle-deployment.png"/></div>
 <p>
-	This worked to a point, but it did not respect the typical one-to-many relationship between the Octopus server and the tentacles. We now have a single tentacle performing all cloud deployments. In using a tentacle to solve the networking and security limitations incurred when performing deployments directly from the Octopus server, we have now introduced a bottleneck in the deployment pipeline with this single tentacle.
+	This worked to a point, but it did not respect the typical one-to-many relationship between the Octopus server and the Tentacles. We now have a single Tentacle performing all cloud deployments. In using a Tentacle to solve the networking and security limitations incurred when performing deployments directly from the Octopus server, we have now introduced a bottleneck in the deployment pipeline with this single Tentacle.
 </p>
 <p>
-	This is where workers come in. Instead of a deployment being performed to multiple tentacles at the same time based on their role, deployments configured to use a worker would each select a single worker from a shared pool to perform the deployment. By having worker pools with multiple workers, the bottleneck of a single tentacle is removed. And by performing deployments on a remote VM with any necessary security and networking configuration, Octopus can now reach into a cloud infrastructure as needed:
+	This is where workers come in. Instead of a deployment being performed to multiple Tentacles at the same time based on their role, deployments configured to use a worker would each select a single worker from a shared pool to perform the deployment. By having worker pools with multiple workers, the bottleneck of a single Tentacle is removed. And by performing deployments on a remote VM with any necessary security and networking configuration, Octopus can now reach into a cloud infrastructure as needed:
 </p>
 <div><img alt="Google K8s cluster" src="images/diagrams/worker-deployment.png"/></div>
 <p class="note">
-    A tentacle and a worker are both installed via the Octopus Tentacle installer. During installation an option to configure a tentacle or worker is provided.
+    A Tentacle and a worker are both installed via the Octopus Tentacle installer. During installation an option to configure a Tentacle or worker is provided.
 </p>
 <p>
 	Another benefit of workers is that they can provide a curated set of tools to deployments that run on them. This is of particular importance to Kubernetes deployments and targets, as the <b>kubectl</b> executable must be available for a target health check or deployment to succeed.
@@ -358,7 +358,7 @@
 	During the 2010's the only PaaS targets Octopus deployed to were in Azure. Deploying to these targets required the Azure Powershell CmdLets or CLI tools to be available, and for convenience Octopus included these with the product. This meant end users could deploy Azure applications without worrying about first installing the Azure tooling.
 </p>
 <p>
-	Over the years Octopus added support for more PaaS targets, with the introduction of workers deployments could be performed on more operating systems, and the Octopus server itself was redesigned to run on both Windows and Linux.
+	Over the years Octopus added support for more PaaS targets, and with the introduction of workers, deployments could be performed on more operating systems, and the Octopus server itself was redesigned to run on both Windows and Linux.
 </p>
 <p>
 	Suddenly Octopus was in the position of having to ship CLI tooling for multiple PaaS targets across multiple operating systems. In addition, these tools were frequently updated, often much faster than new releases of Octopus were made available. It became clear that a better solution than packaging the tools with Octopus was required.
@@ -367,10 +367,10 @@
 	This is where container images come in. This feature runs Calamari inside a Docker container built from a custom Docker image. Octopus supplies Docker images via <a href="https://hub.docker.com/r/octopusdeploy/worker-tools">https://hub.docker.com/r/octopusdeploy/worker-tools</a> with a number of common tools required for deployments (including <b>kubectl</b>), or end users can build their own images.
 </p>
 <p class="note">
-    Calamari is the executable run by a tentacle to perform a deployment. So where the tentacle is a relatively static agent that is responsible for networking and receiving instructions from the Octopus server, Calamari is the code that the tentacle executes to do the actual work involved in a deployment. Tentacles are required to be installed by end users, but Calamari is distributed by the server through the tentacle. This means Calamari is an implementation detail end users don't usually have to think about.
+    Calamari is the executable run by a Tentacle to perform a deployment. So where the Tentacle is a relatively static agent that is responsible for networking and receiving instructions from the Octopus server, Calamari is the code that the Tentacle executes to do the actual work involved in a deployment. Tentacles are required to be installed by end users, but Calamari is distributed by the server through the Tentacle. This means Calamari is an implementation detail end users don't usually have to think about.
 </p>
 <p>
-	Container images essentially lift the requirement to provide tooling from the operating system hosting the tentacle or worker into a Docker image. This in turn means the operating system hosting the worker or tentacle can be rather sparse, instead relying on targets or steps to configure an appropriate container image. Or, in the case of a dynamic worker provided to a hosted instance, it means end users can make use of custom tooling on workers they otherwise have no access to.
+	Container images essentially lift the requirement to provide tooling from the operating system hosting the Tentacle or worker into a Docker image. This in turn means the operating system hosting the worker or Tentacle can be rather sparse, instead relying on targets or steps to configure an appropriate container image. Or, in the case of a dynamic worker provided to a hosted instance, it means end users can make use of custom tooling on workers they otherwise have no access to.
 </p>
 <p class="note">
     Only Linux based dynamic workers, or dynamic workers running on Windows 2019 or later, support Docker and therefore support container images. The default worker pool for a hosted instance runs Windows 2016 and does not support container images.
@@ -404,7 +404,7 @@
 	Let's briefly recap what workers, feeds, and container images are:
 </p>
 <ul>
-	<li>Worker pools contain workers, and workers are tentacles that are pulled from the worker pool to perform deployments outside of the Octopus server.</li>
+	<li>Worker pools contain workers, and workers are Tentacles that are pulled from the worker pool to perform deployments outside of the Octopus server.</li>
 	<li>Container images use the selected Docker image to build a Docker container in which deployments are performed. The Docker images can be configured to provide specific tooling without installing it on the operating system hosting the worker.</li>
 	<li>A feed represents a collection of packages that can be used during a deployment. A Docker Registry Feed is also used to source the Docker image used by a container image.</li>
 </ul>

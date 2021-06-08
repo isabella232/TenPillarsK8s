@@ -1,6 +1,6 @@
 <h1><a id="chapter5">Visible deployments</a></h1>
 <p>
-    Deployments are an abstract concept, and it is difficult to know what has been deployed where by inspecting the state of a system. Determining what versions of an application are installed from the files on a disk or the records in a database is like working out the mix of colors that were used to produce a tin of paint.
+    Deployments are an abstract concept, and it's difficult to know what has been deployed where by inspecting the state of a system. Determining what versions of an application are installed from the files on a disk or the records in a database is like working out the mix of colors used to produce a tin of paint.
 </p>
 <p>
     Being able to quickly view the current state of your environments is critical to understanding:
@@ -27,7 +27,16 @@
 </p>
 <h2>CI build logs</h2>
 <p>
-    A typical CI/CD pipeline will have a CI server that builds, tests, and packages an application. The log files for these builds contain a wealth of information such as which tests passed, which tests were ignored, which dependencies were included, and what packages were created. A link to the CI build from the deployment allows these log files to be quickly reviewed.
+    A typical CI/CD pipeline will have a CI server that builds, tests, and packages an application. The log files for these builds contain a wealth of information such as:
+</p>   
+<ul>    
+      <li>Which tests passed.</li>
+      <li>Which tests were ignored.</li>
+      <li>Which dependencies were included.</li>
+      <li>What packages were created.</li>
+</ul>
+<p>
+      A link to the CI build from the deployment allows these log files to be quickly reviewed.
 </p>
 <h2>Library dependencies</h2>
 <p>
@@ -59,7 +68,7 @@
     The most obvious limitation is that these resource management consoles do not understand the concept of an environment. It is up to the end user to juggle the presented resources with the namespaces and clusters that are used to separate environments.
 </p>
 <p>
-    It is also difficult to view the deployed application versions. The image that a container is running is at the bottom of the hierarchy of resources exposed by these consoles, meaning you have to click through a deployment, to a pod, and then to a container to see what image version has been deployed.
+    It is also difficult to view the deployed application versions. The image that a container is running is at the bottom of the hierarchy of resources exposed by these consoles. This means you have to click through a deployment, to a pod, and then to a container to see what image version has been deployed.
 </p>
 <p>
     Finally, a Kubernetes dashboard does not capture any information outside of the Kubernetes cluster. While Kubernetes is an incredible platform, the reality is other PaaS offerings like database and file hosting will often be more appealing than recreating these platforms within your own cluster. If you did choose to deploy your database outside of the cluster, it won't be shown in a Kubernetes resource management console.
