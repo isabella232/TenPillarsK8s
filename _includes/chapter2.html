@@ -86,12 +86,12 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 <h3>Preparing the testing workers in Octopus</h3>
 <p>
     We start by creating a new worker pool to hold the workers that will be used for testing: 
-    <ol>
-      <li>Click <b>Infrastructure -> Worker Pools</b> and click the <b>ADD WORKER POOL</b> button.</li>
-      <li>Give the pool the name of <b>Testing</b>, and leave it as the default type of <b>Static</b>.</li>
-      <li> Click the <b>SAVE</b> button.</li>
-    </ol>
 </p>
+<ol>
+    <li>Click <b>Infrastructure -> Worker Pools</b> and click the <b>ADD WORKER POOL</b> button.</li>
+    <li>Give the pool the name of <b>Testing</b>, and leave it as the default type of <b>Static</b>.</li>
+    <li> Click the <b>SAVE</b> button.</li>
+</ol>
 <p>
     Pods in a Kubernetes cluster, and the containers they create, are typically considered ephemeral. This means we shouldn't rely on any particular container to run for any length of time. So when running workers in a Kubernetes cluster, we need some way to clean up workers that have been deleted or replaced.
 </p>
@@ -99,12 +99,12 @@ Smoke tests are quick tests designed to ensure that applications and services ha
     This is where machine policies come in. A machine policy defines the behavior of a Tentacle or worker, including how frequently the health and availability of the Tentacle is checked, and what to do if a Tentacle is unavailable. In our case, we want unavailable workers to be removed from Octopus automatically.
 </p>
 <p>
-    To create a new machine policy: 
+    To create a new machine policy:
+</p> 
 <ol>
   <li>Click <b>Infrastructure -> Machine Policies</b>, and then click <b>ADD MACHINE POLICY</b>.</li>
   <li>Give the policy a name of <b>Test Workers</b>.  </li> 
 </ol>
-</p>
 <p>
     We want to test the workers relatively frequently, so under the <b>Health Checks</b> section set the <b>Time Between Checks</b> field to 10 minutes.
 </p>
@@ -126,20 +126,19 @@ Smoke tests are quick tests designed to ensure that applications and services ha
 </p>
 <p>
     To create a new service account: 
+</p>
 <ol>
   <li>Click <b>Configuration -> Users</b>, and then click the <b>CREATE SERVICE ACCOUNT</b> button.</li>
   <li>Enter <b>Test Worker</b> as the username, and <b>Account for test workers hosted in the Kubernetes cluster</b> for the description.</li>
   <li> Then click the <b>SAVE</b> button.</li>
 </ol>
-</p>
 <p>
     Once the service account is created, a new section called <b>API Keys</b> is displayed. Expand it and click the <b>NEW API KEY</b> button. Set the purpose of the new key to <b>Test Worker</b> and click the <b>GENERATE NEW</b> button. Make a note of the API key that is displayed, as this value can not be retrieved again once the dialog is closed.
 </p>
 <p>
     The service account has been assigned to the <b>Everyone</b> team by default. This team doesn't grant the required permissions to register a new Tentacle, so we'll need to create a new team.
 </p>
-<p>
-  <ol>
+<ol>
     <li>Click the <b>Teams</b> link, and then click the <b>ADD TEAM</b> button.</li>
     <li>Give the new team the name of <b>Worker Registration</b> and click the <b>SAVE</b> button.</li>
     <li>Under the <b>MEMBERS</b> tab click the <b>ADD MEMBER</b> button. </li>
@@ -147,8 +146,7 @@ Smoke tests are quick tests designed to ensure that applications and services ha
     <li>Under the <b>USER ROLES</b> tab click the <b>INCLUDE USER ROLE</b> button.</li>
     <li>Select the <b>Environment Manager</b> role, and click the <b>APPLY</b> button.</li>
     <li>Then click the <b>SAVE</b> button to save the team.</li>
-  </ol>
-</p>
+</ol>
 <p>
     Our service account is now configured with the permissions it needs to register new workers. The next step is to deploy the workers into the Kubernetes cluster.
 </p>
@@ -1128,11 +1126,11 @@ psql \
 </p>
 <p>
     To configure Octopus to make these changes for us we need to create two variables:
+</p>
 <ol>
   <li>The first will have the name <b>item:0:request:url:raw</b> and the value <b>http://webapp.frontend-#{Octopus.Environment.Name | ToLower}</b>.</li>
   <li>The second will have the name <b>item:0:request:url:host:1</b> and the value <b>frontend-#{Octopus.Environment.Name | ToLower}</b>.</li>
 </ol>
-</p>
 <p>
     Then, in the script step that is running the integration test, click the <b>CONFIGURE FEATURES</b> button, select the <b>Structured Configuration Variables</b> option, and save the changes.
 </p>
