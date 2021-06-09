@@ -206,7 +206,6 @@
     However, Octopus does provide the ability to perform blue/green deployments by orchestrating the various Kubernetes
     resources for you.
 </p>
-<p>
 <ol>
     <li>Open the <b>Random Quotes - Frontend</b> project.</li>
     <li>Select the <b>Deploy Kubernetes containers</b> step deploying the frontend application.</li>
@@ -214,7 +213,6 @@
     option.</li>
     <li>Save the changes and deploy the project to the <b>Development</b> environment.</li>
 </ol>  
-</p>
 <p>
     Notice that the logs contains entries like <b>deployment.apps/webapp-deployments-101 created</b>. Of particular note
     is that the name of the deployment is made up of the name that was entered into the step, which was <b>webapp</b>,
@@ -350,16 +348,12 @@
     <b>helm</b> command line tool, which we can provide via the <b>octopusdeploy/worker-tools:windows.ltsc2019</b> or
     <b>octopusdeploy/worker-tools:ubuntu.18.04</b> container images.
 </p>
-<p>
 <ol>
     <li>Select the <b>Helm</b> feed in the chart section, and enter <b>nginx-ingress</b> as the package id.</li>
     <li>Finally enter <b>nginx-ingress</b> as the Kubernetes release name.</li>
     <li> All other default values in the step are fine for us, so save the step, and run the runbook in the <b>Admin</b>
     environment.</li>
 </ol>
-</p>
-<p>
-</p>
 <p>
     The benefit of using Helm to deploy third party applications like NGINX is that a Helm chart bundles all the various
     resources needed for that application to function. One of the resources that we are interested in is the load
@@ -427,12 +421,12 @@
 </p>
 <p>
     To accommodate this, we'll expose each environment under a top level path in our URLs:
-<ul>
-<li>To access the development environment, we'll open the URL http://[ingress controller load balancer]/deployment.</li>
-<li>To access the test environment, we'll open the URL http://[ingress controller load balancer]/test.</li>
-<li>To access the production environment, we'll open the URL http://[ingress controller load balancer]/production.</li>  
-</ul>
 </p>
+<ul>
+    <li>To access the development environment, we'll open the URL http://[ingress controller load balancer]/deployment.</li>
+    <li>To access the test environment, we'll open the URL http://[ingress controller load balancer]/test.</li>
+    <li>To access the production environment, we'll open the URL http://[ingress controller load balancer]/production.</li>  
+</ul>
 <p class="note">
     This top level path in this URL is called the <i>context path</i>.
 </p>

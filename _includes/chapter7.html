@@ -4,6 +4,7 @@
 </p>
 <p>
     Auditing allows teams to see:
+</p>
 <ul>
     <li>A history of deployments to environments.</li>
     <li>Changes to deployment processes.</li>
@@ -11,7 +12,6 @@
     <li>Who approved which deployments.</li>
     <li>And to determine the state of an environment at some point in the past.</li>
 </ul> 
-</p>
 <p>
     In order for audit events to be useful, they must be able to be searched, filtered, exported, and reported on.
 </p>
@@ -60,14 +60,12 @@
 <p>
     As you can see Octopus generates a lot of audit events, and manually scrolling through them all to find the event you're interested in could be time consuming. Clicking the <b>SHOW ADVANCED FILTERS</b> link displays a number of fields that allow specific audit events to be displayed. Most of the search fields are self explanatory, but a few deserve a mention:
 </p>
-<p>
  <ul>
     <li>The <b>Include system events</b> option displays anything that can not reasonably be categorized as happening within a space. An example of a system event is the creation of a system team, which is a team that is available across all spaces.</li>
 <li>The <b>Document types</b> filter limits events to certain types of entities, like projects, certificates, accounts etc. The term <i>document</i> here is a reference to the fact that Octopus stores its data as JSON "documents" in the database.</li>
 <li>The <b>Event agents</b> field refers to the user agent we described above that generated the event. The options available in this filter are not necessarily a one-to-one match with the user agent listed on the event itself. For example, if you filter by <b>Octopus Web UI</b>, the audit events will show a user agent of <b>Portal</b>.</li>
 <li><b>Event groups</b> provide a higher level of grouping over event categories. By selecting an event group, an number of event categories are selected for you.</li>
  </ul>
-</p>
 <h2>Exporting audit events</h2>
 <p>
     The list of events currently displayed on the screen can be exported to a Comma Separated Values (CSV) file by clicking the <b>EXPORT</b> button.
