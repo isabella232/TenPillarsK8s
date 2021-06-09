@@ -3,5 +3,5 @@ destination: _site/k8s
 exclude:
   - "*.yml"
 imageWidth: 95%
-imageHeight: auto;
+imageHeight: auto
 coverImage: '<meta content="cover_image" name="cover" />'
