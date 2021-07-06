@@ -204,39 +204,20 @@
     There are many flavors of Kubernetes available today. All major cloud providers have a managed Kubernetes platform, Kubernetes can be installed on-premises, and specialized distributions like OpenShift offer compatibility with Kubernetes. This book uses a cluster hosted by Google Cloud, but, besides the authentication, all the features we'll discuss apply to any Kubernetes cluster.
 </p>
 <p>
-	Within the Google Cloud Kubernetes console, the IP address of the cluster is shown as the <b>Endpoint</b> under the <b>Cluster details</b> section. The administrator credentials are available under the <b>Show credentials</b> link:
+	To configure the GKE cluster in Octopus, we need to know the cluster name and region or zone. Here is a cluster called <b>mattctest</b> created in the region <b>australia-southeast1</b>:
 </p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-details.png"/></div>
-<p>
-	Clicking the <b>Show credentials</b> link reveals the administrator username and password. We'll use these details to create an account in Octopus:
-</p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-credentials.png"/></div>
-<p class="note">
-    Kubernetes supports many different authentication methods including username and password, tokens, certificates, and cloud specific authentication processes. The particular authentication method used for your cluster may rely on one of these additional methods.
-</p>
-<p>
-	This same dialog also shows the cluster's certificate authority. We'll use these details to create a certificate in Octopus:
-</p>
-<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-certificate.png"/></div>
+<div><img alt="Google K8s cluster" src="images/kubernetes/cluster-details-autopilot.png"/></div>
 <h3>Creating the Octopus Kubernetes account</h3>
 <p>
-	The GKE cluster we'll be using in this book has basic authentication enabled. This means we authenticate with the cluster via a username and password. These details are saved in Octopus as a <b>Username/Password</b> account. Accounts are found under <b>Infrastructure -> Accounts</b>. Click the <b>ADD ACCOUNT</b> drop down list and select the <b>Username/Password</b> option to create a new account.
+	We'll authenticate with the GKE cluster via a service account. These details are saved in Octopus as a <b>Google Cloud Account</b>. Accounts are found under <b>Infrastructure -> Accounts</b>. Click the <b>ADD ACCOUNT</b> drop down list and select the <b>Google Cloud Account</b> option to create a new account.
 </p>
 <p class="note">
     Kubernetes supports many authentication types. A Kubernetes service account is authenticated with a token, which is saved in Octopus as a <b>Token</b> account. A Kubernetes client certificate is saved as an Octopus certificate. It is also possible to authenticate against AWS and Azure hosted Kubernetes instances using cloud platform credentials, in which case a Kubernetes target is configured with an <b>AWS Account</b> or <b>Azure Subscription</b> account.
 </p>
 <p>
-	The account will set the username and password to the values we retrieved from the Google GKE console:
+	The account contains the JSON key associated with a service account that has admin access to the GKE cluster:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/admin-account.png"/></div>
-<h3>Creating the Octopus Kubernetes certificate</h3>
-<p>
-	We will interact with the GKE cluster via a HTTPS endpoint. This endpoint is secured with a certificate that is not trusted by default. In order to participate in a secure connection with the Kubernetes cluster, we need to configure our Kubernetes target with the certificate provided in the <b>Cluster CA certificate</b> field from the GKE console. Doing so will trust the certificate used to establish the HTTPS connection.
-</p>
-<p>
-	Certificates in Octopus are managed under <b>Library -> Certificates</b>. Click the <b>ADD CERTIFICATE</b> button to create a new certificate. We'll call the new certificate <b>Kubernetes CA</b> (CA stands for Certificate Authority), paste in the certificate contents (i.e. all the text starting with <b>-----BEGIN CERTIFICATE-----</b> and ending with <b>-----END CERTIFICATE----- </b>). Here is a screenshot of the saved certificate:
-</p>
-<div><img alt="Google K8s cluster" src="images/octopus/k8s-ca.png"/></div>
+<div><img alt="Google K8s cluster" src="images/octopus/google-admin-account.png"/></div>
 <h3>Create the Octopus Kubernetes targets</h3>
 <p>
 	Kubernetes deployments in Octopus are performed via a Kubernetes target. Targets capture the details of the Kubernetes cluster, the credentials, and the default namespace in which deployments are performed.
@@ -269,16 +250,7 @@
 	We then assign the target a role of <b>Kubernetes Admin</b>. You can think of roles like tags. This role indicates that our target will be used for administering our Kubernetes cluster.
 </p>
 <p>
-	We then select <b>Username and password</b> as the authentication type. The <b>GKE Admin</b> account we created earlier can then be selected from the displayed drop down list.
-</p>
-<p>
-	The endpoint shown by the GKE console was <b>34.68.133.5</b>. This value maps to the <b>Kubernetes cluster URL</b> field, where we enter the IP address as the HTTPS URL <b>https://34.68.133.5</b>.
-</p>
-<p>
-	In order to participate in the secure HTTPS connection, we need to configure the target with the <b>Kubernetes CA</b> certificate we created earlier.
-</p>
-<p class="note">
-    To establish an untrusted connection with the Kubernetes endpoint we could have checked the <b>Skip TLS verification</b> option instead of configuring the certificate. However, this option is less secure than configuring the certificate, and is not recommended in production.
+	We then select <b>Google Cloud Account</b> as the authentication type. The <b>GKE Admin</b> account we created earlier can then be selected from the displayed drop down list.
 </p>
 <p>
 	The <b>Kubernetes namespace</b> field is left blank. This means the default namespace for any deployments using this target is the <b>default</b> namespace.
@@ -292,7 +264,7 @@
 <p>
 	Before we dive into workers and worker pools, save the target with the details entered so far. If we need to, we can come back to this target and change the worker pool:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/k8s-admin-target.png"/></div>
+<div><img alt="Google K8s cluster" src="images/octopus/k8s--autopilot-admin-target.png"/></div>
 <h3>Octopus workers and worker pools</h3>
 <p>
 	Up until this point we have been working with the Octopus server. You can think of the server as an orchestrator that ensures deployments are performed in the required environments to the appropriate targets with all the necessary settings and packages.
