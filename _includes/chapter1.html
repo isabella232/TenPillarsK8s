@@ -247,7 +247,7 @@
 	We'll call this target <b>GKE Admin</b>, and scope it to all the environments.
 </p>
 <p class="note">
-    We'll use the ability to create dynamic infrastructure later in this chapter to to create the environment and application specific Kubernetes targets. Dynamic targets can only be created in the environment in which a deployment or runbook run is executed. For example, if a runbook creating dynamic targets is run in the <b>Development</b> environment, the resulting target will be scoped to the <b>Development</b> environment. So, to allow dynamic targets to be created in the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, the <b>GKE Admin</b> target must be scoped to them.
+    We'll use the ability to create dynamic infrastructure later in this chapter to create the environment and application specific Kubernetes targets. Dynamic targets can only be created in the environment in which a deployment or runbook run is executed. For example, if a runbook creating dynamic targets is run in the <b>Development</b> environment, the resulting target will be scoped to the <b>Development</b> environment. So, to allow dynamic targets to be created in the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, the <b>GKE Admin</b> target must be scoped to them.
 </p>
 <p>
 	We then assign the target a role of <b>Kubernetes Admin</b>. You can think of roles like tags. This role indicates that our target will be used for administering our Kubernetes cluster.
