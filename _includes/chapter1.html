@@ -244,7 +244,10 @@
 	<li>Then click the <b>Kubernetes Cluster</b> tile.</li>
 </ol>	
 <p>
-	We'll call this target <b>GKE Admin</b>, and scope it to the <b>Admin</b> environment.
+	We'll call this target <b>GKE Admin</b>, and scope it to all the environments.
+</p>
+<p class="note">
+    We'll use the ability to create dynamic infrastructure later in this chapter to to create the environment and application specific Kubernetes targets. Dynamic targets can only be created in the environment in which a deployment or runbook run is executed. For example, if a runbook creating dynamic targets is run in the <b>Development</b> environment, the resulting target will be scoped to the <b>Development</b> environment. So, to allow dynamic targets to be created in the <b>Development</b>, <b>Test</b>, and <b>Production</b> environments, the <b>GKE Admin</b> target must be scoped to them.
 </p>
 <p>
 	We then assign the target a role of <b>Kubernetes Admin</b>. You can think of roles like tags. This role indicates that our target will be used for administering our Kubernetes cluster.
@@ -264,7 +267,7 @@
 <p>
 	Before we dive into workers and worker pools, save the target with the details entered so far. If we need to, we can come back to this target and change the worker pool:
 </p>
-<div><img alt="Google K8s cluster" src="images/octopus/k8s--autopilot-admin-target.png"/></div>
+<div><img alt="Google K8s cluster" src="images/octopus/k8s-admin-target.png"/></div>
 <h3>Octopus workers and worker pools</h3>
 <p>
 	Up until this point we have been working with the Octopus server. You can think of the server as an orchestrator that ensures deployments are performed in the required environments to the appropriate targets with all the necessary settings and packages.
@@ -482,6 +485,9 @@
 </p>
 <p>
 	We now have everything in place to start deploying a real application to our Kubernetes cluster.
+</p>
+<p class="note">
+	To increase security it is recommended that the <b>GKE Admin</b> target and it's associated account now be scoped only to the <b>Admin</b> environment. We placed the target in all environments to quickly create the environment and application specific targets via dynamic target scripts, but with that done, all remaining administration tasks will be performed in the <b>Admin</b> environment.
 </p>
 <h3>Our sample application</h3>
 <p>
